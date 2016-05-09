@@ -7,5 +7,5 @@ endif()
 
 include_directories(googletest/googletest/include)
 
-add_executable("footest" ${HEADERS} footest.cpp)
-target_link_libraries(footest gtest foo)
+add_executable("teetime_test" ${HEADERS} footest.cpp)
+target_link_libraries(teetime_test gtest teetime)

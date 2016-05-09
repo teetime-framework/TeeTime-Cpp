@@ -1,10 +1,10 @@
 
 SET(HEADERS
-  ../include/johl/foo.h
+  ../include/teetime/foo.h
 )
 
 SET(SOURCES
   foo.cpp
 )
 
-add_library("foo" ${HEADERS} ${SOURCES})
+add_library("teetime" ${HEADERS} ${SOURCES})

@@ -1,4 +1,4 @@
-#include <johl/foo.h>
+#include <teetime/foo.h>
 
 //unit test framework
 #include <gtest/gtest.h>
