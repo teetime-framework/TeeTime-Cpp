@@ -3,4 +3,4 @@
 	url = https://github.com/google/googletest
 [submodule "benchmark/googlebenchmark"]
 	path = benchmark/googlebenchmark
-	url = git@github.com:google/benchmark.git
+        url = https://github.com/google/benchmark.git
