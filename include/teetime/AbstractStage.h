@@ -6,9 +6,7 @@ namespace teetime
   class AbstractStage
   {
   public:
-    AbstractStage()
-    {      
-    }
+    AbstractStage() {}
 
     virtual ~AbstractStage();
 
