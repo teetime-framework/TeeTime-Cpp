@@ -3,6 +3,7 @@ SET(INCDIR "../include/teetime")
 
 SET(HEADERS
   ${INCDIR}/common.h
+  ${INCDIR}/logging.h
   ${INCDIR}/AbstractStage.h
   ${INCDIR}/AbstractConsumerStage.h
   ${INCDIR}/AbstractProducerStage.h
@@ -14,7 +15,8 @@ SET(HEADERS
 )
 
 SET(SOURCES
-  AbstractStage.cpp
+  logging.cpp
+  AbstractStage.cpp  
 )
 
 add_library("teetime" ${HEADERS} ${SOURCES})

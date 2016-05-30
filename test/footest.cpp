@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-
+#include <teetime/logging.h>
 #include <teetime/AbstractStage.h>
 #include <teetime/AbstractConsumerStage.h>
 #include <teetime/AbstractProducerStage.h>
@@ -36,6 +36,7 @@ namespace
   private:
     virtual void execute(const int& value)
     {
+      TEETIME_INFO() << "processing value: " << value;
       valuesProcessed.push_back(value);
     }
   };
