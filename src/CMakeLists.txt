@@ -12,12 +12,14 @@ SET(HEADERS
   ${INCDIR}/OutputPort.h
   ${INCDIR}/Port.h
   ${INCDIR}/Pipe.h
-  ${INCDIR}/UnsynchedPipe.h
+  ${INCDIR}/UnsynchedPipe.h  
+  ${INCDIR}/Thread.h
 )
 
 SET(SOURCES
   logging.cpp
   AbstractStage.cpp  
+  Thread.cpp
 )
 
 add_library("teetime" ${HEADERS} ${SOURCES})

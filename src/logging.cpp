@@ -45,11 +45,11 @@ Logger::Logger(const char* file, int line, LogLevel level)
 
 Logger::~Logger()
 {
-  std::cout << std::thread::get_id() << ": " LogLevel2String(logdata.level) << " " << logdata.file << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
+  std::cout << std::this_thread::get_id() << ": " << LogLevel2String(logdata.level) << " " << logdata.file << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
   logdata.buffer.str("");
 }
 
- std::ostream& Logger::buffer()
- {
-    return logdata.buffer;
- }
+std::ostream& Logger::buffer()
+{
+  return logdata.buffer;
+}

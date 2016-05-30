@@ -57,10 +57,3 @@ TEST( AbstractConsumerStageTest, simpleExecute )
   EXPECT_EQ(1, consumer.valuesProcessed[1]);
   EXPECT_EQ(2, consumer.valuesProcessed[2]);
 }
-
-int main( int argc, char** argv )
-{
-  ::testing::InitGoogleTest( &argc, argv );
-  int ret = RUN_ALL_TESTS();
-  return ret;
-}

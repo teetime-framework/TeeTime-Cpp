@@ -7,5 +7,11 @@ endif()
 
 include_directories(googletest/googletest/include)
 
-add_executable("teetime_test" ${HEADERS} footest.cpp)
+SET(SOURCES
+  ConfigurationTest.cpp
+  StageTest.cpp
+  main.cpp
+)
+
+add_executable("teetime_test" ${SOURCES})
 target_link_libraries(teetime_test gtest teetime)

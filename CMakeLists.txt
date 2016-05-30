@@ -20,6 +20,7 @@ include_directories(include)
 
 add_subdirectory(3rdParty)
 add_subdirectory(src)
+
 add_subdirectory(test)
 add_subdirectory(benchmark)
 
