@@ -1,5 +1,6 @@
 #include "teetime/logging.h"
 #include <iostream>
+#include <thread>
 
 using namespace teetime;
 
@@ -44,7 +45,7 @@ Logger::Logger(const char* file, int line, LogLevel level)
 
 Logger::~Logger()
 {
-  std::cout << LogLevel2String(logdata.level) << " " << logdata.file << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
+  std::cout << std::thread::get_id() << ": " LogLevel2String(logdata.level) << " " << logdata.file << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
   logdata.buffer.str("");
 }
 

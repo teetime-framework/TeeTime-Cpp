@@ -7,6 +7,7 @@ SET(HEADERS
   ${INCDIR}/AbstractStage.h
   ${INCDIR}/AbstractConsumerStage.h
   ${INCDIR}/AbstractProducerStage.h
+  ${INCDIR}/Configuration.h
   ${INCDIR}/InputPort.h
   ${INCDIR}/OutputPort.h
   ${INCDIR}/Port.h
