@@ -12,7 +12,9 @@ SET(HEADERS
   ${INCDIR}/OutputPort.h
   ${INCDIR}/Port.h
   ${INCDIR}/Pipe.h
+  ${INCDIR}/AbstractPipe.h
   ${INCDIR}/UnsynchedPipe.h  
+  ${INCDIR}/SynchedPipe.h  
   ${INCDIR}/Thread.h
 )
 

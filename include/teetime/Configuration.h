@@ -9,12 +9,10 @@ namespace teetime
   public:
     Configuration()
     {
-
     }
 
     ~Configuration()
     {
-
     }
 
     void executeBlocking()

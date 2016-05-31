@@ -10,6 +10,8 @@ include_directories(googletest/googletest/include)
 SET(SOURCES
   ConfigurationTest.cpp
   StageTest.cpp
+  SynchedPipeTest.cpp
+  UnsynchedPipeTest.cpp
   main.cpp
 )
 

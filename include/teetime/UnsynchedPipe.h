@@ -26,6 +26,7 @@ namespace teetime
 
     virtual void add(const T& t)
     {
+      //TODO(johl): what to do if pipe non-empty?
       assert(m_empty);
       new (&m_buffer[0]) T(t);
       m_empty = false;
