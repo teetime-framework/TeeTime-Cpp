@@ -51,11 +51,33 @@ namespace
       connect(producer->getOutputPort(), consumer->getInputPort());
     }
   };
+
+  class TestConfiguration2 : public Configuration
+  {
+  public:
+    TestConfiguration2()
+    {
+      auto producer = createStage<TestProducerStage>();
+      auto consumer = createStage<TestConsumerStage>();
+
+      producer->declareActive();
+      consumer->declareActive();
+
+      connect(producer->getOutputPort(), consumer->getInputPort());
+    }
+  };
 }
 
 TEST( ConfigurationTest, simple )
 {
   TestConfiguration config;
+
+  config.executeBlocking();
+}
+
+TEST(ConfigurationTest, simple2)
+{
+  TestConfiguration2 config;
 
   config.executeBlocking();
 }

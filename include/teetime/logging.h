@@ -1,5 +1,5 @@
 #pragma once
-#include <sstream>
+#include <ostream>
 
 #define TEETIME_TRACE() if(teetime::isLoggingEnabled(teetime::LogLevel::Trace)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Trace)
 #define TEETIME_DEBUG() if(teetime::isLoggingEnabled(teetime::LogLevel::Debug)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Debug)

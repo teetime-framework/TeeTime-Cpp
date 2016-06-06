@@ -12,6 +12,9 @@ namespace teetime
     void start();
     void join();
 
+    static std::thread::id currentId();
+    static void currentName(char* buffer, int buffersize);
+
   private:
     AbstractStage* m_stage;
     std::thread m_thread;

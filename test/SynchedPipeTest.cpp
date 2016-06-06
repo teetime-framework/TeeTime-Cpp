@@ -20,7 +20,6 @@ TEST(SynchedPipeTest, simple)
   EXPECT_EQ(4, pipe.removeLast());
 }
 
-
 TEST(SynchedPipeTest, concurrent)
 {
   SynchedPipe<int> pipe(1024);

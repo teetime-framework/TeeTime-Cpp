@@ -24,3 +24,16 @@ void Thread::join()
 {
   m_thread.join();
 }
+
+std::thread::id Thread::currentId()
+{
+  return std::this_thread::get_id();
+}
+
+void Thread::currentName(char * buffer, int buffersize)
+{
+  if (buffer && buffersize > 0)
+  {
+    *buffer = '\0';
+  }
+}

@@ -1,5 +1,6 @@
 #include "teetime/logging.h"
 #include <iostream>
+#include <sstream>
 #include <thread>
 
 using namespace teetime;

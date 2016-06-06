@@ -17,3 +17,7 @@ SET(SOURCES
 
 add_executable("teetime_test" ${SOURCES})
 target_link_libraries(teetime_test gtest teetime)
+
+
+
+add_custom_target(run_test ALL teetime_test)
