@@ -31,9 +31,9 @@ TEST(SynchedPipeTest, concurrent)
     {
       pipe.add(i);
 
-      using namespace std::chrono_literals;
+      using std::chrono::milliseconds;
       if(i % 35 == 0)
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(milliseconds(100));
     }
     producerDone = true;
   });
@@ -55,9 +55,9 @@ TEST(SynchedPipeTest, concurrent)
   producer.join();
   consumer.join();
 
-  ASSERT_EQ(1000, dst.size());
-  for (int i = 0; i < dst.size(); ++i)
+  ASSERT_EQ(size_t(1000), dst.size());
+  for (size_t i = 0; i < dst.size(); ++i)
   {
-    EXPECT_EQ(i, dst[i]);
+    EXPECT_EQ((int)i, dst[i]);
   }
 }
