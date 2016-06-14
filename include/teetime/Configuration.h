@@ -4,6 +4,8 @@
 
 namespace teetime
 {
+
+
   class Configuration
   {
   public:
@@ -17,15 +19,33 @@ namespace teetime
 
     void executeBlocking()
     {
-      executeNonBlocking();
-      waitForFinished();
-    }
+      std::vector<std::thread> threads;
 
+      for(const auto& s : m_stages)
+      {
+        if(auto runnable = s->getRunnable())
+        {
+          std::thread t([=](){
+            runnable->run();
+          });
+
+          threads.push_back(std::move(t));
+        }
+      }      
+
+      for(auto& t : threads)
+      {
+        t.join();
+      }      
+    }
+    
+
+#if 0
     void executeNonBlocking()
     {
       for(const auto& s : m_stages)
       {
-        if(auto thread = s->getOwningThread())
+        if(auto thread = s->getExecutingThread())
         {
           thread->start();
         }
@@ -36,13 +56,13 @@ namespace teetime
     {
       for(const auto& s : m_stages)
       {
-        if(auto thread = s->getOwningThread())
+        if(auto thread = s->getExecutingThread())
         {
           thread->join();
         }
       }      
     }
-
+#endif
     template<typename T, typename ...TArgs>
     shared_ptr<T> createStage(TArgs... args)
     {
@@ -54,4 +74,6 @@ namespace teetime
   private:    
     std::vector<shared_ptr<AbstractStage>> m_stages;
   };
+
+
 }

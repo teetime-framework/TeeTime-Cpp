@@ -14,23 +14,39 @@ namespace teetime
 
   class AbstractStage;
 
+  class AbstractInputPort
+  {
+  public:
+    virtual ~AbstractInputPort() = default;
+
+    virtual void waitForStartSignal() = 0;
+  };
+
   template<typename T>  
-  class InputPort
+  class InputPort : public AbstractInputPort
   {
   public:
     explicit InputPort(AbstractStage* owner)
      : m_owner(owner)
-    {}
+    {
+      assert(m_owner);
+      m_owner->registerPort(this);
+    }
 
     InputPort(const InputPort&) = delete;   
 
-    T receive() {
+    Optional<T> receive() {
       return m_pipe->removeLast();
     }
 
     AbstractStage* getOwningStage()
     {
       return m_owner;
+    }
+
+    virtual void waitForStartSignal() override
+    {
+      m_pipe->waitForStartSignal();
     }
 
   private:

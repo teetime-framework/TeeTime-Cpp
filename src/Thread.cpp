@@ -5,7 +5,6 @@ using namespace teetime;
 Thread::Thread(AbstractStage* stage)
   : m_stage(stage)
 {
-  
 }
 
 void Thread::start()
@@ -16,6 +15,8 @@ void Thread::start()
   }
 
   m_thread = std::thread([&](){
+
+
     m_stage->executeStage();
   });
 }

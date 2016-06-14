@@ -9,40 +9,40 @@ namespace teetime
   {
   public:
     explicit UnsynchedPipe(AbstractStage* targetStage)
-     : m_empty(true)
-     , m_targetStage(targetStage)
+     : m_targetStage(targetStage)
     {      
     }
 
-    virtual T removeLast()
+    virtual Optional<T> removeLast() override
     {
-      assert(!m_empty);
-      T* t = bufferedValue();
-      T value = std::move(*t);
-      t->~T();
-      m_empty = true;
-      return value;
+      Optional<T> ret = std::move(m_value);
+      m_value.reset();
+      return ret;
     }
 
-    virtual void add(const T& t)
+    virtual void add(const T& t) override
     {
-      //TODO(johl): what to do if pipe non-empty?
-      assert(m_empty);
-      new (&m_buffer[0]) T(t);
-      m_empty = false;
+      //TODO(johl): what to do if pipe is non-empty?
+      assert(!m_value);
+      m_value.set(t);
 
       m_targetStage->executeStage();
     }
 
-  private:
-    T* bufferedValue()
-    {
-      return reinterpret_cast<T*>(&m_buffer[0]);
+
+    virtual void addSignal(const Signal& signal) override
+    {    
+      m_targetStage->onSignal(signal);
     }
 
-    char m_buffer[sizeof(T)];
-    bool m_empty;
+    virtual void waitForStartSignal() override
+    {
+      //do nothing
+    }
 
+  private:
+
+    Optional<T> m_value;
     AbstractStage* m_targetStage;
   };
 }

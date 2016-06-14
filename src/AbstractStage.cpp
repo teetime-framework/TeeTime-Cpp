@@ -2,12 +2,23 @@
 #include <exception>
 #include <teetime/logging.h>
 #include <teetime/Thread.h>
+#include <teetime/Runnable.h>
 
 using namespace teetime;
 
-AbstractStage::AbstractStage()
+AbstractStage::AbstractStage(const char* debugName)
 {
+  if(debugName) 
+  {
+    m_debugName = debugName;
+  }
+  else
+  {
+    char buffer[128];
+    sprintf(buffer, "%p", (void*)this);
 
+    m_debugName = buffer;
+  }
 }
 
 AbstractStage::~AbstractStage()
@@ -33,13 +44,18 @@ void AbstractStage::executeStage()
 
 void AbstractStage::declareActive()
 {
-  if(!m_thread)
-  {
-    m_thread.reset(new Thread(this));
+  if(!m_runnable)
+  {    
+    m_runnable = createRunnable();
   }
 }
 
 void AbstractStage::declareNonActive()
 {
-  m_thread.reset();
+  m_runnable.reset();
+}
+
+void AbstractStage::onSignal(const Signal& s)
+{
+
 }

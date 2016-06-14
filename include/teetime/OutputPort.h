@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include "Pipe.h"
+#include "Signal.h"
 
 namespace teetime
 {
@@ -13,13 +14,31 @@ namespace teetime
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input);
 
-  template<typename T>  
-  class OutputPort
+  class AbstractOutputPort
   {
   public:
-    OutputPort()
+    virtual ~AbstractOutputPort() = default;
+
+    void sendSignal(const Signal& signal)
+    {
+      if(auto p = getPipe()) {
+        p->addSignal(signal);
+      }
+    }
+
+  private:
+    virtual AbstractPipe* getPipe() = 0;
+  };
+
+  template<typename T>  
+  class OutputPort : public AbstractOutputPort
+  {
+  public:
+    explicit OutputPort(AbstractStage* owner)
     : m_pipe(nullptr)
-    {      
+    {     
+      assert(owner);
+      owner->registerPort(this);
     }
 
     OutputPort(const OutputPort&) = delete;
@@ -31,6 +50,11 @@ namespace teetime
     }
 
   private:  
+    virtual AbstractPipe* getPipe() override
+    {
+      return m_pipe.get();
+    }
+
     friend void connect<T>(OutputPort<T>& output, InputPort<T>& input);
 
     unique_ptr<Pipe<T>> m_pipe;

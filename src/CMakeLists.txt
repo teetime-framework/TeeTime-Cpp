@@ -8,6 +8,7 @@ SET(HEADERS
   ${INCDIR}/AbstractConsumerStage.h
   ${INCDIR}/AbstractProducerStage.h
   ${INCDIR}/Configuration.h
+  ${INCDIR}/Execution.h
   ${INCDIR}/InputPort.h
   ${INCDIR}/OutputPort.h
   ${INCDIR}/Port.h
@@ -16,11 +17,15 @@ SET(HEADERS
   ${INCDIR}/UnsynchedPipe.h  
   ${INCDIR}/SynchedPipe.h  
   ${INCDIR}/Thread.h
+  ${INCDIR}/Signal.h
+  ${INCDIR}/Runnable.h
+  ${INCDIR}/BlockingQueue.h
 )
 
 SET(SOURCES
   logging.cpp
   AbstractStage.cpp  
+  Runnable.cpp
   Thread.cpp
 )
 

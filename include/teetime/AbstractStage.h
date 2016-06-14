@@ -1,30 +1,77 @@
 #pragma once
 #include "common.h"
+#include "Runnable.h"
+#include <vector>
 
 namespace teetime
 {
   class Thread;
+  class Signal;
+  class AbstractInputPort;
+  class AbstractOutputPort;
 
   class AbstractStage
   {
   public:
-    AbstractStage();
+    explicit AbstractStage(const char* debugName = nullptr);
     virtual ~AbstractStage();
 
     void executeStage();
 
-    Thread* getOwningThread() const
+    Runnable* getRunnable() const
     {
-      return m_thread.get();
+      return m_runnable.get();
     }
 
     void declareActive();
     void declareNonActive();
 
-  private:
-    virtual void execute() = 0;
+    void onSignal(const Signal& signal);
 
-    unique_ptr<Thread> m_thread;
+
+    std::vector<AbstractInputPort*>::iterator getInputPortsBegin()
+    {
+      return m_inputPorts.begin();
+    }
+
+    std::vector<AbstractInputPort*>::iterator getInputPortsEnd()
+    {
+      return m_inputPorts.end();
+    }
+
+    std::vector<AbstractOutputPort*>::iterator getOutputPortsBegin()
+    {
+      return m_outputPorts.begin();
+    }
+
+    std::vector<AbstractOutputPort*>::iterator getOutputPortsEnd()
+    {
+      return m_outputPorts.end();
+    }    
+  
+    void registerPort(AbstractInputPort* port)
+    {
+      m_inputPorts.push_back(port);
+    }
+
+    void registerPort(AbstractOutputPort* port)
+    {
+      m_outputPorts.push_back(port);
+    }
+
+    const char* getDebugName() const
+    {
+      return m_debugName.c_str();
+    }
+
+  private:
+    virtual unique_ptr<Runnable> createRunnable() = 0;
+    virtual void execute() = 0;
+    unique_ptr<Runnable> m_runnable;
+
+    std::vector<AbstractInputPort*> m_inputPorts;
+    std::vector<AbstractOutputPort*> m_outputPorts;
+    std::string m_debugName;
   };
 }
 

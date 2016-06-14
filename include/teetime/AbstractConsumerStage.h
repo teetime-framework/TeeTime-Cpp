@@ -8,15 +8,16 @@ namespace teetime
   class AbstractConsumerStage : public AbstractStage
   {
   public:
-    AbstractConsumerStage()
-      : m_inputport(this)
+    explicit AbstractConsumerStage(const char* debugName = nullptr)
+      : AbstractStage(debugName)
+      , m_inputport(this)
     {
     }
 
     InputPort<T>& getInputPort()
     {
       return m_inputport;
-    }
+    } 
 
   private:
     InputPort<T> m_inputport;
@@ -25,8 +26,17 @@ namespace teetime
 
     virtual void execute() override
     {
-      T t = m_inputport.receive();
-      execute(std::move(t));
+      auto v = m_inputport.receive();
+      if(v) 
+      {
+        execute(std::move(*v));
+      }
+      
+    }
+
+    virtual unique_ptr<Runnable> createRunnable()
+    {
+      return unique_ptr<Runnable>(new ConsumerStageRunnable(this));
     }
   };
 }
