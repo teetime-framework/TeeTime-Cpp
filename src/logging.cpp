@@ -2,6 +2,9 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
+#include <iomanip>
+#include <cstring>
+#include <mutex>
 
 using namespace teetime;
 
@@ -45,8 +48,26 @@ Logger::Logger(const char* file, int line, LogLevel level)
 }
 
 Logger::~Logger()
-{
-  std::cout << std::this_thread::get_id() << ": " << LogLevel2String(logdata.level) << " " << logdata.file << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
+{  
+  static std::mutex mutex;
+
+  std::lock_guard<std::mutex> lock(mutex);
+
+  std::cout << std::this_thread::get_id() << ": " << LogLevel2String(logdata.level) << " ";
+
+  static const int filenameFieldWidth = 30;
+  const int filenameLen = strlen(logdata.file);
+  if(filenameLen > filenameFieldWidth)
+  {
+    std::cout.write( "...", 3 );
+    std::cout.write( &logdata.file[(filenameLen - filenameFieldWidth)+3], filenameFieldWidth-3 );
+  }
+  else
+  {
+    std::cout << std::setw(filenameFieldWidth) << logdata.file;
+  }
+
+  std::cout << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
   logdata.buffer.str("");
 }
 

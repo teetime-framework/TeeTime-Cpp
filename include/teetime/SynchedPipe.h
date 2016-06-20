@@ -6,6 +6,7 @@
 #include <exception>
 #include <stdexcept>
 #include <atomic>
+#include "logging.h"
 
 namespace teetime
 {
@@ -19,6 +20,7 @@ namespace teetime
     }
 
     explicit SynchedPipe(uint32 initialCapacity)
+     : m_size(0)
     {
       m_buffer.reserve(initialCapacity);
     }

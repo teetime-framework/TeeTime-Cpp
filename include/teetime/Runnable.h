@@ -18,7 +18,7 @@ namespace teetime
     AbstractStage* m_stage;
   };
 
-  class ProducerStageRunnable : public AbstractStageRunnable
+  class ProducerStageRunnable final : public AbstractStageRunnable
   {
   public:
 
@@ -26,7 +26,7 @@ namespace teetime
     virtual void run() override;
   };
 
-  class ConsumerStageRunnable : public AbstractStageRunnable
+  class ConsumerStageRunnable final : public AbstractStageRunnable
   {
   public:
     explicit ConsumerStageRunnable(AbstractStage* stage);

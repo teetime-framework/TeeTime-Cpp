@@ -10,4 +10,11 @@ namespace teetime
 
   using uint32 = unsigned;
   using int32 = int;
+
+  template<typename S, typename T>
+  T* semi_dynamic_cast (S* s)
+  {
+    assert(dynamic_cast<T*>(s) != nullptr);
+    return reinterpret_cast<T*>(s);
+  }
 }

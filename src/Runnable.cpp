@@ -20,14 +20,14 @@ ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage)
 
 void ProducerStageRunnable::run()
 {
-  auto begin = m_stage->getOutputPortsBegin();
-  auto end = m_stage->getOutputPortsEnd();
-  for(auto it = begin; it != end; ++it)
+  const uint32 numOutputPorts = m_stage->numOutputPorts();
+  for(uint32 i=0; i<numOutputPorts; ++i)
   {
     TEETIME_INFO() << "send start signal";
-    (*it)->sendSignal(Signal{SignalType::Start});
+    auto port = m_stage->getOutputPort(i);
+    assert(port);
+    port->sendSignal(Signal{SignalType::Start});
   }
-
   TEETIME_INFO() << "Start producer stage '" << m_stage->getDebugName() << "'";
   m_stage->executeStage();      
 }
@@ -40,14 +40,15 @@ ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage)
 
 void ConsumerStageRunnable::run()
 {
-  auto begin = m_stage->getInputPortsBegin();
-  auto end = m_stage->getInputPortsEnd();
-  for(auto it = begin; it != end; ++it)
+  const uint32 numInputPorts = m_stage->numInputPorts();
+  for(uint32 i=0; i<numInputPorts; ++i)
   {
-    TEETIME_INFO() << "wait fors start signal";
-    (*it)->waitForStartSignal();
+    TEETIME_INFO() << "wait fors start signal";    
+    auto port = m_stage->getInputPort(i);
+    assert(port);
+    port->waitForStartSignal();
   }
 
   TEETIME_INFO() << "Start consumer stage '" << m_stage->getDebugName() << "'";
-  m_stage->executeStage();      
+  m_stage->executeStage();
 }

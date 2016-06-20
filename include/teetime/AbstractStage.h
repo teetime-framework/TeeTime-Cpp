@@ -1,14 +1,14 @@
 #pragma once
 #include "common.h"
 #include "Runnable.h"
+#include "InputPort.h"
+#include "OutputPort.h"
 #include <vector>
 
 namespace teetime
 {
   class Thread;
   class Signal;
-  class AbstractInputPort;
-  class AbstractOutputPort;
 
   class AbstractStage
   {
@@ -29,40 +29,57 @@ namespace teetime
     void onSignal(const Signal& signal);
 
 
-    std::vector<AbstractInputPort*>::iterator getInputPortsBegin()
+    uint32 numInputPorts() const
     {
-      return m_inputPorts.begin();
+      size_t s = m_inputPorts.size();
+      assert(s < UINT32_MAX);
+
+      return static_cast<uint32>(s);
     }
 
-    std::vector<AbstractInputPort*>::iterator getInputPortsEnd()
+    uint32 numOutputPorts() const
     {
-      return m_inputPorts.end();
+      size_t s = m_outputPorts.size();
+      assert(s < UINT32_MAX);
+      
+      return static_cast<uint32>(s);
     }
 
-    std::vector<AbstractOutputPort*>::iterator getOutputPortsBegin()
+    AbstractInputPort* getInputPort(uint32 index)
     {
-      return m_outputPorts.begin();
+      assert(index < m_inputPorts.size());
+      return m_inputPorts[index];
     }
 
-    std::vector<AbstractOutputPort*>::iterator getOutputPortsEnd()
+    AbstractOutputPort* getOutputPort(uint32 index)
     {
-      return m_outputPorts.end();
-    }    
+      assert(index < m_outputPorts.size());
+      return m_outputPorts[index];
+    }
   
-    void registerPort(AbstractInputPort* port)
-    {
-      m_inputPorts.push_back(port);
-    }
-
-    void registerPort(AbstractOutputPort* port)
-    {
-      m_outputPorts.push_back(port);
-    }
-
     const char* getDebugName() const
     {
       return m_debugName.c_str();
     }
+
+  protected:
+    //TODO(johl): should we use some kind of pool of pre-allocated ports?
+    
+    template<typename T>
+    InputPort<T>* addNewInputPort()
+    {
+      InputPort<T>* port = new InputPort<T>(this);
+      m_inputPorts.push_back(port);
+      return port;
+    }
+
+    template<typename T>
+    OutputPort<T>* addNewOutputPort()
+    {
+      OutputPort<T>* port = new OutputPort<T>(this);
+      m_outputPorts.push_back(port);
+      return port;
+    }    
 
   private:
     virtual unique_ptr<Runnable> createRunnable() = 0;

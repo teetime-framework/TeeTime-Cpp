@@ -10,19 +10,21 @@ namespace teetime
   public:
     explicit AbstractProducerStage(const char* debugName = nullptr)
      : AbstractStage(debugName)
-     , m_outputport(this)
+     , m_outputport(addNewOutputPort<T>())
     {
+      assert(m_outputport);
     }
 
     OutputPort<T>& getOutputPort()
     {
-      return m_outputport;
+      assert(m_outputport);
+      return *m_outputport;
     }
 
   private:
-    OutputPort<T> m_outputport;
+    OutputPort<T>* m_outputport;
 
-    virtual unique_ptr<Runnable> createRunnable()
+    virtual unique_ptr<Runnable> createRunnable() override final
     {
       return unique_ptr<Runnable>(new ProducerStageRunnable(this));
     }

@@ -57,5 +57,8 @@ void AbstractStage::declareNonActive()
 
 void AbstractStage::onSignal(const Signal& s)
 {
-
+  for(auto p : m_outputPorts)
+  {
+    p->sendSignal(s);
+  }
 }

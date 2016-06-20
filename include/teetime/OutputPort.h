@@ -38,7 +38,6 @@ namespace teetime
     : m_pipe(nullptr)
     {     
       assert(owner);
-      owner->registerPort(this);
     }
 
     OutputPort(const OutputPort&) = delete;

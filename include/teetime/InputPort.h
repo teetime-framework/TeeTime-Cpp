@@ -23,14 +23,13 @@ namespace teetime
   };
 
   template<typename T>  
-  class InputPort : public AbstractInputPort
+  class InputPort final : public AbstractInputPort
   {
   public:
     explicit InputPort(AbstractStage* owner)
      : m_owner(owner)
     {
       assert(m_owner);
-      m_owner->registerPort(this);
     }
 
     InputPort(const InputPort&) = delete;   
