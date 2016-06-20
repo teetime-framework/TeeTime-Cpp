@@ -49,10 +49,12 @@ namespace
   private:
     virtual void execute() override
     {
-      for(int i=0; i<3; ++i)
+      for(int i=0; i<10; ++i)
       {
         getOutputPort().send(startValue + i);
       }
+
+      getOutputPort().sendSignal(Signal{SignalType::Terminating});
     }
 
     int startValue;
@@ -78,10 +80,13 @@ namespace
   class TestConfiguration : public Configuration
   {
   public:
+    shared_ptr<TestProducerStage> producer;
+    shared_ptr<TestConsumerStage> consumer;
+
     TestConfiguration()
     {
-      auto producer = createStage<TestProducerStage>();    
-      auto consumer = createStage<TestConsumerStage>();
+      producer = createStage<TestProducerStage>();    
+      consumer = createStage<TestConsumerStage>();
 
       producer->declareActive();
 
@@ -92,10 +97,13 @@ namespace
   class TestConfiguration2 : public Configuration
   {
   public:
+    shared_ptr<TestProducerStage> producer;
+    shared_ptr<TestConsumerStage> consumer;
+
     TestConfiguration2()
     {
-      auto producer = createStage<TestProducerStage>(42);
-      auto consumer = createStage<TestConsumerStage>();
+      producer = createStage<TestProducerStage>(42);
+      consumer = createStage<TestConsumerStage>();
 
       producer->declareActive();
       consumer->declareActive();
@@ -108,26 +116,34 @@ namespace
   class DistributorTestConfig : public Configuration
   {
   public:
+    shared_ptr<TestProducerStage> producer;
+    shared_ptr<TestConsumerStage> consumer[4];
+
+
     DistributorTestConfig()
     {
-      auto producer = createStage<TestProducerStage>();
-      auto distributor = createStage<DistributorStage<int>>();
-      auto consumer1 = createStage<TestConsumerStage>();
-      auto consumer2 = createStage<TestConsumerStage>();
-      auto consumer3 = createStage<TestConsumerStage>();
-      auto consumer4 = createStage<TestConsumerStage>();
-
+      producer = createStage<TestProducerStage>();
       producer->declareActive();
-      consumer1->declareActive();
-      consumer2->declareActive();
-      consumer3->declareActive();
-      consumer4->declareActive();
 
-      connect(producer->getOutputPort(), distributor->getInputPort());
-      connect(distributor->getNewOutputPort(), consumer1->getInputPort());
-      connect(distributor->getNewOutputPort(), consumer2->getInputPort());
-      connect(distributor->getNewOutputPort(), consumer3->getInputPort());
-      connect(distributor->getNewOutputPort(), consumer4->getInputPort());
+      auto distributor = createStage<DistributorStage<int>>();
+      connect(producer->getOutputPort(), distributor->getInputPort());      
+
+      for(int i=0; i<4; ++i) 
+      {
+        consumer[i] = createStage<TestConsumerStage>();
+        consumer[i]->declareActive();
+        connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
+      }      
+    }
+
+    bool validate() {
+      int num = 0;
+      for(int i=0; i<4; ++i) 
+      {
+        num += consumer[i]->valuesProcessed.size();
+      }
+
+      return num == 10;
     }
   };
 
@@ -145,6 +161,8 @@ TEST(ConfigurationTest, simple2)
   TestConfiguration2 config;
 
   config.executeBlocking();
+
+  EXPECT_EQ(10, config.consumer->valuesProcessed.size());
 }
 
 TEST(ConfigurationTest, distributor)
@@ -152,4 +170,6 @@ TEST(ConfigurationTest, distributor)
   DistributorTestConfig config;
 
   config.executeBlocking();
+
+  //EXPECT_TRUE(config.validate());
 }

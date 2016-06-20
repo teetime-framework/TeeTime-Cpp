@@ -10,6 +10,14 @@ namespace teetime
   class Thread;
   class Signal;
 
+  enum class StageState
+  {
+    Created,
+    Started,
+    Terminating,
+    Terminated
+  };
+
   class AbstractStage
   {
   public:
@@ -23,11 +31,13 @@ namespace teetime
       return m_runnable.get();
     }
 
+    StageState currentState() const;
+    void setState(StageState state);
+
     void declareActive();
     void declareNonActive();
 
     void onSignal(const Signal& signal);
-
 
     uint32 numInputPorts() const
     {
@@ -60,7 +70,7 @@ namespace teetime
     const char* getDebugName() const
     {
       return m_debugName.c_str();
-    }
+    }   
 
   protected:
     //TODO(johl): should we use some kind of pool of pre-allocated ports?
@@ -79,9 +89,11 @@ namespace teetime
       OutputPort<T>* port = new OutputPort<T>(this);
       m_outputPorts.push_back(port);
       return port;
-    }    
+    } 
 
   private:
+    StageState m_state;
+
     virtual unique_ptr<Runnable> createRunnable() = 0;
     virtual void execute() = 0;
     unique_ptr<Runnable> m_runnable;

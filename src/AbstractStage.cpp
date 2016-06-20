@@ -7,6 +7,7 @@
 using namespace teetime;
 
 AbstractStage::AbstractStage(const char* debugName)
+  : m_state(StageState::Created)
 {
   if(debugName) 
   {
@@ -57,8 +58,23 @@ void AbstractStage::declareNonActive()
 
 void AbstractStage::onSignal(const Signal& s)
 {
-  for(auto p : m_outputPorts)
+  if(s.type == SignalType::Terminating) 
+  {
+    setState(StageState::Terminating);
+  }
+
+  for (auto p : m_outputPorts)
   {
     p->sendSignal(s);
   }
+}
+
+StageState AbstractStage::currentState() const
+{
+  return m_state;
+}
+
+void AbstractStage::setState(StageState state)
+{
+  m_state = state;
 }

@@ -4,7 +4,8 @@ namespace teetime
 {
   enum class SignalType
   {
-    Start
+    Start,
+    Terminating
   };
 
   struct Signal

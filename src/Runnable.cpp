@@ -49,6 +49,26 @@ void ConsumerStageRunnable::run()
     port->waitForStartSignal();
   }
 
-  TEETIME_INFO() << "Start consumer stage '" << m_stage->getDebugName() << "'";
-  m_stage->executeStage();
+  m_stage->setState(StageState::Started);
+
+  TEETIME_INFO() << "Start consumer stage '" << m_stage->getDebugName() << "'";  
+  while(m_stage->currentState() == StageState::Started)
+  {
+    m_stage->executeStage();
+  }
+
+  TEETIME_INFO() << "Terminating consumer stage '" << m_stage->getDebugName() << "'";
+  assert(m_stage->currentState() == StageState::Terminating);
+
+  m_stage->setState(StageState::Terminated);
+
+  const uint32 numOutputPorts = m_stage->numOutputPorts();
+  for(uint32 i=0; i<numOutputPorts; ++i)
+  {
+    auto port = m_stage->getOutputPort(i);
+    assert(port);
+    port->sendSignal(Signal{SignalType::Terminating});
+  }
+
+  TEETIME_INFO() << "Leaving stage '" << m_stage->getDebugName() << "'";
 }
