@@ -30,11 +30,15 @@ namespace teetime
     {
       assert(m_inputport);
 
-      TEETIME_DEBUG() << "'execute' stage";
+      //TEETIME_DEBUG() << "'execute' stage";
       auto v = m_inputport->receive();
       if(v) 
       {
         execute(std::move(*v));
+      }
+      else if(m_inputport->isClosed())
+      {
+        terminate();
       }
     }
 

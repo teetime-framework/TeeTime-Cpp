@@ -28,7 +28,7 @@ void ProducerStageRunnable::run()
     assert(port);
     port->sendSignal(Signal{SignalType::Start});
   }
-  TEETIME_INFO() << "Start producer stage '" << m_stage->getDebugName() << "'";
+  TEETIME_INFO() << "Start producer stage '" << m_stage->debugName() << "'";
   m_stage->executeStage();      
 }
 
@@ -51,13 +51,13 @@ void ConsumerStageRunnable::run()
 
   m_stage->setState(StageState::Started);
 
-  TEETIME_INFO() << "Start consumer stage '" << m_stage->getDebugName() << "'";  
+  TEETIME_INFO() << "Start consumer stage '" << m_stage->debugName() << "'";  
   while(m_stage->currentState() == StageState::Started)
   {
     m_stage->executeStage();
   }
 
-  TEETIME_INFO() << "Terminating consumer stage '" << m_stage->getDebugName() << "'";
+  TEETIME_INFO() << "Terminating consumer stage '" << m_stage->debugName() << "'";
   assert(m_stage->currentState() == StageState::Terminating);
 
   m_stage->setState(StageState::Terminated);
@@ -70,5 +70,5 @@ void ConsumerStageRunnable::run()
     port->sendSignal(Signal{SignalType::Terminating});
   }
 
-  TEETIME_INFO() << "Leaving stage '" << m_stage->getDebugName() << "'";
+  TEETIME_INFO() << "Leaving stage '" << m_stage->debugName() << "'";
 }

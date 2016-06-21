@@ -12,9 +12,9 @@ namespace teetime
   using int32 = int;
 
   template<typename S, typename T>
-  T* semi_dynamic_cast (S* s)
+  S* unsafe_dynamic_cast(T* t)
   {
-    assert(dynamic_cast<T*>(s) != nullptr);
-    return reinterpret_cast<T*>(s);
+    assert(dynamic_cast<S*>(t));
+    return reinterpret_cast<S*>(t);
   }
 }

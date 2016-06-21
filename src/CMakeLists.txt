@@ -7,6 +7,8 @@ SET(HEADERS
   ${INCDIR}/AbstractStage.h
   ${INCDIR}/AbstractConsumerStage.h
   ${INCDIR}/AbstractProducerStage.h
+  ${INCDIR}/AbstractOutputPort.h
+  ${INCDIR}/AbstractInputPort.h
   ${INCDIR}/Configuration.h
   ${INCDIR}/Execution.h
   ${INCDIR}/InputPort.h
@@ -25,6 +27,7 @@ SET(HEADERS
 SET(SOURCES
   logging.cpp
   AbstractStage.cpp  
+  AbstractOutputPort.cpp  
   Runnable.cpp
   Thread.cpp
 )

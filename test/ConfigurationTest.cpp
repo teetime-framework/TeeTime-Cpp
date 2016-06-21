@@ -7,12 +7,14 @@ using namespace teetime;
 
 namespace
 {  
+
   template<typename T>
   class DistributorStage : public AbstractConsumerStage<T>
   {
   public:
     DistributorStage()
-    : m_next(0)
+    : AbstractConsumerStage<T>("DistributorStage")
+    , m_next(0)
     {}
 
     OutputPort<T>& getNewOutputPort() 
@@ -28,8 +30,7 @@ namespace
       TEETIME_INFO() << "distributing value '" << value << "' to port " << m_next;
       auto port = AbstractStage::getOutputPort(m_next);
 
-      assert(dynamic_cast<OutputPort<T>*>(port) != nullptr);
-      auto p = reinterpret_cast<OutputPort<T>*>(port);
+      auto p = unsafe_dynamic_cast<OutputPort<T>>(port);
       
       p->send(value);
       
@@ -42,22 +43,25 @@ namespace
   class TestProducerStage : public AbstractProducerStage<int>
   {
   public:
-    explicit TestProducerStage(int startValue = 0)
-     : startValue(startValue)
+    explicit TestProducerStage()
+     : AbstractProducerStage<int>("TestProducerStage")
+     , startValue(0)
+     , numValues(1)
     {}
+
+    int startValue;
+    int numValues;    
 
   private:
     virtual void execute() override
     {
-      for(int i=0; i<10; ++i)
+      for(int i=0; i<numValues; ++i)
       {
         getOutputPort().send(startValue + i);
       }
 
-      getOutputPort().sendSignal(Signal{SignalType::Terminating});
+      terminate();
     }
-
-    int startValue;
   };
 
   class TestConsumerStage : public AbstractConsumerStage<int>
@@ -66,6 +70,7 @@ namespace
     std::vector<int> valuesProcessed;
 
     TestConsumerStage()
+    : AbstractConsumerStage<int>("TestConsumerStage")
     {      
     }
 
@@ -83,9 +88,9 @@ namespace
     shared_ptr<TestProducerStage> producer;
     shared_ptr<TestConsumerStage> consumer;
 
-    TestConfiguration()
+    explicit TestConfiguration()
     {
-      producer = createStage<TestProducerStage>();    
+      producer = createStage<TestProducerStage>();
       consumer = createStage<TestConsumerStage>();
 
       producer->declareActive();
@@ -102,7 +107,7 @@ namespace
 
     TestConfiguration2()
     {
-      producer = createStage<TestProducerStage>(42);
+      producer = createStage<TestProducerStage>();
       consumer = createStage<TestConsumerStage>();
 
       producer->declareActive();
@@ -117,10 +122,10 @@ namespace
   {
   public:
     shared_ptr<TestProducerStage> producer;
-    shared_ptr<TestConsumerStage> consumer[4];
+    std::vector<shared_ptr<TestConsumerStage>> consumer;
 
 
-    DistributorTestConfig()
+    explicit DistributorTestConfig(unsigned numThreads)
     {
       producer = createStage<TestProducerStage>();
       producer->declareActive();
@@ -128,48 +133,59 @@ namespace
       auto distributor = createStage<DistributorStage<int>>();
       connect(producer->getOutputPort(), distributor->getInputPort());      
 
-      for(int i=0; i<4; ++i) 
+      for(unsigned i=0; i<numThreads; ++i) 
       {
-        consumer[i] = createStage<TestConsumerStage>();
+        consumer.push_back(createStage<TestConsumerStage>());
         consumer[i]->declareActive();
         connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
       }      
     }
-
-    bool validate() {
-      int num = 0;
-      for(int i=0; i<4; ++i) 
-      {
-        num += consumer[i]->valuesProcessed.size();
-      }
-
-      return num == 10;
-    }
   };
-
 }
 
 TEST( ConfigurationTest, simple )
 {
   TestConfiguration config;
+  config.producer->numValues = 5;
+  config.producer->startValue = 100;
 
   config.executeBlocking();
+
+  ASSERT_EQ((size_t)5, config.consumer->valuesProcessed.size());
+  EXPECT_EQ(100, config.consumer->valuesProcessed[0]);
+  EXPECT_EQ(101, config.consumer->valuesProcessed[1]);
+  EXPECT_EQ(102, config.consumer->valuesProcessed[2]);
+  EXPECT_EQ(103, config.consumer->valuesProcessed[3]);
+  EXPECT_EQ(104, config.consumer->valuesProcessed[4]);
 }
 
 TEST(ConfigurationTest, simple2)
 {
   TestConfiguration2 config;
+  config.producer->numValues = 5;
+  config.producer->startValue = 100;  
 
   config.executeBlocking();
 
-  EXPECT_EQ(10, config.consumer->valuesProcessed.size());
+  ASSERT_EQ((size_t)5, config.consumer->valuesProcessed.size());
+  EXPECT_EQ(100, config.consumer->valuesProcessed[0]);
+  EXPECT_EQ(101, config.consumer->valuesProcessed[1]);
+  EXPECT_EQ(102, config.consumer->valuesProcessed[2]);
+  EXPECT_EQ(103, config.consumer->valuesProcessed[3]);
+  EXPECT_EQ(104, config.consumer->valuesProcessed[4]);
 }
 
 TEST(ConfigurationTest, distributor)
 {
-  DistributorTestConfig config;
+  DistributorTestConfig config(4);
+  config.producer->numValues = 16;
+  config.producer->startValue = 0;   
 
   config.executeBlocking();
 
-  //EXPECT_TRUE(config.validate());
+  ASSERT_EQ((size_t)4, config.consumer.size());
+  EXPECT_EQ((size_t)4, config.consumer[0]->valuesProcessed.size());
+  EXPECT_EQ((size_t)4, config.consumer[1]->valuesProcessed.size());
+  EXPECT_EQ((size_t)4, config.consumer[2]->valuesProcessed.size());
+  EXPECT_EQ((size_t)4, config.consumer[3]->valuesProcessed.size());
 }

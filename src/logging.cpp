@@ -29,13 +29,13 @@ namespace
     case LogLevel::Debug:
       return "DEBUG";
     case LogLevel::Info:
-      return "INFO";
+      return "INFO ";
     case LogLevel::Warn:
-      return "WARN";
+      return "WARN ";
     case LogLevel::Error:
       return "ERROR";
     default:
-      return "???";
+      return " ??? ";
     }
   }    
 }
@@ -67,7 +67,7 @@ Logger::~Logger()
     std::cout << std::setw(filenameFieldWidth) << logdata.file;
   }
 
-  std::cout << "(" << logdata.line << "): " << logdata.buffer.str() << std::endl;
+  std::cout << "(" << logdata.line << "): " << logdata.buffer.str() << "\n";
   logdata.buffer.str("");
 }
 

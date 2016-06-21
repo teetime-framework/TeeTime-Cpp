@@ -1,4 +1,5 @@
 #pragma once
+#include "AbstractInputPort.h"
 #include "Pipe.h"
 
 namespace teetime
@@ -14,22 +15,13 @@ namespace teetime
 
   class AbstractStage;
 
-  class AbstractInputPort
-  {
-  public:
-    virtual ~AbstractInputPort() = default;
-
-    virtual void waitForStartSignal() = 0;
-  };
-
   template<typename T>  
   class InputPort final : public AbstractInputPort
   {
   public:
     explicit InputPort(AbstractStage* owner)
-     : m_owner(owner)
+     : AbstractInputPort(owner)
     {
-      assert(m_owner);
     }
 
     InputPort(const InputPort&) = delete;   
@@ -38,20 +30,19 @@ namespace teetime
       return m_pipe->removeLast();
     }
 
-    AbstractStage* getOwningStage()
-    {
-      return m_owner;
-    }
-
     virtual void waitForStartSignal() override
     {
       m_pipe->waitForStartSignal();
+    }
+
+    virtual bool isClosed() const override
+    {
+      return m_pipe->isClosed() && m_pipe->isEmpty();
     }
 
   private:
     friend void connect<T>(OutputPort<T>& output, InputPort<T>& input);
 
     Pipe<T>* m_pipe;
-    AbstractStage* m_owner;
   };
 }

@@ -24,7 +24,6 @@ AbstractStage::AbstractStage(const char* debugName)
 
 AbstractStage::~AbstractStage()
 {
-
 }
 
 void AbstractStage::executeStage()
@@ -60,12 +59,15 @@ void AbstractStage::onSignal(const Signal& s)
 {
   if(s.type == SignalType::Terminating) 
   {
-    setState(StageState::Terminating);
+    TEETIME_DEBUG() << debugName() << ": Terminating signal received";
+    terminate();
   }
-
-  for (auto p : m_outputPorts)
+  else
   {
-    p->sendSignal(s);
+    for (auto p : m_outputPorts)
+    {
+      p->sendSignal(s);
+    }    
   }
 }
 

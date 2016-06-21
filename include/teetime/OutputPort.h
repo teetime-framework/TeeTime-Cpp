@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "AbstractOutputPort.h"
 #include "Pipe.h"
 #include "Signal.h"
 
@@ -13,31 +13,16 @@ namespace teetime
 
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input);
-
-  class AbstractOutputPort
-  {
-  public:
-    virtual ~AbstractOutputPort() = default;
-
-    void sendSignal(const Signal& signal)
-    {
-      if(auto p = getPipe()) {
-        p->addSignal(signal);
-      }
-    }
-
-  private:
-    virtual AbstractPipe* getPipe() = 0;
-  };
-
+  
   template<typename T>  
   class OutputPort : public AbstractOutputPort
   {
   public:
     explicit OutputPort(AbstractStage* owner)
-    : m_pipe(nullptr)
-    {     
-      assert(owner);
+    : AbstractOutputPort(owner)
+    , m_pipe(nullptr)
+    {    
+      
     }
 
     OutputPort(const OutputPort&) = delete;

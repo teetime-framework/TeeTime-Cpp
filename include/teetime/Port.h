@@ -10,13 +10,13 @@ namespace teetime
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input)
   {
-    if (input.getOwningStage()->getRunnable())
+    if (input.owner()->getRunnable())
     {
       output.m_pipe.reset(new SynchedPipe<T>(1024));
     }
     else
     {
-      output.m_pipe.reset(new UnsynchedPipe<T>(input.getOwningStage()));
+      output.m_pipe.reset(new UnsynchedPipe<T>(input.owner()));
     }
     
     input.m_pipe = output.m_pipe.get();

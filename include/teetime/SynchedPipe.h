@@ -50,6 +50,12 @@ namespace teetime
 
     virtual void addSignal(const Signal& signal) override
     {    
+      if(signal.type == SignalType::Terminating)
+      {
+        this->close();
+        return;
+      }
+
       std::lock_guard<std::mutex> lock(m_mutex);
       m_signals.add(signal);
     }
@@ -69,8 +75,13 @@ namespace teetime
       return m_size.load();
     }      
 
+    virtual bool isEmpty() const override
+    {
+      return (size() == 0);
+    }
+
   private:
-    //TODO(johl): merge m_signals and m_buffer into one queue, so order is always preserved
+    //TODO(johl): merge m_signals and m_buffer into one queue, so order is always preserved?
     BlockingQueue<Signal> m_signals;
     std::vector<T> m_buffer;
     std::atomic<unsigned> m_size;

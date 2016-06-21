@@ -67,7 +67,7 @@ namespace teetime
       return m_outputPorts[index];
     }
   
-    const char* getDebugName() const
+    const char* debugName() const
     {
       return m_debugName.c_str();
     }   
@@ -90,6 +90,19 @@ namespace teetime
       m_outputPorts.push_back(port);
       return port;
     } 
+
+    void terminate()
+    {
+      TEETIME_DEBUG() << debugName() << ": terminating stage...";
+      //assert(m_state == StageState::Started);
+      m_state = StageState::Terminating;
+
+      for(auto p : m_outputPorts)
+      {
+        TEETIME_DEBUG() << debugName() << " : send Terminating signal";
+        p->sendSignal(Signal{SignalType::Terminating});
+      }
+    }
 
   private:
     StageState m_state;

@@ -29,9 +29,13 @@ namespace teetime
       m_targetStage->executeStage();
     }
 
-
     virtual void addSignal(const Signal& signal) override
     {    
+      if(signal.type == SignalType::Terminating)
+      {
+        this->close();
+      }
+
       m_targetStage->onSignal(signal);
     }
 
@@ -39,6 +43,11 @@ namespace teetime
     {
       //do nothing
     }
+
+    virtual bool isEmpty() const override
+    {
+      return !m_value;
+    }    
 
   private:
 
