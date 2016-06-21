@@ -14,10 +14,30 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include <teetime/logging.h>
+
+::teetime::LogLevel getLogLevelFromArgs( int argc, char** argv ) 
+{
+  for(int i=0; i<(argc-1); ++i)
+  {
+    std::cout << "????\n";
+    if(strcmp(argv[i], "--loglevel") == 0)
+    {
+      std::cout << "ADASDASDASDASD\n";
+      return ::teetime::String2LogLevel(argv[i+1]);
+    }    
+  }
+
+  return ::teetime::LogLevel::Off;
+}
 
 int main( int argc, char** argv )
 {
+  ::teetime::setLogCallback(::teetime::simpleLogging);
+  ::teetime::setLogLevel(getLogLevelFromArgs(argc, argv));
+
   ::testing::InitGoogleTest( &argc, argv );
+
   int ret = RUN_ALL_TESTS();
   return ret;
 }

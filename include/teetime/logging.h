@@ -15,15 +15,32 @@
  */
 #pragma once
 #include <ostream>
+#include <thread>
 
-#define TEETIME_TRACE() if(teetime::isLoggingEnabled(teetime::LogLevel::Trace)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Trace)
-#define TEETIME_DEBUG() if(teetime::isLoggingEnabled(teetime::LogLevel::Debug)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Debug)
-#define TEETIME_INFO() if(teetime::isLoggingEnabled(teetime::LogLevel::Info)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Info)
-#define TEETIME_WARN() if(teetime::isLoggingEnabled(teetime::LogLevel::Warn)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Warn)
-#define TEETIME_ERROR() if(teetime::isLoggingEnabled(teetime::LogLevel::Error)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Error)
+#define TEETIME_TRACE() if(teetime::isLogEnabled(teetime::LogLevel::Trace)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Trace)
+#define TEETIME_DEBUG() if(teetime::isLogEnabled(teetime::LogLevel::Debug)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Debug)
+#define TEETIME_INFO() if(teetime::isLogEnabled(teetime::LogLevel::Info)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Info)
+#define TEETIME_WARN() if(teetime::isLogEnabled(teetime::LogLevel::Warn)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Warn)
+#define TEETIME_ERROR() if(teetime::isLogEnabled(teetime::LogLevel::Error)) teetime::Logger(__FILE__, __LINE__, teetime::LogLevel::Error)
 
 namespace teetime
 {
+  enum class LogLevel;
+
+  using LogCallback = void(*)(std::thread::id threadid, const char* file, int line, LogLevel level, const char* message, void* customData);
+  void setLogCallback(LogCallback cb, void* customData = nullptr);
+  void setLogLevel(LogLevel level);
+
+  /**
+   * @brief 
+   *    Simple logging function that can be used as a log callback.
+   * @details 
+   *    Writes log messages in a threadsafe manner to std out. Only meant to be used for simple uses cases and for
+   *    development and debugging of TeeTime itself.
+   *    Does not provide sophisticated configuration or formatting options. Pretty slow.
+   */
+  void simpleLogging(std::thread::id threadid, const char* file, int line, LogLevel level, const char* message, void* customData);
+
   enum class LogLevel
   {
     All,
@@ -32,13 +49,15 @@ namespace teetime
     Info,
     Warn,
     Error,
-    None
+    Off,
+    COUNT
   };
 
-  inline bool isLoggingEnabled(LogLevel)
-  {
-    return true;
-  }
+  LogLevel String2LogLevel(const char* s);
+
+  const char* LogLevel2String(LogLevel level);
+
+  bool isLogEnabled(LogLevel level);  
 
   class Logger final
   {

@@ -117,6 +117,8 @@ namespace teetime
         TEETIME_DEBUG() << debugName() << " : send Terminating signal";
         p->sendSignal(Signal{SignalType::Terminating});
       }
+
+      m_state = StageState::Terminated;
     }
 
   private:

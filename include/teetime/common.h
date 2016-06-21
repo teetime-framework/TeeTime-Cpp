@@ -32,4 +32,10 @@ namespace teetime
     assert(dynamic_cast<S*>(t));
     return reinterpret_cast<S*>(t);
   }
+
+  template<typename T>
+  void unused(const T&)
+  {
+    //do nothing
+  }
 }

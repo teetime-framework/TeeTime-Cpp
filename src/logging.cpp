@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "teetime/logging.h"
+#include "teetime/common.h"
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -25,7 +26,7 @@ using namespace teetime;
 
 namespace
 {
-  struct LoggingData
+  struct LogData
   {
     const char* file;
     int line;
@@ -33,27 +34,100 @@ namespace
     std::stringstream buffer;
   };
 
-  thread_local LoggingData logdata;
+  thread_local LogData logdata;
+
+  LogLevel currentLogLevel = LogLevel::Off;
+  LogCallback logCallback = nullptr;
+  void* customLogCallbackData = nullptr;
+}
+
+namespace teetime
+{
+  void setLogCallback(LogCallback cb, void* customData)
+  {
+    logCallback = cb;
+    customLogCallbackData = customData;
+  }
+
+  void setLogLevel(LogLevel level)
+  {
+    currentLogLevel = level;
+  }
+
+  bool isLogEnabled(LogLevel level)
+  {
+    return logCallback && ((int)level >= (int)currentLogLevel);
+  }
 
   const char* LogLevel2String(LogLevel l)
   {
     switch(l)
     {
+    case LogLevel::All:
+      return "ALL";
     case LogLevel::Trace:
       return "TRACE";
     case LogLevel::Debug:
       return "DEBUG";
     case LogLevel::Info:
-      return "INFO ";
+      return "INFO";
     case LogLevel::Warn:
-      return "WARN ";
+      return "WARN";
     case LogLevel::Error:
       return "ERROR";
+    case LogLevel::Off:
+      return "OFF";      
     default:
-      return " ??? ";
+      return "???";
     }
-  }    
+  } 
+
+  LogLevel String2LogLevel(const char* s) 
+  {
+    if(!s)
+    {
+      return LogLevel::Off;
+    }
+
+    for(int i=0; i<(int)LogLevel::COUNT; ++i)
+    {
+      auto level = static_cast<LogLevel>(i);
+
+      if(strcmp(s, LogLevel2String(level)) == 0)
+      {
+        return level;
+      }          
+    }
+
+    return LogLevel::Off;
+  }
+
+  void simpleLogging(std::thread::id threadid, const char* file, int line, LogLevel level, const char* message, void* customData)  
+  {
+    unused(customData);
+
+    static std::mutex mutex;
+
+    std::lock_guard<std::mutex> lock(mutex);
+
+    std::cout << threadid << ": " << LogLevel2String(level) << " ";
+
+    static const int filenameFieldWidth = 30;
+    const int filenameLen = strlen(file);
+    if(filenameLen > filenameFieldWidth)
+    {
+      std::cout.write( "...", 3 );
+      std::cout.write( &file[(filenameLen - filenameFieldWidth)+3], filenameFieldWidth-3 );
+    }
+    else
+    {
+      std::cout << std::setw(filenameFieldWidth) << file;
+    }
+
+    std::cout << "(" << line << "): " << message << "\n";
+  }
 }
+
 
 Logger::Logger(const char* file, int line, LogLevel level)
 {
@@ -63,30 +137,13 @@ Logger::Logger(const char* file, int line, LogLevel level)
 }
 
 Logger::~Logger()
-{  
-  static std::mutex mutex;
-
-  std::lock_guard<std::mutex> lock(mutex);
-
-  std::cout << std::this_thread::get_id() << ": " << LogLevel2String(logdata.level) << " ";
-
-  static const int filenameFieldWidth = 30;
-  const int filenameLen = strlen(logdata.file);
-  if(filenameLen > filenameFieldWidth)
-  {
-    std::cout.write( "...", 3 );
-    std::cout.write( &logdata.file[(filenameLen - filenameFieldWidth)+3], filenameFieldWidth-3 );
-  }
-  else
-  {
-    std::cout << std::setw(filenameFieldWidth) << logdata.file;
-  }
-
-  std::cout << "(" << logdata.line << "): " << logdata.buffer.str() << "\n";
-  logdata.buffer.str("");
+{ 
+  logCallback(std::this_thread::get_id(), logdata.file, logdata.line, logdata.level, logdata.buffer.str().c_str(), customLogCallbackData);
+  logdata.buffer.str("");    
 }
 
 std::ostream& Logger::buffer()
 {
   return logdata.buffer;
 }
+

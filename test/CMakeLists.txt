@@ -26,6 +26,7 @@ SET(SOURCES
   StageTest.cpp
   SynchedPipeTest.cpp
   UnsynchedPipeTest.cpp
+  LogTest.cpp
   main.cpp
 )
 
