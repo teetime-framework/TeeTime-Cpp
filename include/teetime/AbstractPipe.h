@@ -13,34 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if 0
-
 #pragma once
-#include "Pipe.h"
-#include "AbstractStage.h"
+#include <atomic>
 
 namespace teetime
 {
-  template<typename T>
-  class AbstractPipe : public Pipe<T>
+  struct Signal;
+
+  class AbstractPipe
   {
   public:
-
-  protected:
-    AbstractPipe(AbstractStage* targetStage)
-      : m_targetStage(targetStage)
-    {
+    AbstractPipe()
+    : m_closed(false)
+    {      
     }
 
-    void notifyTargetStage()
+    virtual ~AbstractPipe() = default;
+
+    virtual void addSignal(const Signal& s) = 0;
+    virtual void waitForStartSignal() = 0;
+
+    bool isClosed() const
     {
-      m_targetStage->executeStage();
+      return m_closed;
+    }
+
+    void close()
+    {
+      m_closed = true;
     }
 
   private:
-    AbstractStage* m_targetStage;
+    std::atomic<bool> m_closed;
   };
-
 }
-
-#endif

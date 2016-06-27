@@ -15,15 +15,16 @@
  */
 #pragma once
 #include "common.h"
-#include "Runnable.h"
-#include "InputPort.h"
-#include "OutputPort.h"
 #include <vector>
 
 namespace teetime
 {
-  class Thread;
-  class Signal;
+  class Runnable;
+  class AbstractInputPort;
+  class AbstractOutputPort;
+  template<typename T> class InputPort;
+  template<typename T> class OutputPort;
+  struct Signal;
 
   enum class StageState
   {
@@ -41,10 +42,7 @@ namespace teetime
 
     void executeStage();
 
-    Runnable* getRunnable() const
-    {
-      return m_runnable.get();
-    }
+    Runnable* getRunnable() const;
 
     StageState currentState() const;
     void setState(StageState state);
@@ -54,72 +52,20 @@ namespace teetime
 
     void onSignal(const Signal& signal);
 
-    uint32 numInputPorts() const
-    {
-      size_t s = m_inputPorts.size();
-      assert(s < UINT32_MAX);
+    uint32 numInputPorts() const;
+    uint32 numOutputPorts() const;
+    AbstractInputPort* getInputPort(uint32 index);
+    AbstractOutputPort* getOutputPort(uint32 index);
+    const char* debugName() const;
 
-      return static_cast<uint32>(s);
-    }
-
-    uint32 numOutputPorts() const
-    {
-      size_t s = m_outputPorts.size();
-      assert(s < UINT32_MAX);
-      
-      return static_cast<uint32>(s);
-    }
-
-    AbstractInputPort* getInputPort(uint32 index)
-    {
-      assert(index < m_inputPorts.size());
-      return m_inputPorts[index];
-    }
-
-    AbstractOutputPort* getOutputPort(uint32 index)
-    {
-      assert(index < m_outputPorts.size());
-      return m_outputPorts[index];
-    }
-  
-    const char* debugName() const
-    {
-      return m_debugName.c_str();
-    }   
-
-  protected:
-    //TODO(johl): should we use some kind of pool of pre-allocated ports?
-    
+  protected:   
     template<typename T>
-    InputPort<T>* addNewInputPort()
-    {
-      InputPort<T>* port = new InputPort<T>(this);
-      m_inputPorts.push_back(port);
-      return port;
-    }
+    InputPort<T>* addNewInputPort();
 
     template<typename T>
-    OutputPort<T>* addNewOutputPort()
-    {
-      OutputPort<T>* port = new OutputPort<T>(this);
-      m_outputPorts.push_back(port);
-      return port;
-    } 
+    OutputPort<T>* addNewOutputPort();
 
-    void terminate()
-    {
-      TEETIME_DEBUG() << debugName() << ": terminating stage...";
-      //assert(m_state == StageState::Started);
-      m_state = StageState::Terminating;
-
-      for(auto p : m_outputPorts)
-      {
-        TEETIME_DEBUG() << debugName() << " : send Terminating signal";
-        p->sendSignal(Signal{SignalType::Terminating});
-      }
-
-      m_state = StageState::Terminated;
-    }
+    void terminate();
 
   private:
     StageState m_state;
@@ -132,6 +78,22 @@ namespace teetime
     std::vector<AbstractOutputPort*> m_outputPorts;
     std::string m_debugName;
   };
+
+  template<typename T>
+  InputPort<T>* AbstractStage::addNewInputPort()
+  {
+    InputPort<T>* port = new InputPort<T>(this);
+    m_inputPorts.push_back(port);
+    return port;
+  }
+
+  template<typename T>
+  OutputPort<T>* AbstractStage::addNewOutputPort()
+  {
+    OutputPort<T>* port = new OutputPort<T>(this);
+    m_outputPorts.push_back(port);
+    return port;
+  }   
 }
 
 

@@ -16,6 +16,7 @@
 #pragma once
 #include "AbstractStage.h"
 #include "OutputPort.h"
+#include "Runnable.h"
 
 namespace teetime
 {

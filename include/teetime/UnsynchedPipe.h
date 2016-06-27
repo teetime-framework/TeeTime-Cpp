@@ -16,6 +16,7 @@
 #pragma once
 #include "Pipe.h"
 #include "AbstractStage.h"
+#include "Optional.h"
 
 namespace teetime
 {

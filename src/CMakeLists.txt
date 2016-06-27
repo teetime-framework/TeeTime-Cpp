@@ -38,9 +38,10 @@ SET(HEADERS
 )
 
 SET(SOURCES
-  logging.cpp
+  logging.cpp  
   AbstractStage.cpp  
   AbstractOutputPort.cpp  
+  Configuration.cpp
   Runnable.cpp
   Thread.cpp
 )

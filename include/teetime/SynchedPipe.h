@@ -22,6 +22,8 @@
 #include <stdexcept>
 #include <atomic>
 #include "logging.h"
+#include "Signal.h"
+#include "Optional.h"
 
 namespace teetime
 {

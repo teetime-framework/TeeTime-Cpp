@@ -13,17 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "teetime/AbstractOutputPort.h"
-#include "teetime/AbstractStage.h"
-#include "teetime/Signal.h"
-#include <teetime/AbstractPipe.h>
+#include <teetime/Configuration.h>
+#include <teetime/Runnable.h>
 
 using namespace teetime;
 
-void AbstractOutputPort::sendSignal(const Signal& signal)
-{      
-  if(auto p = getPipe()) 
+Configuration::Configuration()
+{
+}
+
+Configuration::~Configuration()
+{
+}
+
+void Configuration::executeBlocking()
+{
+  std::vector<std::thread> threads;
+
+  for(const auto& s : m_stages)
   {
-    p->addSignal(signal);
-  }
+    if(auto runnable = s->getRunnable())
+    {
+      std::thread t([=](){
+        runnable->run();
+      });
+
+      threads.push_back(std::move(t));
+    }
+  }      
+
+  for(auto& t : threads)
+  {
+    t.join();
+  }      
 }

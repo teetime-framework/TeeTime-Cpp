@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 #pragma once
+#include "common.h"
 #include "AbstractStage.h"
 #include "InputPort.h"
+#include "Runnable.h"
+#include "Optional.h"
 
 namespace teetime
 {

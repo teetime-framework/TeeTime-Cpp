@@ -16,8 +16,10 @@
 #include <teetime/AbstractStage.h>
 #include <exception>
 #include <teetime/logging.h>
-#include <teetime/Thread.h>
+#include <teetime/Signal.h>
 #include <teetime/Runnable.h>
+#include <teetime/AbstractInputPort.h>
+#include <teetime/AbstractOutputPort.h>
 
 using namespace teetime;
 
@@ -57,6 +59,11 @@ void AbstractStage::executeStage()
   }
 }
 
+Runnable* AbstractStage::getRunnable() const
+{
+  return m_runnable.get();
+}
+
 void AbstractStage::declareActive()
 {
   if(!m_runnable)
@@ -94,4 +101,52 @@ StageState AbstractStage::currentState() const
 void AbstractStage::setState(StageState state)
 {
   m_state = state;
+}
+
+uint32 AbstractStage::numInputPorts() const
+{
+  size_t s = m_inputPorts.size();
+  assert(s < UINT32_MAX);
+
+  return static_cast<uint32>(s);
+}
+
+uint32 AbstractStage::numOutputPorts() const
+{
+  size_t s = m_outputPorts.size();
+  assert(s < UINT32_MAX);
+  
+  return static_cast<uint32>(s);
+}
+
+AbstractInputPort* AbstractStage::getInputPort(uint32 index)
+{
+  assert(index < m_inputPorts.size());
+  return m_inputPorts[index];
+}
+
+AbstractOutputPort* AbstractStage::getOutputPort(uint32 index)
+{
+  assert(index < m_outputPorts.size());
+  return m_outputPorts[index];
+}
+
+const char* AbstractStage::debugName() const
+{
+  return m_debugName.c_str();
+} 
+
+void AbstractStage::terminate()
+{
+  TEETIME_DEBUG() << debugName() << ": terminating stage...";
+  //assert(m_state == StageState::Started);
+  m_state = StageState::Terminating;
+
+  for(auto p : m_outputPorts)
+  {
+    TEETIME_DEBUG() << debugName() << " : send Terminating signal";
+    p->sendSignal(Signal{SignalType::Terminating});
+  }
+
+  m_state = StageState::Terminated;
 }

@@ -73,7 +73,8 @@ void ConsumerStageRunnable::run()
   }
 
   TEETIME_INFO() << "Terminating consumer stage '" << m_stage->debugName() << "'";
-  assert(m_stage->currentState() == StageState::Terminating);
+  //FIXME(johl): should we assert the current state is 'Terminating'?
+  //assert(m_stage->currentState() == StageState::Terminating);
 
   m_stage->setState(StageState::Terminated);
 

@@ -14,41 +14,12 @@
  * limitations under the License.
  */
 #pragma once
-#include <vector>
-#include <mutex>
-#include "Signal.h"
-#include "Optional.h"
-#include <atomic>
+#include "AbstractPipe.h"
 
 namespace teetime
 {
-  class AbstractPipe
-  {
-  public:
-    AbstractPipe()
-    : m_closed(false)
-    {      
-    }
-
-    virtual ~AbstractPipe() = default;
-
-    virtual void addSignal(const Signal& s) = 0;
-    virtual void waitForStartSignal() = 0;
-
-    bool isClosed() const
-    {
-      return m_closed;
-    }
-
-    void close()
-    {
-      m_closed = true;
-    }
-
-  private:
-    std::atomic<bool> m_closed;
-  };
-
+  template<typename T> class Optional;
+  
   template<typename T>
   class Pipe : public AbstractPipe
   {
