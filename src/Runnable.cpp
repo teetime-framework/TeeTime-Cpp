@@ -38,12 +38,13 @@ void ProducerStageRunnable::run()
   const uint32 numOutputPorts = m_stage->numOutputPorts();
   for(uint32 i=0; i<numOutputPorts; ++i)
   {
-    TEETIME_INFO() << "send start signal";
+    TEETIME_DEBUG() << "send start signal";
     auto port = m_stage->getOutputPort(i);
     assert(port);
     port->sendSignal(Signal{SignalType::Start});
   }
-  TEETIME_INFO() << "Start producer stage '" << m_stage->debugName() << "'";
+
+  TEETIME_DEBUG() << "execute producer stage '" << m_stage->debugName() << "'";
   m_stage->executeStage();      
 }
 
@@ -58,7 +59,7 @@ void ConsumerStageRunnable::run()
   const uint32 numInputPorts = m_stage->numInputPorts();
   for(uint32 i=0; i<numInputPorts; ++i)
   {
-    TEETIME_INFO() << "wait fors start signal";    
+    TEETIME_DEBUG() << "wait fors start signal";    
     auto port = m_stage->getInputPort(i);
     assert(port);
     port->waitForStartSignal();
@@ -66,13 +67,13 @@ void ConsumerStageRunnable::run()
 
   m_stage->setState(StageState::Started);
 
-  TEETIME_INFO() << "Start consumer stage '" << m_stage->debugName() << "'";  
+  TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'";  
   while(m_stage->currentState() == StageState::Started)
   {
     m_stage->executeStage();
   }
 
-  TEETIME_INFO() << "Terminating consumer stage '" << m_stage->debugName() << "'";
+  TEETIME_DEBUG() << "terminating consumer stage '" << m_stage->debugName() << "'";
   //FIXME(johl): should we assert the current state is 'Terminating'?
   //assert(m_stage->currentState() == StageState::Terminating);
 
@@ -86,5 +87,5 @@ void ConsumerStageRunnable::run()
     port->sendSignal(Signal{SignalType::Terminating});
   }
 
-  TEETIME_INFO() << "Leaving stage '" << m_stage->debugName() << "'";
+  TEETIME_DEBUG() << "leaving stage '" << m_stage->debugName() << "'";
 }

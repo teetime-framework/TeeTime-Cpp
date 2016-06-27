@@ -67,6 +67,9 @@ namespace teetime
 
     void terminate();
 
+    const std::vector<AbstractOutputPort*>& getOutputPorts() const;
+    const std::vector<AbstractInputPort*>& getInputPorts() const;
+
   private:
     StageState m_state;
 
@@ -94,6 +97,16 @@ namespace teetime
     m_outputPorts.push_back(port);
     return port;
   }   
+
+  inline const std::vector<AbstractOutputPort*>& AbstractStage::getOutputPorts() const
+  {
+    return m_outputPorts;
+  }
+
+  inline const std::vector<AbstractInputPort*>& AbstractStage::getInputPorts() const
+  {
+    return m_inputPorts;
+  }
 }
 
 

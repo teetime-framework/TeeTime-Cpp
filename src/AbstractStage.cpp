@@ -51,11 +51,11 @@ void AbstractStage::executeStage()
   }
   catch( const std::exception& e )
   {
-    TEETIME_ERROR() << "stage execution failed: " << e.what();    
+    TEETIME_ERROR() << "stage '" << this->debugName() << "' execution failed: " << e.what();    
   }
   catch( ... )
   {
-    TEETIME_ERROR() << "stage execution failed due to unknown error";
+    TEETIME_ERROR() << "stage '" << this->debugName() << "' execution failed due to unknown error";
   }
 }
 

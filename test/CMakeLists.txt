@@ -22,7 +22,10 @@ endif()
 include_directories(googletest/googletest/include)
 
 SET(SOURCES
+  stages/IntProducerStage.h
+  stages/IntConsumerStage.h
   ConfigurationTest.cpp
+  DistributorTest.cpp
   StageTest.cpp
   SynchedPipeTest.cpp
   UnsynchedPipeTest.cpp

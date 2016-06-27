@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <gtest/gtest.h>
-#include <teetime/logging.h>
+#include <teetime/stages/AbstractConsumerStage.h>
 
-::teetime::LogLevel getLogLevelFromArgs( int argc, char** argv ) 
-{
-  for(int i=0; i<(argc-1); ++i)
+using namespace teetime;
+
+namespace teetime {
+namespace test {
+
+  class IntConsumerStage : public AbstractConsumerStage<int>
   {
-    if(strcmp(argv[i], "--loglevel") == 0)
+  public:
+    std::vector<int> valuesConsumed;
+
+    IntConsumerStage()
+    : AbstractConsumerStage<int>("IntConsumerStage")
+    {      
+    }
+
+  private:
+    virtual void execute(const int& value)
     {
-      return ::teetime::String2LogLevel(argv[i+1]);
-    }    
-  }
+      TEETIME_INFO() << "consuming int '" << value << "'";
+      valuesConsumed.push_back(value);
+    }
+  };
 
-  return ::teetime::LogLevel::Off;
 }
-
-int main( int argc, char** argv )
-{
-  ::teetime::setLogCallback(::teetime::simpleLogging);
-  ::teetime::setLogLevel(getLogLevelFromArgs(argc, argv));
-
-  ::testing::InitGoogleTest( &argc, argv );
-
-  int ret = RUN_ALL_TESTS();
-  return ret;
 }

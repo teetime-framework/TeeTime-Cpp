@@ -13,29 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <gtest/gtest.h>
-#include <teetime/logging.h>
+#include <teetime/stages/AbstractProducerStage.h>
 
-::teetime::LogLevel getLogLevelFromArgs( int argc, char** argv ) 
-{
-  for(int i=0; i<(argc-1); ++i)
+using namespace teetime;
+
+namespace teetime {
+namespace test {
+
+  class IntProducerStage : public AbstractProducerStage<int>
   {
-    if(strcmp(argv[i], "--loglevel") == 0)
+  public:
+    explicit IntProducerStage()
+     : AbstractProducerStage<int>("IntProducerStage")
+     , startValue(0)
+     , numValues(1)
+    {}
+
+    int startValue;
+    int numValues;    
+
+  private:
+    virtual void execute() override
     {
-      return ::teetime::String2LogLevel(argv[i+1]);
-    }    
-  }
+      for(int i=0; i<numValues; ++i)
+      {
+        getOutputPort().send(startValue + i);
+      }
 
-  return ::teetime::LogLevel::Off;
+      terminate();
+    }
+  };
+
 }
-
-int main( int argc, char** argv )
-{
-  ::teetime::setLogCallback(::teetime::simpleLogging);
-  ::teetime::setLogLevel(getLogLevelFromArgs(argc, argv));
-
-  ::testing::InitGoogleTest( &argc, argv );
-
-  int ret = RUN_ALL_TESTS();
-  return ret;
 }
