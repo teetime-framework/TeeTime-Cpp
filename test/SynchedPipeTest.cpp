@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-#include <teetime/SynchedPipe.h>
+#include <teetime/pipes/SynchedPipe.h>
 #include <thread>
 #include <chrono>
 #include <atomic>

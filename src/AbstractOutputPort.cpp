@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "teetime/AbstractOutputPort.h"
-#include "teetime/AbstractStage.h"
-#include "teetime/Signal.h"
-#include <teetime/AbstractPipe.h>
+#include <teetime/ports/AbstractOutputPort.h>
+#include <teetime/stages/AbstractStage.h>
+#include <teetime/pipes/AbstractPipe.h>
+#include <teetime/Signal.h>
 
 using namespace teetime;
 

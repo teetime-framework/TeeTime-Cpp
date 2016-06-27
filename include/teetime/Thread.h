@@ -15,7 +15,7 @@
  */
 #pragma once
 #include <thread>
-#include "AbstractStage.h"
+#include "stages/AbstractStage.h"
 
 namespace teetime
 {

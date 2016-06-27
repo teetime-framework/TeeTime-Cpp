@@ -14,35 +14,26 @@
  * limitations under the License.
  */
 #pragma once
-#include "teetime/common.h"
+#include "../common.h"
+#include "AbstractPort.h"
 
 namespace teetime
 {
-  class AbstractStage;
+  struct Signal;
+  class AbstractPipe;
 
-  class AbstractPort
+  class AbstractOutputPort : public AbstractPort
   {
   public:
-    virtual ~AbstractPort() = default;
-
-    const AbstractStage* owner() const
-    {
-      return m_owner;
-    }
-
-    AbstractStage* owner()
-    {
-      return m_owner;
-    }    
-
-  protected:
-    explicit AbstractPort(AbstractStage* owner)
-     : m_owner(owner)
+    explicit AbstractOutputPort(AbstractStage* owner)
+     : AbstractPort(owner)
     {   
-      assert(owner);   
     }
+
+    void sendSignal(const Signal& signal);
 
   private:
-    AbstractStage* m_owner;
+    virtual AbstractPipe* getPipe() = 0;
+
   };
 }

@@ -15,8 +15,8 @@
  */
 #pragma once
 #include "AbstractOutputPort.h"
-#include "Pipe.h"
-#include "Signal.h"
+#include "../pipes/Pipe.h"
+#include "../Signal.h"
 
 namespace teetime
 {

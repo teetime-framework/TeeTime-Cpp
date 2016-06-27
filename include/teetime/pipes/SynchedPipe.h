@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 #pragma once
-#include "Pipe.h"
-#include "AbstractStage.h"
-#include "BlockingQueue.h"
 #include <mutex>
 #include <exception>
 #include <stdexcept>
 #include <atomic>
-#include "logging.h"
-#include "Signal.h"
-#include "Optional.h"
+#include "Pipe.h"
+#include "../stages/AbstractStage.h"
+#include "../BlockingQueue.h"
+#include "../logging.h"
+#include "../Signal.h"
+#include "../Optional.h"
 
 namespace teetime
 {

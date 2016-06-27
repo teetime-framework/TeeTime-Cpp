@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <teetime/AbstractStage.h>
+#include <teetime/stages/AbstractStage.h>
 #include <exception>
 #include <teetime/logging.h>
 #include <teetime/Signal.h>
 #include <teetime/Runnable.h>
-#include <teetime/AbstractInputPort.h>
-#include <teetime/AbstractOutputPort.h>
+#include <teetime/ports/AbstractInputPort.h>
+#include <teetime/ports/AbstractOutputPort.h>
 
 using namespace teetime;
 

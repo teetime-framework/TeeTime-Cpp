@@ -17,24 +17,24 @@ SET(INCDIR "../include/teetime")
 SET(HEADERS
   ${INCDIR}/common.h
   ${INCDIR}/logging.h
-  ${INCDIR}/AbstractStage.h
-  ${INCDIR}/AbstractConsumerStage.h
-  ${INCDIR}/AbstractProducerStage.h
-  ${INCDIR}/AbstractOutputPort.h
-  ${INCDIR}/AbstractInputPort.h
   ${INCDIR}/Configuration.h
-  ${INCDIR}/Execution.h
-  ${INCDIR}/InputPort.h
-  ${INCDIR}/OutputPort.h
-  ${INCDIR}/Port.h
-  ${INCDIR}/Pipe.h
-  ${INCDIR}/AbstractPipe.h
-  ${INCDIR}/UnsynchedPipe.h  
-  ${INCDIR}/SynchedPipe.h  
+  ${INCDIR}/Execution.h  
   ${INCDIR}/Thread.h
   ${INCDIR}/Signal.h
   ${INCDIR}/Runnable.h
-  ${INCDIR}/BlockingQueue.h
+  ${INCDIR}/BlockingQueue.h  
+  ${INCDIR}/stages/AbstractStage.h
+  ${INCDIR}/stages/AbstractConsumerStage.h
+  ${INCDIR}/stages/AbstractProducerStage.h
+  ${INCDIR}/ports/AbstractOutputPort.h
+  ${INCDIR}/ports/AbstractInputPort.h
+  ${INCDIR}/ports/InputPort.h
+  ${INCDIR}/ports/OutputPort.h
+  ${INCDIR}/ports/Port.h
+  ${INCDIR}/pipes/Pipe.h
+  ${INCDIR}/pipes/AbstractPipe.h
+  ${INCDIR}/pipes/UnsynchedPipe.h  
+  ${INCDIR}/pipes/SynchedPipe.h  
 )
 
 SET(SOURCES

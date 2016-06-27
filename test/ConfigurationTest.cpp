@@ -15,8 +15,8 @@
  */
 #include <gtest/gtest.h>
 #include <teetime/Configuration.h>
-#include <teetime/AbstractProducerStage.h>
-#include <teetime/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractProducerStage.h>
+#include <teetime/stages/AbstractConsumerStage.h>
 
 using namespace teetime;
 

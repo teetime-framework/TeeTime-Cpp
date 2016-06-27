@@ -14,21 +14,35 @@
  * limitations under the License.
  */
 #pragma once
-#include "teetime/AbstractPort.h"
+#include "../common.h"
 
 namespace teetime
 {
-  class AbstractInputPort : public AbstractPort
+  class AbstractStage;
+
+  class AbstractPort
   {
   public:
-    explicit AbstractInputPort(AbstractStage* owner)
-     : AbstractPort(owner)
-    {}
+    virtual ~AbstractPort() = default;
 
-    virtual ~AbstractInputPort() = default;
+    const AbstractStage* owner() const
+    {
+      return m_owner;
+    }
 
-    virtual void waitForStartSignal() = 0;
+    AbstractStage* owner()
+    {
+      return m_owner;
+    }    
 
-    virtual bool isClosed() const = 0;
+  protected:
+    explicit AbstractPort(AbstractStage* owner)
+     : m_owner(owner)
+    {   
+      assert(owner);   
+    }
+
+  private:
+    AbstractStage* m_owner;
   };
 }

@@ -15,10 +15,10 @@
  */
 #include <gtest/gtest.h>
 #include <teetime/logging.h>
-#include <teetime/AbstractStage.h>
-#include <teetime/AbstractConsumerStage.h>
-#include <teetime/AbstractProducerStage.h>
-#include <teetime/Port.h>
+#include <teetime/stages/AbstractStage.h>
+#include <teetime/stages/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractProducerStage.h>
+#include <teetime/ports/Port.h>
 #include <vector>
 
 using namespace teetime;

@@ -15,9 +15,9 @@
  */
 #include <teetime/Runnable.h>
 #include <teetime/logging.h>
-#include <teetime/AbstractStage.h>
-#include <teetime/InputPort.h>
-#include <teetime/OutputPort.h>
+#include <teetime/stages/AbstractStage.h>
+#include <teetime/ports/InputPort.h>
+#include <teetime/ports/OutputPort.h>
 
 using namespace teetime;
   

@@ -17,8 +17,8 @@
 
 #include "InputPort.h"
 #include "OutputPort.h"
-#include "UnsynchedPipe.h"
-#include "SynchedPipe.h"
+#include "../pipes/UnsynchedPipe.h"
+#include "../pipes/SynchedPipe.h"
 
 namespace teetime
 {

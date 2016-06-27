@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #pragma once
-#include "AbstractStage.h"
+#include "stages/AbstractStage.h"
 
 namespace teetime
 {
