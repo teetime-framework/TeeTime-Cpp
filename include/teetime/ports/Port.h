@@ -24,7 +24,11 @@ namespace teetime
 {
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input)
-  {
+  {    
+    assert(output.owner());
+    assert(input.owner());
+
+    TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
     if (input.owner()->getRunnable())
     {
       output.m_pipe.reset(new SynchedPipe<T>(1024));

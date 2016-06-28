@@ -34,11 +34,16 @@ void Configuration::executeBlocking()
   {
     if(auto runnable = s->getRunnable())
     {
+      TEETIME_DEBUG() << "stage '" << s->debugName() << "' is active";
       std::thread t([=](){
         runnable->run();
       });
 
       threads.push_back(std::move(t));
+    }
+    else
+    {
+      TEETIME_DEBUG() << "stage '" << s->debugName() << "' is non-active";
     }
   }      
 

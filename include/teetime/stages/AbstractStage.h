@@ -85,6 +85,11 @@ namespace teetime
   template<typename T>
   InputPort<T>* AbstractStage::addNewInputPort()
   {
+    if(m_state != StageState::Created)
+    {
+      throw std::logic_error("cannot create new ports after stage has been started");
+    }
+
     InputPort<T>* port = new InputPort<T>(this);
     m_inputPorts.push_back(port);
     return port;
@@ -93,6 +98,11 @@ namespace teetime
   template<typename T>
   OutputPort<T>* AbstractStage::addNewOutputPort()
   {
+    if(m_state != StageState::Created)
+    {
+      throw std::logic_error("cannot create new ports after stage has been started");
+    }
+        
     OutputPort<T>* port = new OutputPort<T>(this);
     m_outputPorts.push_back(port);
     return port;

@@ -18,11 +18,11 @@
 namespace teetime
 { 
   template<typename T>
-  class DistributorStage : public AbstractConsumerStage<T>
+  class DistributorStage final : public AbstractConsumerStage<T>
   {
   public:
-    DistributorStage()
-    : AbstractConsumerStage<T>("DistributorStage")
+    DistributorStage(const char* debugName = "DistributorStage")
+    : AbstractConsumerStage<T>(debugName)
     , m_next(0)
     {}
 
@@ -34,11 +34,9 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const int& value)
+    virtual void execute(const T& value)
     {
       const uint32 numOutputPorts = AbstractStage::numOutputPorts();
-      TEETIME_TRACE() << "stage '" << this->debugName() << "' has " << numOutputPorts << " output ports";
-
       if(numOutputPorts == 0) 
       {
         throw std::logic_error("distributor stage needs at least on output port");
@@ -46,7 +44,7 @@ namespace teetime
 
       const uint32 portIndex = m_next % numOutputPorts;
 
-      TEETIME_INFO() << "distributing value '" << value << "' to port " << m_next;
+      TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
       auto abstractPort = AbstractStage::getOutputPort(portIndex);
       assert(abstractPort);
 

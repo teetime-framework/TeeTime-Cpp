@@ -26,6 +26,8 @@ SET(SOURCES
   stages/IntConsumerStage.h
   ConfigurationTest.cpp
   DistributorTest.cpp
+  DelayStageTest.cpp
+  MergerTest.cpp
   StageTest.cpp
   SynchedPipeTest.cpp
   UnsynchedPipeTest.cpp

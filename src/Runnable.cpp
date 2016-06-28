@@ -35,6 +35,8 @@ ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage)
 
 void ProducerStageRunnable::run()
 {
+  TEETIME_INFO() << "ProducerStageRunnable::run(): " << m_stage->debugName();
+
   const uint32 numOutputPorts = m_stage->numOutputPorts();
   for(uint32 i=0; i<numOutputPorts; ++i)
   {
@@ -56,6 +58,8 @@ ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage)
 
 void ConsumerStageRunnable::run()
 {
+  TEETIME_INFO() << "ConsumerStageRunnable::run(): " << m_stage->debugName();
+
   const uint32 numInputPorts = m_stage->numInputPorts();
   for(uint32 i=0; i<numInputPorts; ++i)
   {
@@ -66,6 +70,16 @@ void ConsumerStageRunnable::run()
   }
 
   m_stage->setState(StageState::Started);
+
+  {
+    const uint32 numOutputPorts = m_stage->numOutputPorts();
+    for(uint32 i=0; i<numOutputPorts; ++i)
+    {
+      auto port = m_stage->getOutputPort(i);
+      assert(port);
+      port->sendSignal(Signal{SignalType::Start});
+    }
+  }
 
   TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'";  
   while(m_stage->currentState() == StageState::Started)
@@ -79,12 +93,14 @@ void ConsumerStageRunnable::run()
 
   m_stage->setState(StageState::Terminated);
 
-  const uint32 numOutputPorts = m_stage->numOutputPorts();
-  for(uint32 i=0; i<numOutputPorts; ++i)
   {
-    auto port = m_stage->getOutputPort(i);
-    assert(port);
-    port->sendSignal(Signal{SignalType::Terminating});
+    const uint32 numOutputPorts = m_stage->numOutputPorts();
+    for(uint32 i=0; i<numOutputPorts; ++i)
+    {
+      auto port = m_stage->getOutputPort(i);
+      assert(port);
+      port->sendSignal(Signal{SignalType::Terminating});
+    }
   }
 
   TEETIME_DEBUG() << "leaving stage '" << m_stage->debugName() << "'";

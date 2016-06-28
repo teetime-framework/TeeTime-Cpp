@@ -124,7 +124,7 @@ namespace teetime
       std::cout << std::setw(filenameFieldWidth) << file;
     }
 
-    std::cout << "(" << line << "): " << message << "\n";
+    std::cout << "(" << line << "): " << message << std::endl;
   }
 }
 
