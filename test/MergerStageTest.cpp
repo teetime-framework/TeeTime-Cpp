@@ -55,7 +55,7 @@ namespace
   };
 }
 
-TEST(MergerTest, singleInput)
+TEST(MergerStageTest, singleInput)
 {
   MergerTestConfig config(1);
   config.producer->numValues = 10;
@@ -66,7 +66,7 @@ TEST(MergerTest, singleInput)
   ASSERT_EQ((size_t)10, config.consumer->valuesConsumed.size());
 }
 
-TEST(MergerTest, multipleInput)
+TEST(MergerStageTest, multipleInput)
 {
   MergerTestConfig config(10);
   config.producer->numValues = 10;

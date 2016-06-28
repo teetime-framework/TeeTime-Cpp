@@ -53,7 +53,7 @@ namespace
   };
 }
 
-TEST(DistributorTest, singlethreaded)
+TEST(DistributorStageTest, singlethreaded)
 {
   DistributorTestConfig config(4, false);
   config.producer->numValues = 16;
@@ -68,7 +68,7 @@ TEST(DistributorTest, singlethreaded)
   EXPECT_EQ((size_t)4, config.consumer[3]->valuesConsumed.size());
 }
 
-TEST(DistributorTest, multithreaded)
+TEST(DistributorStageTest, multithreaded)
 {
   DistributorTestConfig config(4, true);
   config.producer->numValues = 16;
@@ -83,7 +83,7 @@ TEST(DistributorTest, multithreaded)
   EXPECT_EQ((size_t)4, config.consumer[3]->valuesConsumed.size());
 }
 
-TEST(DistributorTest, nooutput)
+TEST(DistributorStageTest, nooutput)
 {
   DistributorTestConfig config(0, false);
   config.producer->numValues = 16;
