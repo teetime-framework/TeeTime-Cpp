@@ -34,7 +34,7 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const T& value)
+    virtual void execute(const T& value) override
     {
       const uint32 numOutputPorts = AbstractStage::numOutputPorts();
       if(numOutputPorts == 0) 

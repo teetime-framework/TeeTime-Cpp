@@ -37,7 +37,7 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const T& value)
+    virtual void execute(const T& value) override
     {
       assert(m_outputPort);
       TEETIME_TRACE() << this->debugName() << ": delaying " << value;

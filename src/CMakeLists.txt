@@ -26,9 +26,13 @@ SET(HEADERS
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
   ${INCDIR}/stages/AbstractProducerStage.h
+  ${INCDIR}/stages/InitialElementProducer.h
+  ${INCDIR}/stages/CollectorSink.h
   ${INCDIR}/stages/DistributorStage.h
   ${INCDIR}/stages/MergerStage.h
   ${INCDIR}/stages/DelayStage.h
+  ${INCDIR}/stages/Directory2Files.h
+  ${INCDIR}/stages/File2Bytes.h
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
@@ -41,16 +45,21 @@ SET(HEADERS
 )
 
 SET(SOURCES
-  logging.cpp  
-  AbstractStage.cpp  
-  AbstractOutputPort.cpp  
+  logging.cpp    
   Configuration.cpp
   Runnable.cpp
   Thread.cpp
+  ports/AbstractOutputPort.cpp  
+  stages/Directory2Files.cpp
+  stages/Directory2Files_win32.cpp
+  stages/File2Bytes.cpp
+  stages/AbstractStage.cpp  
 )
 
 IF(MSVC)
   source_group(private .*)
+  source_group(private\\stages stages/.*)
+  source_group(private\\ports ports/.*)
   source_group(public .*/include/.*)
   source_group(public\\stages .*/include/.*/stages/.*)
   source_group(public\\ports .*/include/.*/ports/.*)

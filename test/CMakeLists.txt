@@ -24,6 +24,7 @@ include_directories(googletest/googletest/include)
 SET(SOURCES
   stages/IntProducerStage.h
   stages/IntConsumerStage.h
+  stages/Directory2FilesTest.cpp
   ConfigurationTest.cpp
   DistributorStageTest.cpp
   DelayStageTest.cpp
@@ -35,9 +36,8 @@ SET(SOURCES
   main.cpp
 )
 
+add_definitions(-DTEETIME_LOCAL_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 add_executable("teetime_test" ${SOURCES})
 target_link_libraries(teetime_test gtest teetime)
-
-
 
 add_custom_target(run_test ALL teetime_test)
