@@ -26,6 +26,9 @@ SET(HEADERS
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
   ${INCDIR}/stages/AbstractProducerStage.h
+  ${INCDIR}/stages/DistributorStage.h
+  ${INCDIR}/stages/MergerStage.h
+  ${INCDIR}/stages/DelayStage.h
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
@@ -45,5 +48,13 @@ SET(SOURCES
   Runnable.cpp
   Thread.cpp
 )
+
+IF(MSVC)
+  source_group(private .*)
+  source_group(public .*/include/.*)
+  source_group(public\\stages .*/include/.*/stages/.*)
+  source_group(public\\ports .*/include/.*/ports/.*)
+  source_group(public\\pipes .*/include/.*/pipes/.*)
+ENDIF()  
 
 add_library("teetime" ${HEADERS} ${SOURCES})
