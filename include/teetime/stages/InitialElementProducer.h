@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 #include <teetime/stages/AbstractProducerStage.h>
+#include <teetime/ports/OutputPort.h>
 #include <vector>
 
 namespace teetime
@@ -33,10 +34,10 @@ namespace teetime
     {
       for (auto& e : m_elements) 
       {
-        getOutputPort().send(std::move(e));
+        AbstractProducerStage<T>::getOutputPort().send(std::move(e));
       }
 
-      terminate();
+      AbstractProducerStage<T>::terminate();
     }
 
     std::vector<T> m_elements;
