@@ -26,6 +26,7 @@ SET(SOURCES
   stages/IntConsumerStage.h
   stages/Directory2FilesTest.cpp
   stages/File2FileBufferTest.cpp
+  stages/FileExtensionSwitchTest.cpp
   ConfigurationTest.cpp
   DistributorStageTest.cpp
   DelayStageTest.cpp

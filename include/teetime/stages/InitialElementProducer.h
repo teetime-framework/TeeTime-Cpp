@@ -29,6 +29,12 @@ namespace teetime
       m_elements.push_back(element);
     }
 
+    explicit InitialElementProducer(const std::vector<T>& elements, const char* debugName = "InitialElementProducer")
+      : AbstractProducerStage<T>(debugName)
+      , m_elements(elements)
+    {
+    }
+
   private:
     virtual void execute() override
     {
