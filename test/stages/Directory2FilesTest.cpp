@@ -19,6 +19,7 @@
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/Directory2Files.h>
 #include <teetime/ports/Port.h>
+#include <teetime/File.h>
 
 using namespace teetime;
 
@@ -63,3 +64,4 @@ TEST(Directory2FilesTest, simple)
   EXPECT_EQ(getFilePath("file1.txt"), files[4].path);
   EXPECT_EQ(getFilePath("file2.txt"), files[5].path);
 }
+

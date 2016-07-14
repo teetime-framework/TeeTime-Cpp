@@ -23,6 +23,9 @@ SET(HEADERS
   ${INCDIR}/Signal.h
   ${INCDIR}/Runnable.h
   ${INCDIR}/BlockingQueue.h  
+  ${INCDIR}/File.h  
+  ${INCDIR}/FileBuffer.h  
+  ${INCDIR}/Image.h 
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
   ${INCDIR}/stages/AbstractProducerStage.h
@@ -32,7 +35,9 @@ SET(HEADERS
   ${INCDIR}/stages/MergerStage.h
   ${INCDIR}/stages/DelayStage.h
   ${INCDIR}/stages/Directory2Files.h
-  ${INCDIR}/stages/File2Bytes.h
+  ${INCDIR}/stages/File2FileBuffer.h
+  ${INCDIR}/stages/ReadImage.h
+  ${INCDIR}/stages/Md5Hash.h
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
@@ -52,7 +57,9 @@ SET(SOURCES
   ports/AbstractOutputPort.cpp  
   stages/Directory2Files.cpp
   stages/Directory2Files_win32.cpp
-  stages/File2Bytes.cpp
+  stages/File2FileBuffer.cpp
+  stages/Md5Hash.cpp
+  stages/ReadImage.cpp
   stages/AbstractStage.cpp  
 )
 

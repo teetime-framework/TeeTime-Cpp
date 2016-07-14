@@ -16,6 +16,7 @@
 
 #include <teetime/stages/Directory2Files.h>
 #include <teetime/ports/OutputPort.h>
+#include <teetime/File.h>
 
 #include <algorithm>
 

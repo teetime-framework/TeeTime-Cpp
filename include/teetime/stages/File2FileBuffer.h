@@ -14,23 +14,22 @@
 * limitations under the License.
 */
 #include <teetime/stages/AbstractConsumerStage.h>
-#include <teetime/stages/Directory2Files.h>
-#include <string>
+#include <teetime/File.h>
 
 namespace teetime
 {
-  using ByteArray = std::vector<unsigned char>;
+  class FileBuffer;
 
-  class File2Bytes final : public AbstractConsumerStage<File>
+  class File2FileBuffer final : public AbstractConsumerStage<File>
   {
   public:
 
-    explicit File2Bytes(const char* debugName = "File2Bytes");
-    OutputPort<ByteArray>& getOutputPort();
+    explicit File2FileBuffer(const char* debugName = "File2Bytes");
+    OutputPort<FileBuffer>& getOutputPort();
 
   private:
     virtual void execute(const File& value) override;
 
-    OutputPort<ByteArray>* m_outputPort;
+    OutputPort<FileBuffer>* m_outputPort;
   };
 }

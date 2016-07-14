@@ -14,23 +14,22 @@
 * limitations under the License.
 */
 #include <teetime/stages/AbstractConsumerStage.h>
-#include <string>
+#include <teetime/FileBuffer.h>
 
 namespace teetime
 {
-  class File;
+  class Image;
 
-  class Directory2Files final : public AbstractConsumerStage<std::string>
+  class ReadImage final : public AbstractConsumerStage<FileBuffer>
   {
   public:
-    explicit Directory2Files(const char* debugName = "Directory2Files");
-    OutputPort<File>& getOutputPort();
+
+    explicit ReadImage(const char* debugName = "File2Bytes");
+    OutputPort<Image>& getOutputPort();
 
   private:
-    static void collectFilesName(const std::string& directoy, std::vector<std::string>& filenames, bool recursive);
+    virtual void execute(const FileBuffer& buffer) override;
 
-    virtual void execute(const std::string& value) override;
-
-    OutputPort<File>* m_outputPort;
+    OutputPort<Image>* m_outputPort;
   };
 }

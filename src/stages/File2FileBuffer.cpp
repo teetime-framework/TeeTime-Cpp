@@ -14,35 +14,39 @@
 * limitations under the License.
 */
 
-#include <teetime/stages/File2Bytes.h>
+#include <teetime/stages/File2FileBuffer.h>
 #include <teetime/ports/OutputPort.h>
+#include <teetime/FileBuffer.h>
+#include <teetime/File.h>
 
 #include <fstream>
 
 using namespace teetime;
 
-File2Bytes::File2Bytes(const char* debugName)
+File2FileBuffer::File2FileBuffer(const char* debugName)
   : AbstractConsumerStage<File>(debugName)
   , m_outputPort(nullptr)
 {
-  m_outputPort = AbstractStage::addNewOutputPort<ByteArray>();
+  m_outputPort = AbstractStage::addNewOutputPort<FileBuffer>();
 }
 
-OutputPort<ByteArray>& File2Bytes::getOutputPort()
+OutputPort<FileBuffer>& File2FileBuffer::getOutputPort()
 {
   assert(m_outputPort);
   return *m_outputPort;
 }
 
-void File2Bytes::execute(const File& value)
+void File2FileBuffer::execute(const File& value)
 {
   std::ifstream file(value.path, std::ios::binary | std::ios::ate);
 
   std::streamsize size = file.tellg();
   file.seekg(0, std::ios::beg);
 
-  ByteArray buffer(size);
-  if (file.read((char*)buffer.data(), size))
+  FileBuffer buffer;
+  buffer.path = value.path;
+  buffer.bytes.resize(size);
+  if (file.read((char*)buffer.bytes.data(), size))
   {
     getOutputPort().send(buffer);
   }

@@ -23,8 +23,10 @@ namespace teetime
   using std::shared_ptr;
   using std::unique_ptr;
 
-  using uint32 = unsigned;
-  using int32 = int;
+  using uint8 = unsigned char;
+  using int8 = signed char;
+  using uint32 = unsigned int;
+  using int32 = signed int;
 
   template<typename S, typename T>
   S* unsafe_dynamic_cast(T* t)
