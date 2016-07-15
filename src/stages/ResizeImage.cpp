@@ -14,22 +14,3 @@
 * limitations under the License.
 */
 #pragma once
-#include <teetime/stages/AbstractConsumerStage.h>
-#include <teetime/FileBuffer.h>
-
-namespace teetime
-{
-  class Image;
-
-  class ReadImage final : public AbstractConsumerStage<FileBuffer>
-  {
-  public:
-    explicit ReadImage(const char* debugName = "ReadImage");
-    OutputPort<Image>& getOutputPort();    
-
-  private:
-    virtual void execute(const FileBuffer& buffer) override;
-
-    OutputPort<Image>* m_outputPort;
-  };
-}

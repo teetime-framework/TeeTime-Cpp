@@ -27,6 +27,8 @@ SET(SOURCES
   stages/Directory2FilesTest.cpp
   stages/File2FileBufferTest.cpp
   stages/FileExtensionSwitchTest.cpp
+  stages/ReadImageTest.cpp
+  stages/FunctionStageTest.cpp
   ConfigurationTest.cpp
   DistributorStageTest.cpp
   DelayStageTest.cpp

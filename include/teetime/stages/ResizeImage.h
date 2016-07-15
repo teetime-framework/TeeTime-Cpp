@@ -14,22 +14,22 @@
 * limitations under the License.
 */
 #pragma once
-#include <teetime/stages/AbstractConsumerStage.h>
-#include <teetime/FileBuffer.h>
+#include <teetime/stages/FunctionStage.h>
+#include <teetime/Image.h>
 
 namespace teetime
 {
-  class Image;
-
-  class ReadImage final : public AbstractConsumerStage<FileBuffer>
+  struct ImageToResize
   {
-  public:
-    explicit ReadImage(const char* debugName = "ReadImage");
-    OutputPort<Image>& getOutputPort();    
-
-  private:
-    virtual void execute(const FileBuffer& buffer) override;
-
-    OutputPort<Image>* m_outputPort;
+    Image image;
+    size_t width;
+    size_t height;
   };
+
+  inline Image resizeImage(const ImageToResize& image)
+  {
+    return image.image.resize(image.width, image.height);
+  }
+
+  using ResizeImage = FunctionStage<const ImageToResize&, Image, resizeImage>;
 }

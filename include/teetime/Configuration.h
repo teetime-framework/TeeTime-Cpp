@@ -18,6 +18,15 @@
 
 namespace teetime
 {
+  template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
+  class FunctionStage;
+
+  template<typename TIn, typename TOut>
+  class FunctionPtrStage;
+
+  template<typename TIn, typename TOut>
+  class FunctionObjectStage;
+
   class Configuration
   {
   public:
@@ -33,6 +42,24 @@ namespace teetime
       auto stage = std::make_shared<T>(args...);
       m_stages.push_back(stage);
       return stage;
+    }
+
+    template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
+    shared_ptr<FunctionStage<TIn, TOut, TFunc>> createStageFromFunction(const char* name = "function")
+    {
+      return createStage<FunctionStage<TIn, TOut, TFunc>>(name);
+    }
+
+    template<typename TIn, typename TOut>
+    shared_ptr<FunctionPtrStage<TIn, TOut>> createStageFromFunctionPointer(TOut(*f)(TIn), const char* name = "function_pointer")
+    {
+      return createStage<FunctionPtrStage<TIn, TOut>>(f, name);
+    }
+
+    template<typename TIn, typename TOut>
+    shared_ptr<FunctionObjectStage<TIn, TOut>> createStageFromFunctionObject(std::function<TOut(TIn)> f, const char* name = "function_object")
+    {
+      return createStage<FunctionObjectStage<TIn, TOut>>(f, name);
     }
 
   private:    

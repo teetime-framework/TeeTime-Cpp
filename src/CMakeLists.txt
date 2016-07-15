@@ -37,8 +37,12 @@ SET(HEADERS
   ${INCDIR}/stages/Directory2Files.h
   ${INCDIR}/stages/File2FileBuffer.h
   ${INCDIR}/stages/ReadImage.h
+  ${INCDIR}/stages/ResizeImage.h
+  ${INCDIR}/stages/SaveImage.h
+  ${INCDIR}/stages/WriteFileBuffer.h
   ${INCDIR}/stages/Md5Hash.h
-  ${INCDIR}/stages/FileExtensionSwitch.h
+  ${INCDIR}/stages/FileExtensionSwitch.h  
+  ${INCDIR}/stages/FunctionStage.h  
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
@@ -55,6 +59,7 @@ SET(SOURCES
   Configuration.cpp
   Runnable.cpp
   Thread.cpp
+  Image.cpp
   ports/AbstractOutputPort.cpp  
   stages/Directory2Files.cpp
   stages/Directory2Files_win32.cpp
@@ -62,6 +67,9 @@ SET(SOURCES
   stages/FileExtensionSwitch.cpp
   stages/Md5Hash.cpp
   stages/ReadImage.cpp
+  stages/ResizeImage.cpp
+  stages/SaveImage.cpp
+  stages/WriteFileBuffer.cpp
   stages/AbstractStage.cpp  
 )
 
