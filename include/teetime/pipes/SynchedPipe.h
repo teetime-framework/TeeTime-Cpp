@@ -57,11 +57,11 @@ namespace teetime
       return ret;
     }
 
-    virtual void add(const T& t) override
+    virtual void add(T&& t) override
     {
       std::lock_guard<std::mutex> lock(m_mutex);
 
-      m_buffer.insert(m_buffer.begin(), t);
+      m_buffer.insert(m_buffer.begin(), std::move(t));
       m_size.fetch_add(1);
     }
 

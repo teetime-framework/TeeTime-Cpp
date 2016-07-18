@@ -22,9 +22,32 @@ namespace teetime
   {
   public:
     File() = default;
-    explicit File(const std::string& path)
-      : path(path) {
+    
+    File(const File& f)
+     : path(f.path)
+    {      
     }
+
+    explicit File(const std::string& path)
+      : path(path) 
+    {
+    }
+
+    File(File&& f)
+     : path(std::move(f.path))
+    {}
+
+    File& operator=(const File& f)
+    {
+      path = f.path;
+      return *this;
+    }
+
+    File& operator=(File&& f)
+    {
+      path = std::move(f.path);
+      return *this;
+    }    
 
     std::string path;
   };

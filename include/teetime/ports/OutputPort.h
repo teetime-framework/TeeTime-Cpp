@@ -42,9 +42,9 @@ namespace teetime
 
     OutputPort(const OutputPort&) = delete;
 
-    void send(const T& t) {
+    void send(T&& t) {
       if(m_pipe) {
-        m_pipe->add(t);
+        m_pipe->add(std::move(t));
       }      
     }
 

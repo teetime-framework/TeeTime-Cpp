@@ -37,7 +37,7 @@ namespace teetime
     Image image;
     if (image.loadFromMemory(buffer.bytes.data(), buffer.bytes.size(), buffer.path.c_str()))
     {
-      m_outputPort->send(image);
+      m_outputPort->send(std::move(image));
     }
   }
 }

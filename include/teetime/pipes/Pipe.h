@@ -26,7 +26,7 @@ namespace teetime
   public:
     virtual ~Pipe() = default;
     virtual Optional<T> removeLast() = 0;
-    virtual void add(const T& t) = 0;
+    virtual void add(T&& t) = 0;
     virtual bool isEmpty() const = 0;
   };
 }

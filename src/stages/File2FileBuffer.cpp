@@ -48,7 +48,7 @@ void File2FileBuffer::execute(const File& value)
   buffer.bytes.resize(size);
   if (file.read((char*)buffer.bytes.data(), size))
   {
-    getOutputPort().send(buffer);
+    getOutputPort().send(std::move(buffer));
   }
   else
   {

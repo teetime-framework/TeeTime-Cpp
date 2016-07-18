@@ -36,11 +36,11 @@ namespace teetime
       return ret;
     }
 
-    virtual void add(const T& t) override
+    virtual void add(T&& t) override
     {
       //TODO(johl): what to do if pipe is non-empty?
       assert(!m_value);
-      m_value.set(t);
+      m_value.set(std::move(t));
 
       m_targetStage->executeStage();
     }

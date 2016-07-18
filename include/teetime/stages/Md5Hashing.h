@@ -15,8 +15,6 @@
  */
 #pragma once
 
-#define MD5_FUNCTIONAL_STAGE
-
 #ifndef MD5_FUNCTIONAL_STAGE
 
 #include <teetime/stages/AbstractConsumerStage.h>

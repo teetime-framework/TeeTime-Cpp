@@ -45,7 +45,7 @@ TEST(SynchedPipeTest, concurrent)
   std::thread producer([&]() {
     for (int i = 0; i < 1000; ++i)
     {
-      pipe.add(i);
+      pipe.add(std::move(i));
 
       using std::chrono::milliseconds;
       

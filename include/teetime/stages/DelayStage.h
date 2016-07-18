@@ -42,7 +42,9 @@ namespace teetime
       assert(m_outputPort);
       TEETIME_TRACE() << this->debugName() << ": delaying " << value;
       std::this_thread::sleep_for(std::chrono::milliseconds(m_milliseconds));
-      m_outputPort->send(value);
+
+      //FIXME(johl): replace copy by proper move
+      m_outputPort->send(T(value));
       TEETIME_TRACE() << this->debugName() << ": delaying done";
     }    
 

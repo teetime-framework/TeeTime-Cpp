@@ -47,6 +47,6 @@ void Directory2Files::execute(const std::string& value)
     File file;
     file.path = f;
 
-    getOutputPort().send(file);
+    getOutputPort().send(std::move(file));
   }
 }

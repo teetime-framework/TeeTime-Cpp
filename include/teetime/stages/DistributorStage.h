@@ -49,9 +49,10 @@ namespace teetime
       assert(abstractPort);
 
       auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
-      assert(typedPort);
-      
-      typedPort->send(value);
+      assert(typedPort);      
+
+      //FIXME(johl): replace copy by proper move
+      typedPort->send(T(value));
       
       m_next = portIndex + 1;
     }    

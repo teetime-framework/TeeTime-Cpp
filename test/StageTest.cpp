@@ -34,7 +34,7 @@ namespace
     {
       for(int i=0; i<3; ++i)
       {
-        getOutputPort().send(i);
+        getOutputPort().send(std::move(i));
       }
     }
   };

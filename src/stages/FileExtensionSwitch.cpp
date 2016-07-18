@@ -53,12 +53,15 @@ void FileExtensionSwitch::execute(const File& value)
 
   auto ext = (index != std::string::npos) ? value.path.substr(index + 1) : "";
   auto port = m_outputPorts[ext];
+
+  File copy = value;
+
   if (port)
   {
-    port->send(value);
+    port->send(std::move(copy));
   }
   else if (m_defaultOutputPort)
   {
-    m_defaultOutputPort->send(value);
+    m_defaultOutputPort->send(std::move(copy));
   }
 }
