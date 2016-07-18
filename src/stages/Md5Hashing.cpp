@@ -36,7 +36,7 @@ OutputPort<Md5Hash>& Md5Hashing::getOutputPort()
   return *m_outputPort;
 }
 
-void Md5Hashing::execute(const std::string& value)
+void Md5Hashing::execute(std::string&& value)
 {
   assert(m_outputPort);
   m_outputPort->send(Md5Hash::generate(value));

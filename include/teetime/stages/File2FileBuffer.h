@@ -28,7 +28,7 @@ namespace teetime
     OutputPort<FileBuffer>& getOutputPort();
 
   private:
-    virtual void execute(const File& value) override;
+    virtual void execute(File&& value) override;
 
     OutputPort<FileBuffer>* m_outputPort;
   };

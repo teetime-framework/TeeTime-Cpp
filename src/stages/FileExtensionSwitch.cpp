@@ -47,21 +47,19 @@ OutputPort<File>& FileExtensionSwitch::getDefaultOutputPort()
   return *m_defaultOutputPort;
 }
 
-void FileExtensionSwitch::execute(const File& value)
+void FileExtensionSwitch::execute(File&& value)
 {
   auto index = value.path.find_last_of('.');
 
   auto ext = (index != std::string::npos) ? value.path.substr(index + 1) : "";
   auto port = m_outputPorts[ext];
 
-  File copy = value;
-
   if (port)
   {
-    port->send(std::move(copy));
+    port->send(std::move(value));
   }
   else if (m_defaultOutputPort)
   {
-    m_defaultOutputPort->send(std::move(copy));
+    m_defaultOutputPort->send(std::move(value));
   }
 }

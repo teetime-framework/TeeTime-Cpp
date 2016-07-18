@@ -35,7 +35,7 @@ OutputPort<File>& Directory2Files::getOutputPort()
   return *m_outputPort;
 }
 
-void Directory2Files::execute(const std::string& value)
+void Directory2Files::execute(std::string&& value)
 {
   std::vector<std::string> files;
   collectFilesName(value, files, true);

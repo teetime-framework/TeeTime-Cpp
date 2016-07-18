@@ -26,7 +26,7 @@ namespace teetime
     size_t height;
   };
 
-  inline Image resizeImage(const ImageToResize& image)
+  inline Image resizeImage(ImageToResize& image)
   {
     return image.image.resize(image.width, image.height);
   }

@@ -37,14 +37,13 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const T& value) override
+    virtual void execute(T&& value) override
     {
       assert(m_outputPort);
       TEETIME_TRACE() << this->debugName() << ": delaying " << value;
       std::this_thread::sleep_for(std::chrono::milliseconds(m_milliseconds));
-
-      //FIXME(johl): replace copy by proper move
-      m_outputPort->send(T(value));
+      
+      m_outputPort->send(std::move(value));
       TEETIME_TRACE() << this->debugName() << ": delaying done";
     }    
 

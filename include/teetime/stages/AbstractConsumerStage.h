@@ -42,7 +42,7 @@ namespace teetime
   private:
     InputPort<T>* m_inputport;
 
-    virtual void execute(const T& value) = 0;
+    virtual void execute(T&& value) = 0;
 
     virtual void execute() override final
     {

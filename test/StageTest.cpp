@@ -49,7 +49,7 @@ namespace
     }
 
   private:
-    virtual void execute(const int& value)
+    virtual void execute(int&& value) override
     {
       TEETIME_INFO() << "processing value: " << value;
       valuesProcessed.push_back(value);

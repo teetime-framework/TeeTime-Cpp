@@ -36,7 +36,7 @@ OutputPort<FileBuffer>& File2FileBuffer::getOutputPort()
   return *m_outputPort;
 }
 
-void File2FileBuffer::execute(const File& value)
+void File2FileBuffer::execute(File&& value)
 {
   std::ifstream file(value.path, std::ios::binary | std::ios::ate);
 

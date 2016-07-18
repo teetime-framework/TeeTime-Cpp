@@ -29,7 +29,7 @@ namespace teetime
   private:
     static void collectFilesName(const std::string& directoy, std::vector<std::string>& filenames, bool recursive);
 
-    virtual void execute(const std::string& value) override;
+    virtual void execute(std::string&& value) override;
 
     OutputPort<File>* m_outputPort;
   };

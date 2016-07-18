@@ -28,7 +28,7 @@ namespace teetime
     OutputPort<File>& getOutputPort(const std::string& extension);
 
   private:
-    virtual void execute(const File& value) override;
+    virtual void execute(File&& value) override;
 
     std::unordered_map<std::string, OutputPort<File>*> m_outputPorts;
     OutputPort<File>* m_defaultOutputPort;

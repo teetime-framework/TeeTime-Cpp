@@ -40,10 +40,10 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const TIn& in) override
+    virtual void execute(TIn&& in) override
     {
       assert(m_f);
-      m_outputPort->send(m_f(in));
+      m_outputPort->send(m_f(std::move(in)));
     }
 
     const Function m_f;
@@ -68,10 +68,10 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const TIn& in) override
+    virtual void execute(TIn&& in) override
     { 
       assert(m_outputPort);
-      m_outputPort->send(TFunc(in));
+      m_outputPort->send(TFunc(std::move(in)));
     }
 
     OutputPort<TOut>* m_outputPort;
@@ -96,10 +96,10 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const TIn& in) override
+    virtual void execute(TIn&& in) override
     {
       assert(m_outputPort);
-      m_outputPort->send(m_function(in));
+      m_outputPort->send(m_function(std::move(in)));
     }
 
     std::function<TOut(TIn)> m_function;

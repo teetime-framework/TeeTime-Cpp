@@ -31,7 +31,7 @@ namespace test {
     }
 
   private:
-    virtual void execute(const int& value)
+    virtual void execute(int&& value)
     {
       TEETIME_INFO() << "consuming int '" << value << "'";
       valuesConsumed.push_back(value);

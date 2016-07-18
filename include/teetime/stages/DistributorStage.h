@@ -34,7 +34,7 @@ namespace teetime
     }
 
   private:
-    virtual void execute(const T& value) override
+    virtual void execute(T&& value) override
     {
       const uint32 numOutputPorts = AbstractStage::numOutputPorts();
       if(numOutputPorts == 0) 
@@ -51,8 +51,8 @@ namespace teetime
       auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
       assert(typedPort);      
 
-      //FIXME(johl): replace copy by proper move
-      typedPort->send(T(value));
+
+      typedPort->send(std::move(value));
       
       m_next = portIndex + 1;
     }    

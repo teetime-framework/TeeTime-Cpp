@@ -13,7 +13,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#pragma once
 #include <teetime/stages/ReadImage.h>
 #include <teetime/ports/OutputPort.h>
 #include <teetime/Image.h>
@@ -32,7 +31,7 @@ namespace teetime
     return *m_outputPort;
   }
 
-  void ReadImage::execute(const FileBuffer& buffer)
+  void ReadImage::execute(FileBuffer&& buffer)
   {
     Image image;
     if (image.loadFromMemory(buffer.bytes.data(), buffer.bytes.size(), buffer.path.c_str()))

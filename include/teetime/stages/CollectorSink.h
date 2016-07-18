@@ -42,9 +42,9 @@ namespace teetime {
   private:
     std::vector<T> m_elements;
 
-    virtual void execute(const T& value) override
+    virtual void execute(T&& value) override
     {
-      m_elements.push_back(value);
+      m_elements.push_back(std::move(value));
     }
   };
 

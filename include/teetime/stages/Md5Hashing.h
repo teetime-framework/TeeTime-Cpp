@@ -31,7 +31,7 @@ namespace teetime
     OutputPort<Md5Hash>& getOutputPort();
 
   private:
-    virtual void execute(const std::string& value) override;
+    virtual void execute(std::string&& value) override;
 
     OutputPort<Md5Hash>* m_outputPort;
   };
