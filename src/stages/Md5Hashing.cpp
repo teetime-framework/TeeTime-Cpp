@@ -15,6 +15,9 @@
  */
 
 #include <teetime/stages/Md5Hashing.h>
+
+#ifndef MD5_FUNCTIONAL_STAGE
+ 
 #include <teetime/ports/OutputPort.h>
 #include <teetime/Md5Hash.h>
 #include <memory.h>
@@ -38,3 +41,5 @@ void Md5Hashing::execute(const std::string& value)
   assert(m_outputPort);
   m_outputPort->send(Md5Hash::generate(value));
 }
+
+#endif

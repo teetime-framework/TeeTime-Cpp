@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 #pragma once
+
+#define MD5_FUNCTIONAL_STAGE
+
+#ifndef MD5_FUNCTIONAL_STAGE
+
 #include <teetime/stages/AbstractConsumerStage.h>
 #include <string>
 
@@ -33,3 +38,19 @@ namespace teetime
     OutputPort<Md5Hash>* m_outputPort;
   };
 }
+
+#else
+#include <teetime/stages/FunctionStage.h>
+#include <teetime/Md5Hash.h>
+
+namespace teetime
+{
+  inline Md5Hash generateMd5hashFromString(const std::string& s)
+  {
+    return Md5Hash::generate(s);
+  }
+
+  using Md5Hashing = FunctionStage<const std::string&, Md5Hash, generateMd5hashFromString>;
+}
+
+#endif
