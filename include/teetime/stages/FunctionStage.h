@@ -26,11 +26,11 @@ namespace teetime
     typedef TOut(*Function)(TIn in);
 
     explicit FunctionPtrStage(Function f, const char* debugName = "FunctionPtr")
-      : AbstractConsumerStage(debugName)
+      : AbstractConsumerStage<TIn>(debugName)
       , m_f(f)
     {
       assert(m_f);
-      m_outputPort = AbstractConsumerStage::addNewOutputPort<TOut>();
+      m_outputPort = AbstractStage::addNewOutputPort<TOut>();
     }
 
     OutputPort<TOut>& getOutputPort()
@@ -56,9 +56,9 @@ namespace teetime
   {
   public:
     explicit FunctionStage(const char* debugName = "Function")
-      : AbstractConsumerStage(debugName)
+      : AbstractConsumerStage<TIn>(debugName)
     {
-      m_outputPort = AbstractConsumerStage::addNewOutputPort<TOut>();
+      m_outputPort = AbstractStage::addNewOutputPort<TOut>();
     }
 
     OutputPort<TOut>& getOutputPort()
@@ -83,10 +83,10 @@ namespace teetime
   public:
     template<typename TFunc>
     explicit FunctionObjectStage(TFunc f, const char* debugName = "Function")
-      : AbstractConsumerStage(debugName)
+      : AbstractConsumerStage<TIn>(debugName)
       , m_function(f)
     {
-      m_outputPort = AbstractConsumerStage::addNewOutputPort<TOut>();
+      m_outputPort = AbstractStage::addNewOutputPort<TOut>();
     }
 
     OutputPort<TOut>& getOutputPort()

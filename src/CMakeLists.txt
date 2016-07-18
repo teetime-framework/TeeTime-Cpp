@@ -63,6 +63,7 @@ SET(SOURCES
   ports/AbstractOutputPort.cpp  
   stages/Directory2Files.cpp
   stages/Directory2Files_win32.cpp
+  stages/Directory2Files_posix.cpp
   stages/File2FileBuffer.cpp
   stages/FileExtensionSwitch.cpp
   stages/Md5Hash.cpp
