@@ -31,7 +31,7 @@ namespace teetime
   {
   public:
     Configuration();
-    ~Configuration();
+    virtual ~Configuration();
 
     void executeBlocking();
 
