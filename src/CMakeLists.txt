@@ -23,9 +23,10 @@ SET(HEADERS
   ${INCDIR}/Signal.h
   ${INCDIR}/Runnable.h
   ${INCDIR}/BlockingQueue.h  
-  ${INCDIR}/File.h  
+  ${INCDIR}/File.h    
   ${INCDIR}/FileBuffer.h  
-  ${INCDIR}/Image.h 
+  ${INCDIR}/Image.h   
+  ${INCDIR}/Md5Hash.h   
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
   ${INCDIR}/stages/AbstractProducerStage.h
@@ -40,7 +41,7 @@ SET(HEADERS
   ${INCDIR}/stages/ResizeImage.h
   ${INCDIR}/stages/SaveImage.h
   ${INCDIR}/stages/WriteFileBuffer.h
-  ${INCDIR}/stages/Md5Hash.h
+  ${INCDIR}/stages/Md5Hashing.h
   ${INCDIR}/stages/FileExtensionSwitch.h  
   ${INCDIR}/stages/FunctionStage.h  
   ${INCDIR}/ports/AbstractOutputPort.h
@@ -59,14 +60,15 @@ SET(SOURCES
   Configuration.cpp
   Runnable.cpp
   Thread.cpp
-  Image.cpp
+  Image.cpp  
+  Md5Hash.cpp
   ports/AbstractOutputPort.cpp  
   stages/Directory2Files.cpp
   stages/Directory2Files_win32.cpp
   stages/Directory2Files_posix.cpp
   stages/File2FileBuffer.cpp
   stages/FileExtensionSwitch.cpp
-  stages/Md5Hash.cpp
+  stages/Md5Hashing.cpp
   stages/ReadImage.cpp
   stages/ResizeImage.cpp
   stages/SaveImage.cpp

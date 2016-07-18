@@ -28,6 +28,7 @@ SET(SOURCES
   stages/File2FileBufferTest.cpp
   stages/FileExtensionSwitchTest.cpp
   stages/ReadImageTest.cpp
+  stages/Md5HashingTest.cpp
   stages/FunctionStageTest.cpp
   ConfigurationTest.cpp
   DistributorStageTest.cpp
