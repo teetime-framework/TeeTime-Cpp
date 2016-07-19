@@ -44,6 +44,7 @@ SET(HEADERS
   ${INCDIR}/stages/Md5Hashing.h
   ${INCDIR}/stages/FileExtensionSwitch.h  
   ${INCDIR}/stages/FunctionStage.h  
+  ${INCDIR}/stages/RandomIntProducer.h  
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
@@ -63,6 +64,7 @@ SET(SOURCES
   Image.cpp  
   Md5Hash.cpp
   ports/AbstractOutputPort.cpp  
+  stages/RandomIntProducer.cpp
   stages/Directory2Files.cpp
   stages/Directory2Files_win32.cpp
   stages/Directory2Files_posix.cpp

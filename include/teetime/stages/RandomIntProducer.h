@@ -13,32 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#pragma once
-#include <teetime/common.h>
+#include <teetime/stages/AbstractProducerStage.h>
 
 namespace teetime
-{ 
-  class Md5Hash final
+{
+  class RandomIntProducer final : public AbstractProducerStage<int>
   {
   public:
-    Md5Hash();    
-
-    ~Md5Hash() = default;
-    Md5Hash(const Md5Hash&) = default;
-    Md5Hash& operator=(const Md5Hash&) = default;
-
-    bool operator==(const Md5Hash& other) const;
-    bool operator!=(const Md5Hash& other) const;
-
-    std::string toHexString() const;    
-
-    static Md5Hash generate(const void* data, size_t dataSize);
-    static Md5Hash generate(const std::string& s);
-    static Md5Hash parseHexString(const std::string& s);
-    static Md5Hash parseHexString(const char s[32]);
+    explicit RandomIntProducer(int min, int max, unsigned num, const char* debugName = "RandomIntProducer");
 
   private:
-    uint8 value[16];
+    virtual void execute() override;
+
+    int m_min;
+    int m_max;
+    unsigned m_num;
   };
 }

@@ -19,10 +19,21 @@
 #include <teetime/stages/InitialElementProducer.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/Md5Hashing.h>
+#include <teetime/stages/benchmark/ReverseIntMd5Hashing.h>
 #include <teetime/Md5Hash.h>
 #include <teetime/ports/Port.h>
 
 using namespace teetime;
+
+
+TEST(Md5HashTest, roundtrip)
+{
+  auto bin = Md5Hash::generate("foobar");
+  auto s = bin.toHexString();
+  auto bin2 = Md5Hash::parseHexString(s);
+
+  EXPECT_EQ(bin, bin2);
+}
 
 namespace
 {
@@ -80,4 +91,43 @@ TEST(Md5HashTest, example2)
   ASSERT_EQ((size_t)1, hashes.size());
 
   EXPECT_EQ(std::string("e4d909c290d0fb1ca068ffaddf22cbd0"), hashes[0].toHexString());
+}
+
+namespace
+{
+  class ReverseIntMd5HashingTestConfig : public Configuration
+  {
+  public:
+    shared_ptr<CollectorSink<int>> ints;
+
+    explicit ReverseIntMd5HashingTestConfig(const std::vector<int> is)
+    {
+      std::vector<Md5Hash> hashes;
+      hashes.reserve(is.size());
+      for(auto i : is)
+      {
+        hashes.push_back(Md5Hash::generate(&i, sizeof(i)));
+      }
+
+      auto producer = createStage<InitialElementProducer<Md5Hash>>(hashes);
+      auto md5 = createStage<ReverseIntMd5Hashing>();
+      ints = createStage<CollectorSink<int>>();
+
+      producer->declareActive();
+      connect(producer->getOutputPort(), md5->getInputPort());
+      connect(md5->getOutputPort(), ints->getInputPort());
+    }
+  };
+}
+
+
+TEST(Md5HashTest, reverse)
+{
+  std::vector<int> input = { 42, 2014, 123, 0, 1234567 };
+  ReverseIntMd5HashingTestConfig config(input);
+
+  config.executeBlocking();
+
+  auto output = config.ints->takeElements();
+  ASSERT_EQ(input, output);
 }

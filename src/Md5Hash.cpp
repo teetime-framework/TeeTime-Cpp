@@ -392,4 +392,33 @@ Md5Hash Md5Hash::generate(const std::string& s)
   return generate(s.c_str(), s.size());
 }
 
+Md5Hash Md5Hash::parseHexString(const std::string& s)
+{
+  if(s.size() < 32) 
+  {
+    return Md5Hash();
+  }
+
+  return parseHexString(s.c_str());
+}
+
+Md5Hash Md5Hash::parseHexString(const char s[32])
+{
+  Md5Hash hash;
+
+  char buffer[3];
+  buffer[2] = '\0';
+
+  for(int i=0; i<16; ++i)
+  {    
+    buffer[0] = tolower(s[i*2 + 0]);
+    buffer[1] = tolower(s[i*2 + 1]);
+    
+    unsigned value;
+    sscanf(buffer, "%02x", &value);
+    hash.value[i] = static_cast<uint8>(value);
+  }
+
+  return hash;
+}
 
