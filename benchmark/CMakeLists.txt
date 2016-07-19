@@ -4,5 +4,5 @@ ENDIF()
 
 add_subdirectory(googlebenchmark)
 
-add_executable("mybenchmark" main.cpp)
-target_link_libraries(mybenchmark ${CMAKE_THREAD_LIBS_INIT} benchmark) #'benchmark' gets defined by googlebenchmark
+add_executable("teetime_benchmark" main.cpp)
+target_link_libraries(teetime_benchmark ${CMAKE_THREAD_LIBS_INIT} teetime benchmark) #'benchmark' gets defined by googlebenchmark

@@ -24,9 +24,10 @@ namespace teetime {
   class CollectorSink : public AbstractConsumerStage<T>
   {
   public:   
-    CollectorSink()
+    explicit CollectorSink(size_t capacity = 16)
       : AbstractConsumerStage<T>("CollectorSink")
     {
+      m_elements.reserve(capacity);
     }
 
     std::vector<T> getElements() const 
