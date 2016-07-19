@@ -18,45 +18,43 @@
 namespace teetime
 {
   template<typename T>
-  class Optional final
+  class alignas(alignof(T)) Optional final
   {
   public:
     Optional()
-     : m_hasValue(false)
-     , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))
-    {}
+     : m_ptr(nullptr)
+    {
+    }
 
     explicit Optional(const T& t)
      : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))
     {
       new (&m_buffer[0]) T(t);
-      m_hasValue = true;
     }
 
     explicit Optional(T&& t)
      : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))    
     {
       new (&m_buffer[0]) T(std::move(t));
-      m_hasValue = true;
     }   
 
     Optional(const Optional& rhs)
-      : m_hasValue(rhs.m_hasValue)
-      , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))      
+      : m_ptr(nullptr)      
     {
-      if(m_hasValue)
+      if(rhs.m_ptr)
       {
         new (&m_buffer[0]) T(*rhs);        
+        m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
       }
     }
 
     Optional(Optional&& rhs)
-      : m_hasValue(rhs.m_hasValue)
-      , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))      
+     : m_ptr(nullptr)
     {
-      if(m_hasValue)
+      if(rhs.m_ptr)
       {
         new (&m_buffer[0]) T(std::move(*rhs));
+        m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
       }
     }    
 
@@ -67,15 +65,15 @@ namespace teetime
 
     operator bool() const
     {
-      return m_hasValue;
+      return !!m_ptr;
     }
 
     void reset()
     {
-      if(m_hasValue)
+      if(m_ptr)
       {
         m_ptr->~T();
-        m_hasValue = false;
+        m_ptr = nullptr;
       }
     }
 
@@ -93,19 +91,18 @@ namespace teetime
     {
       reset();
       new (&m_buffer[0]) T(t);
-      m_hasValue = true;
+      m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
     }
 
     void set(T&& t)
     {
       reset();
       new (&m_buffer[0]) T(std::move(t));
-      m_hasValue = true;
+      m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
     }  
 
   private:
     char m_buffer[sizeof(T)];    
-    bool m_hasValue;
     T*   m_ptr;
   };
 }
