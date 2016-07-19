@@ -23,15 +23,18 @@ namespace teetime
   public:
     Optional()
      : m_hasValue(false)
+     , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))
     {}
 
     explicit Optional(const T& t)
+     : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))
     {
       new (&m_buffer[0]) T(t);
       m_hasValue = true;
     }
 
     explicit Optional(T&& t)
+     : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))    
     {
       new (&m_buffer[0]) T(std::move(t));
       m_hasValue = true;
@@ -39,6 +42,7 @@ namespace teetime
 
     Optional(const Optional& rhs)
       : m_hasValue(rhs.m_hasValue)
+      , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))      
     {
       if(m_hasValue)
       {
@@ -48,6 +52,7 @@ namespace teetime
 
     Optional(Optional&& rhs)
       : m_hasValue(rhs.m_hasValue)
+      , m_ptr(reinterpret_cast<T*>(&m_buffer[0]))      
     {
       if(m_hasValue)
       {
@@ -69,19 +74,19 @@ namespace teetime
     {
       if(m_hasValue)
       {
-        reinterpret_cast<T*>(&m_buffer[0])->~T();
+        m_ptr->~T();
         m_hasValue = false;
       }
     }
 
     T& operator*()
     {
-      return *reinterpret_cast<T*>(&m_buffer[0]);
+      return *m_ptr;
     }
 
     const T& operator*() const
     {
-      return *reinterpret_cast<T*>(&m_buffer[0]);
+      return *m_ptr;
     }  
 
     void set(const T& t)
@@ -99,7 +104,8 @@ namespace teetime
     }  
 
   private:
-    char m_buffer[sizeof(T)];
+    char m_buffer[sizeof(T)];    
     bool m_hasValue;
+    T*   m_ptr;
   };
 }
