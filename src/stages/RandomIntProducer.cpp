@@ -30,13 +30,15 @@ namespace teetime
   
   void RandomIntProducer::execute()
   {
-    std::random_device                  rand_dev;
-    std::mt19937                        generator(rand_dev());
+    //std::random_device                  rand_dev;
+    std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
     std::uniform_int_distribution<int>  distr(m_min, m_max);
 
     for (unsigned i = 0; i < m_num; ++i) 
     {
-      AbstractProducerStage<int>::getOutputPort().send(distr(generator));
+      int value = distr(generator);
+      TEETIME_TRACE() << "random value produced: " << value;
+      AbstractProducerStage<int>::getOutputPort().send(std::move(value));
     }
 
     AbstractProducerStage<int>::terminate();

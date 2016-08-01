@@ -53,6 +53,8 @@ namespace teetime
     COUNT
   };
 
+  LogLevel getLogLevelFromArgs( int argc, char** argv );
+
   LogLevel String2LogLevel(const char* s);
 
   const char* LogLevel2String(LogLevel level);

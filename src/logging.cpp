@@ -126,6 +126,19 @@ namespace teetime
 
     std::cout << "(" << line << "): " << message << std::endl;
   }
+
+  LogLevel getLogLevelFromArgs( int argc, char** argv ) 
+  {
+    for(int i=0; i<(argc-1); ++i)
+    {
+      if(strcmp(argv[i], "--loglevel") == 0)
+      {
+        return String2LogLevel(argv[i+1]);
+      }    
+    }
+
+    return LogLevel::Off;
+  }  
 }
 
 

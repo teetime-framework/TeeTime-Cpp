@@ -16,23 +16,10 @@
 #include <gtest/gtest.h>
 #include <teetime/logging.h>
 
-::teetime::LogLevel getLogLevelFromArgs( int argc, char** argv ) 
-{
-  for(int i=0; i<(argc-1); ++i)
-  {
-    if(strcmp(argv[i], "--loglevel") == 0)
-    {
-      return ::teetime::String2LogLevel(argv[i+1]);
-    }    
-  }
-
-  return ::teetime::LogLevel::Off;
-}
-
 int main( int argc, char** argv )
 {
   ::teetime::setLogCallback(::teetime::simpleLogging);
-  ::teetime::setLogLevel(getLogLevelFromArgs(argc, argv));
+  ::teetime::setLogLevel(::teetime::getLogLevelFromArgs(argc, argv));
 
   ::testing::InitGoogleTest( &argc, argv );
 

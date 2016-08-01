@@ -4,3 +4,6 @@
 [submodule "benchmark/googlebenchmark"]
 	path = benchmark/googlebenchmark
         url = https://github.com/google/benchmark.git
+[submodule "fastflow/fastflow"]
+	path = fastflow/fastflow
+	url = https://github.com/eXistence/fastflow.git
