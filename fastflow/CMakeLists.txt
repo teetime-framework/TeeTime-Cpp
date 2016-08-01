@@ -21,4 +21,4 @@ add_executable("ff_md5" "md5.cpp")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(ff_md5 Threads::Threads)
+target_link_libraries(ff_md5 Threads::Threads teetime)

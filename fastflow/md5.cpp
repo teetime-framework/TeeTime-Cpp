@@ -21,61 +21,116 @@
 #include <thread> 
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
+#include <thread> 
+
+#include <teetime/Md5Hash.h>
+
 using namespace ff;
 
-int main() {
+using teetime::Md5Hash;
 
-  static std::string ExNumber = "1";
+struct Producer: ff_node_t<char, int> 
+{ 
+  Producer(int num, int min, int max)
+    : m_num(num)
+    , m_min(min)
+    , m_max(max)
+  {
+  } 
 
-  // generates 10 tasks
-  struct Stage0: ff_node_t<char, long> {  // NOTE: 'void' cannot be used as input/output type!
-      long *svc(char *) {
-          for(size_t i=0;i<10;++i) {
-              auto p = new long(i);
-              std::cout << std::this_thread::get_id() << " (" << __LINE__ << ")  out: " << *p << "\n";
-              ff_send_out(p);
-          }
-          return EOS;
+  int* svc(char*) 
+  {
+    std::mt19937                        generator(0);
+    std::uniform_int_distribution<int>  distr(m_min, m_max);
+
+    for (unsigned i = 0; i < m_num; ++i) 
+    {
+      int value = distr(generator);
+      ff_send_out(new int(value));
+    }
+
+    return EOS;
+  }
+
+private:
+  int m_num;
+  int m_min;
+  int m_max;    
+}; 
+
+struct Hasher: ff_node_t<int, Md5Hash> 
+{ 
+  Md5Hash* svc(int* value) 
+  {
+    auto hash = Md5Hash::generate(value, sizeof(*value));
+    delete value;
+    return new Md5Hash(hash);
+  }
+}; 
+
+struct HashCracker: ff_node_t<Md5Hash, int> 
+{ 
+  int* svc(Md5Hash* value) 
+  {
+    int ret = -1;
+    for(int i=0; i<INT_MAX; ++i) {
+      if( Md5Hash::generate(&i, sizeof(i)) == *value ) {
+        ret = i;
+        break;
       }
-  };	
-  // prints tasks
-  struct Stage1: ff_node_t<long,char> {   // NOTE: 'void' cannot be used as input/output type!
-      int svc_init() { std::cout << "Ex " << ExNumber << ":\n"; return 0;}
-      char *svc(long *task) {
-          std::cout << std::this_thread::get_id() << *task << "\n" ;
-          delete task;
-          return GO_ON;
-      }
-      void svc_end() { std::cout << "\n----------\n"; }
-  };
-  // function: it adds 1 to the input task and then returns the task
-  auto F = [](long *in, ff_node*const)->long* {
-      std::cout << std::this_thread::get_id() << " (" << __LINE__ << ")  in: " << *in << "\n";
-      *in += 1;
-      return in;
-  };
+    }    
 
-  Stage0 s0;
-  Stage1 s1;
+    delete value;
+    return new int(ret);
+  }
+}; 
+
+struct Sink: ff_node_t<int, char> 
+{ 
+  virtual char* svc(int* value) override
+  {
+    m_values.push_back(*value);
+    delete value;
+    return GO_ON;
+  }
+
+  std::vector<int> m_values;
+};
+
+
+struct Deleter: ff_node_t<int,char> 
+{
+  virtual char *svc(int* value) override
+  {
+    delete value;
+    return GO_ON;
+  }
+};
+
+int main(int argc, char** argv) 
+{
+  if(argc < 5) {
+    std::cout << "usage: md5 <count> <min> <max> <threads> [verbose]" << std::endl;
+    return EXIT_FAILURE;
+  }
   
-  // creating stages from a function F
-  ff_node_F<long,long> s01(F), s011(F);
+  int num = atoi(argv[1]);
+  int min = atoi(argv[2]);
+  int max = atoi(argv[3]);
+  int threads = atoi(argv[4]);
+  bool verbose = (argc > 5 && atoi(argv[5]) > 0);
+
+  std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << ", verbose=" << verbose << std::endl;
+
+  Producer producer(num, min, max);
+  Hasher hasher;
+  HashCracker cracker;
+  Sink sink;
   
-  // creates a farm from a function F with 3 workers, 
-  // default emitter and collector implicitly added to the farm
-  //ff_Farm<long,long> farm(F,3);
-  //          ^
-  //          |----- here the types have to be set because the 'farm' will be used in a pipeline (see below). 
-  
-  // pipe with a farm
-  //ff_Pipe<long,long> pipe0(s01,s011, farm); // NOTE: references used here instead of pointers
-  //          ^
-  //          |----- here the types have to be set because the 'pipe0' will be used as a stage of another pipeline 
-  
-  // main pipe, no input and output stream
-  ff_Pipe<> pipe(s0, s1);      // NOTE: references used here instead of pointers
+  ff_Pipe<> pipe(producer, hasher, cracker, sink);      // NOTE: references used here instead of pointers
   
   if (pipe.run_and_wait_end()<0) 
     error("running pipe\n");
 
+  return EXIT_SUCCESS;
 }
