@@ -44,7 +44,7 @@ namespace teetime
 
       const uint32 portIndex = m_next % numOutputPorts;
 
-      TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
+      //TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
       auto abstractPort = AbstractStage::getOutputPort(portIndex);
       assert(abstractPort);
 

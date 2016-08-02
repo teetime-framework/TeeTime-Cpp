@@ -144,6 +144,27 @@ public:
   }
 };
 
+class Config3 : public Configuration
+{
+public:
+  Config3(int num, int min, int max) 
+  {
+    auto producer = createStage<RandomIntProducer>(min, max, num);
+    auto hash = createStageFromFunction<int, Md5Hash, hashInt>();
+    auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
+    auto sink = createStage<CollectorSink<int>>();
+
+    producer->declareActive();
+    hash->declareActive();
+    revhash->declareActive();
+    sink->declareActive();
+
+    connect(producer->getOutputPort(), hash->getInputPort());
+    connect(hash->getOutputPort(), revhash->getInputPort());
+    connect(revhash->getOutputPort(), sink->getInputPort());
+  }
+};
+
 int main(int argc, char** argv) 
 {
   if(argc < 5) {
@@ -166,9 +187,13 @@ int main(int argc, char** argv)
     Config2 config(num, min, max, threads, verbose);
     config.executeBlocking();    
   }
-  else {
+  else if(threads == 0) {
     Config config(num, min, max, verbose);
     config.executeBlocking();    
+  } 
+  else {
+    Config3 config(num, min, max);
+    config.executeBlocking();        
   }
 
   return EXIT_SUCCESS;

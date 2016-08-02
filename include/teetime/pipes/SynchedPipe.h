@@ -25,8 +25,75 @@
 #include "../Signal.h"
 #include "../Optional.h"
 
+ #include "ProducerConsumerQueue.h"
+
 namespace teetime
-{
+{  
+#if 1
+  template<typename T>
+  class SynchedPipe final : public Pipe<T>
+  {
+  public:
+    explicit SynchedPipe(uint32 initialCapacity)
+     : m_queue(initialCapacity)
+    {
+    }
+
+    virtual Optional<T> removeLast() override
+    {
+      T ret;
+      if(m_queue.read(ret)) {
+        return Optional<T>(ret);
+      }
+            
+      return Optional<T>();
+    }
+
+    virtual void add(T&& t) override
+    {
+      while(true) {
+        if(m_queue.write(std::move(t)))
+          break;
+      }      
+    }
+
+    virtual void addSignal(const Signal& signal) override
+    {    
+      if(signal.type == SignalType::Terminating)
+      {
+        this->close();
+        return;
+      }
+
+      m_signals.add(signal);
+    }
+
+    virtual void waitForStartSignal() override
+    {      
+      auto s = m_signals.take();
+      if(s.type != SignalType::Start)
+      {
+        throw std::runtime_error("Wrong signal type");
+      }
+    }
+
+    unsigned size() const
+    {
+      return static_cast<unsigned>(m_queue.sizeGuess());
+    }      
+
+    virtual bool isEmpty() const override
+    {
+      return (size() == 0);
+    }
+
+  private:
+    //TODO(johl): merge m_signals and m_buffer into one queue, so order is always preserved?
+    BlockingQueue<Signal> m_signals;
+    folly::ProducerConsumerQueue<T> m_queue;
+  };
+
+#else  
   template<typename T>
   class SynchedPipe final : public Pipe<T>
   {
@@ -104,4 +171,5 @@ namespace teetime
     std::atomic<unsigned> m_size;
     mutable std::mutex m_mutex;
   };
+#endif  
 }
