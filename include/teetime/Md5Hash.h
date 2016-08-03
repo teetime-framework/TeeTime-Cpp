@@ -16,13 +16,15 @@
  
 #pragma once
 #include <teetime/common.h>
+#include <cstring>
 
 namespace teetime
 { 
   class Md5Hash final
   {
   public:
-    Md5Hash();    
+    Md5Hash();
+    explicit Md5Hash(const uint8 bytes[16]);
 
     ~Md5Hash() = default;
     Md5Hash(const Md5Hash&) = default;
@@ -41,4 +43,24 @@ namespace teetime
   private:
     uint8 value[16];
   };
+
+  inline Md5Hash::Md5Hash()
+  {
+    std::memset(value, 0, sizeof(value));
+  }
+
+  inline Md5Hash::Md5Hash(const uint8 bytes[16])
+  {
+    std::memcpy(&value[0], &bytes[0], 16);
+  }  
+
+  inline bool Md5Hash::operator==(const Md5Hash& other) const
+  {
+    return std::memcmp(value, other.value, sizeof(value)) == 0;
+  }
+
+  inline bool Md5Hash::operator!=(const Md5Hash& other) const
+  {
+    return !(*this == other);
+  }  
 }

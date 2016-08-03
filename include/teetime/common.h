@@ -33,6 +33,8 @@
 #define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER __pragma(warning( disable: 4100 4189 ))
 #define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION __pragma(warning( disable: 4244 ))
 #define TEETIME_WARNING_DISABLE_UNREACHABLE __pragma(warning( disable: 4702 ))
+#define TEETIME_WARNING_DISABLE_EMPTY_BODY
+#define TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT
 
 #elif defined(__GNUC__)
 
@@ -45,6 +47,8 @@
  _Pragma("GCC diagnostic ignored \"-Wunused-variable\"")
 #define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
 #define TEETIME_WARNING_DISABLE_UNREACHABLE
+#define TEETIME_WARNING_DISABLE_EMPTY_BODY _Pragma("GCC diagnostic ignored \"-Wempty-body\"")
+#define TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"")
 
 #endif
 

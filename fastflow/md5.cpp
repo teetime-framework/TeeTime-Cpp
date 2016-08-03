@@ -18,12 +18,21 @@
 #include <cstdio>
 #include <string>
 #include <memory>
-#include <thread> 
-#include <ff/pipeline.hpp>
-#include <ff/farm.hpp>
-#include <thread> 
+#include <thread>
 
 #include <teetime/Md5Hash.h>
+
+TEETIME_WARNING_PUSH
+TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
+TEETIME_WARNING_DISABLE_EMPTY_BODY
+TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT
+
+#include <ff/pipeline.hpp>
+#include <ff/farm.hpp>
+
+TEETIME_WARNING_POP
+
+
 
 using namespace ff;
 

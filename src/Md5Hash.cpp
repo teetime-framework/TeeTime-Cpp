@@ -346,21 +346,6 @@ namespace
 
 using namespace teetime;
 
-Md5Hash::Md5Hash()
-{
-  memset(value, 0, sizeof(value));
-}
-
-bool Md5Hash::operator==(const Md5Hash& other) const
-{
-  return memcmp(value, other.value, sizeof(value)) == 0;
-}
-
-bool Md5Hash::operator!=(const Md5Hash& other) const
-{
-  return !(*this == other);
-}
-
 std::string Md5Hash::toHexString() const
 {
   char buffer[33];
@@ -377,14 +362,14 @@ std::string Md5Hash::toHexString() const
 
 Md5Hash Md5Hash::generate(const void* data, size_t dataSize)
 {
-  Md5Hash ret;
+  unsigned char buffer[16];
 
   MD5_CTX ctx;
   MD5_Init(&ctx);
   MD5_Update(&ctx, data, dataSize);
-  MD5_Final((unsigned char*)ret.value, &ctx);
-
-  return ret;
+  MD5_Final(&buffer[0], &ctx);
+  
+  return Md5Hash(buffer);
 }
 
 Md5Hash Md5Hash::generate(const std::string& s)
