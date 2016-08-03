@@ -18,6 +18,34 @@
 #include <memory>
 #include "logging.h"
 
+#ifdef _MSC_VER
+
+#if (_MSC_VER < 1900) 
+//MSVC versions prior to 2015 do not support C++11's 'thread_local' keyword
+//'__declspec(thread)' achieves the same thing, but does not work for types with a non-trivial ctor ;(
+#define thread_local __declspec(thread)
+#endif
+
+#define TEETIME_WARNING_PUSH __pragma(warning( push ))
+#define TEETIME_WARNING_POP __pragma(warning( pop ))
+
+#define TEETIME_WARNING_DISABLE_CONSTANT_CONDITION __pragma(warning( disable: 4127 ))
+#define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER __pragma(warning( disable: 4100 4189 ))
+#define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION __pragma(warning( disable: 4244 ))
+#define TEETIME_WARNING_DISABLE_UNREACHABLE __pragma(warning( disable: 4702 ))
+
+#elif defined(GNU)
+
+#define TEETIME_WARNING_PUSH _Pragma(GCC diagnostic push)
+#define TEETIME_WARNING_POP _Pragma(GCC diagnostic pop)
+
+#define TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
+#define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
+#define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
+#define TEETIME_WARNING_DISABLE_UNREACHABLE
+
+#endif
+
 namespace teetime
 {
   using std::shared_ptr;

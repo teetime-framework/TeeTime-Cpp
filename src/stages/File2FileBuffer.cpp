@@ -20,6 +20,7 @@
 #include <teetime/File.h>
 
 #include <fstream>
+#include <limits>
 
 using namespace teetime;
 
@@ -39,19 +40,29 @@ OutputPort<FileBuffer>& File2FileBuffer::getOutputPort()
 void File2FileBuffer::execute(File&& value)
 {
   std::ifstream file(value.path, std::ios::binary | std::ios::ate);
-
   std::streamsize size = file.tellg();
+
+  assert(size >= 0);
+  if (size > std::numeric_limits<size_t>::max()) 
+  {
+    TEETIME_ERROR() << "file too big: " << value.path;
+    return;
+  }
+
   file.seekg(0, std::ios::beg);
 
   FileBuffer buffer;
   buffer.path = value.path;
-  buffer.bytes.resize(size);
-  if (file.read((char*)buffer.bytes.data(), size))
-  {
-    getOutputPort().send(std::move(buffer));
-  }
-  else
-  {
-    TEETIME_DEBUG() << "failed to read file: " << value.path;
-  } 
+  buffer.bytes.resize(static_cast<size_t>(size));
+
+  //don't try to read if size is 0 anyway (because buffer.bytes.data() may return null in this case)
+	if (size == 0 || file.read((char*)buffer.bytes.data(), size)) 
+	{
+		getOutputPort().send(std::move(buffer));
+	}
+	else
+	{
+		TEETIME_DEBUG() << "failed to read file: " << value.path;
+	}
+  
 }

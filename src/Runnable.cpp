@@ -43,7 +43,7 @@ void ProducerStageRunnable::run()
     TEETIME_DEBUG() << "send start signal";
     auto port = m_stage->getOutputPort(i);
     assert(port);
-    port->sendSignal(Signal{SignalType::Start});
+    port->sendSignal(Signal{SignalType::Start, m_stage});
   }
 
   TEETIME_DEBUG() << "execute producer stage '" << m_stage->debugName() << "'";
@@ -77,7 +77,7 @@ void ConsumerStageRunnable::run()
     {
       auto port = m_stage->getOutputPort(i);
       assert(port);
-      port->sendSignal(Signal{SignalType::Start});
+      port->sendSignal(Signal{ SignalType::Start, m_stage });
     }
   }
 
@@ -99,7 +99,7 @@ void ConsumerStageRunnable::run()
     {
       auto port = m_stage->getOutputPort(i);
       assert(port);
-      port->sendSignal(Signal{SignalType::Terminating});
+      port->sendSignal(Signal{ SignalType::Terminating, m_stage });
     }
   }
 

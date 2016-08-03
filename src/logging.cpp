@@ -34,7 +34,7 @@ namespace
     std::stringstream buffer;
   };
 
-  thread_local LogData logdata;
+  thread_local LogData* logdata = nullptr;
 
   LogLevel currentLogLevel = LogLevel::Off;
   LogCallback logCallback = nullptr;
@@ -144,19 +144,24 @@ namespace teetime
 
 Logger::Logger(const char* file, int line, LogLevel level)
 {
-  logdata.file = file;
-  logdata.line = line;
-  logdata.level = level;
+	if (!logdata)
+		logdata = new LogData();
+
+  logdata->file = file;
+  logdata->line = line;
+  logdata->level = level;
 }
 
 Logger::~Logger()
 { 
-  logCallback(std::this_thread::get_id(), logdata.file, logdata.line, logdata.level, logdata.buffer.str().c_str(), customLogCallbackData);
-  logdata.buffer.str("");    
+  assert(logdata);
+  logCallback(std::this_thread::get_id(), logdata->file, logdata->line, logdata->level, logdata->buffer.str().c_str(), customLogCallbackData);
+  logdata->buffer.str("");    
 }
 
 std::ostream& Logger::buffer()
 {
-  return logdata.buffer;
+  assert(logdata);
+  return logdata->buffer;
 }
 

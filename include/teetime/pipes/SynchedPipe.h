@@ -25,7 +25,10 @@
 #include "../Signal.h"
 #include "../Optional.h"
 
- #include "ProducerConsumerQueue.h"
+TEETIME_WARNING_PUSH
+TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
+#include "ProducerConsumerQueue.h"
+TEETIME_WARNING_POP
 
 namespace teetime
 {  
@@ -51,10 +54,10 @@ namespace teetime
 
     virtual void add(T&& t) override
     {
-      while(true) {
-        if(m_queue.write(std::move(t)))
-          break;
-      }      
+      while (!m_queue.write(std::move(t)))
+      {
+        //do nothing
+      }
     }
 
     virtual void addSignal(const Signal& signal) override

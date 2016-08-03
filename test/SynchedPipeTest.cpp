@@ -57,7 +57,8 @@ TEST(SynchedPipeTest, concurrent)
   });
 
   std::thread consumer([&]() {
-    while (true)
+    bool run = true;
+    while (run)
     {
       if (pipe.size() > 0)
       {
@@ -71,7 +72,7 @@ TEST(SynchedPipeTest, concurrent)
         }
         else
         {
-          break;
+          run = false;
         }        
       }
     }

@@ -90,3 +90,108 @@ TEST(ConfigurationTest, simple2)
   EXPECT_EQ(103, config.consumer->valuesConsumed[3]);
   EXPECT_EQ(104, config.consumer->valuesConsumed[4]);
 }
+
+
+namespace
+{
+  class TestProcessingStage : public AbstractConsumerStage<int>
+  {
+  public:
+    TestProcessingStage()
+      : AbstractConsumerStage<int>("TestProcessingStage")
+    {
+      m_outputPort = AbstractStage::addNewOutputPort<int>();
+    }
+
+    OutputPort<int>& getOutputPort()
+    {
+      return *m_outputPort;
+    }
+
+  private:
+    virtual void execute(int&& value) override
+    {
+      m_outputPort->send(value - 1);
+    }
+
+    OutputPort<int>* m_outputPort;
+  };
+
+  class TestLoopStage : public AbstractConsumerStage<int>
+  {
+  public:
+    TestLoopStage()
+      : AbstractConsumerStage<int>("TestLoopStage")
+    {
+      m_outputPortA = AbstractStage::addNewOutputPort<int>();
+      m_outputPortB = AbstractStage::addNewOutputPort<int>();
+      m_inputPortB = AbstractStage::addNewInputPort<int>();
+    }
+
+    OutputPort<int>& getOutputPortA()
+    {
+      return *m_outputPortA;
+    }
+
+    OutputPort<int>& getOutputPortB()
+    {
+      return *m_outputPortB;
+    }
+
+    InputPort<int>& getSecondInputPort()
+    {
+      return *m_inputPortB;
+    }
+
+  private:
+    virtual void execute(int&& value) override
+    {
+      if (value <= 0)
+      {
+        m_outputPortA->send(std::move(value));
+      }
+      else
+      {
+        m_outputPortB->send(std::move(value));
+      }
+    }
+
+    OutputPort<int>* m_outputPortA;
+    OutputPort<int>* m_outputPortB;
+    InputPort<int>* m_inputPortB;
+  };
+
+  class LoopConfiguration : public Configuration
+  {
+  public:
+    shared_ptr<IntProducerStage> producer;
+    shared_ptr<IntConsumerStage> consumer;
+
+    explicit LoopConfiguration()
+    {
+      producer = createStage<IntProducerStage>();
+      auto loop = createStage<TestLoopStage>();
+      auto decrement = createStage<TestProcessingStage>();
+      consumer = createStage<IntConsumerStage>();
+
+      producer->declareActive();
+
+      connect(producer->getOutputPort(), loop->getInputPort());
+      connect(loop->getOutputPortA(), consumer->getInputPort());
+      connect(loop->getOutputPortB(), decrement->getInputPort());
+      connect(decrement->getOutputPort(), loop->getSecondInputPort());
+    }
+  };
+}
+
+TEST(ConfigurationTest, DISABLED_loop)
+{
+  LoopConfiguration config;
+  config.producer->numValues = 1;
+  config.producer->startValue = 1;
+
+  config.executeBlocking();
+
+  ASSERT_EQ((size_t)1, config.consumer->valuesConsumed.size());
+  EXPECT_EQ(0, config.consumer->valuesConsumed[0]);
+}

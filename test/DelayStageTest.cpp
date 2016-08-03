@@ -55,7 +55,7 @@ TEST(DelayStageTest, simple)
   config.executeBlocking();
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();  
 
-  uint32 time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   TEETIME_TRACE() << "time: " << time;
   EXPECT_TRUE(time >= 3000);
 }
@@ -107,9 +107,9 @@ TEST(DelayStageTest, parallel)
   config.executeBlocking();
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();  
 
-  uint32 time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-  TEETIME_TRACE() << "time: " << time;
-  const uint32 tolerance = 100;
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+  TEETIME_INFO() << "time: " << time;
+  const decltype(time) tolerance = 200;
   EXPECT_TRUE(time >= 1000);
   EXPECT_TRUE(time < (1000 + tolerance));
 }

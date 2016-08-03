@@ -70,16 +70,15 @@ namespace teetime
     const std::vector<AbstractOutputPort*>& getOutputPorts() const;
     const std::vector<AbstractInputPort*>& getInputPorts() const;
 
-  private:
-    StageState m_state;
-
+  private:   
     virtual unique_ptr<Runnable> createRunnable() = 0;
     virtual void execute() = 0;
-    unique_ptr<Runnable> m_runnable;
 
-    std::vector<AbstractInputPort*> m_inputPorts;
+    StageState                       m_state;
+    unique_ptr<Runnable>             m_runnable;
+    std::vector<AbstractInputPort*>  m_inputPorts;
     std::vector<AbstractOutputPort*> m_outputPorts;
-    std::string m_debugName;
+    std::string                      m_debugName;
   };
 
   template<typename T>

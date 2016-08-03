@@ -411,8 +411,8 @@ Md5Hash Md5Hash::parseHexString(const char s[32])
 
   for(int i=0; i<16; ++i)
   {    
-    buffer[0] = tolower(s[i*2 + 0]);
-    buffer[1] = tolower(s[i*2 + 1]);
+    buffer[0] = static_cast<char>(tolower(s[i * 2 + 0]));
+    buffer[1] = static_cast<char>(tolower(s[i * 2 + 1]));
     
     unsigned value;
     sscanf(buffer, "%02x", &value);

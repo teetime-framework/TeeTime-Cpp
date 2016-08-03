@@ -79,6 +79,9 @@ void AbstractStage::declareNonActive()
 
 void AbstractStage::onSignal(const Signal& s)
 {
+  if (s.sender == this)
+    return;
+
   if(s.type == SignalType::Terminating) 
   {
     TEETIME_DEBUG() << debugName() << ": Terminating signal received";
@@ -145,7 +148,7 @@ void AbstractStage::terminate()
   for(auto p : m_outputPorts)
   {
     TEETIME_DEBUG() << debugName() << " : send Terminating signal";
-    p->sendSignal(Signal{SignalType::Terminating});
+    p->sendSignal(Signal{SignalType::Terminating, this});
   }
 
   m_state = StageState::Terminated;

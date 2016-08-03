@@ -24,9 +24,18 @@ namespace teetime
     Terminating
   };
 
+  class AbstractStage;
+
   struct Signal
   {
+  public:
+    Signal(SignalType type, const AbstractStage* stage)
+      : type(type)
+      , sender(stage)
+    {}
+
     SignalType type;
+    const AbstractStage* sender;
   };
 
   inline const char* toString(SignalType type)

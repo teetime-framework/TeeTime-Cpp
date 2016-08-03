@@ -16,14 +16,20 @@
 #include <teetime/Image.h>
 #include <mutex>
 
-#pragma warning( push )
-#pragma warning( disable: 4244 )
+TEETIME_WARNING_PUSH
+TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
+TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
+TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
+TEETIME_WARNING_DISABLE_UNREACHABLE
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
-#pragma warning( pop )
+
+TEETIME_WARNING_POP
+
 using namespace teetime;
 
 

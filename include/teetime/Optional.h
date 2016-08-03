@@ -15,10 +15,12 @@
  */
 #pragma once
 
+//alignas(alignof(T))
+ 
 namespace teetime
 {
   template<typename T>
-  class alignas(alignof(T)) Optional final
+  class Optional final
   {
   public:
     Optional()

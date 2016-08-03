@@ -26,6 +26,7 @@
 #include <teetime/ports/Port.h>
 #include <teetime/logging.h>
 #include <climits>
+#include <string>
 
 using namespace teetime;
 
