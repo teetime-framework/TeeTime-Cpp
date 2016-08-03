@@ -34,13 +34,15 @@
 #define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION __pragma(warning( disable: 4244 ))
 #define TEETIME_WARNING_DISABLE_UNREACHABLE __pragma(warning( disable: 4702 ))
 
-#elif defined(GNU)
+#elif defined(__GNUC__)
 
-#define TEETIME_WARNING_PUSH _Pragma(GCC diagnostic push)
-#define TEETIME_WARNING_POP _Pragma(GCC diagnostic pop)
+#define TEETIME_WARNING_PUSH _Pragma("GCC diagnostic push")
+#define TEETIME_WARNING_POP _Pragma("GCC diagnostic pop")
 
 #define TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
-#define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
+#define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER \
+ _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
+ _Pragma("GCC diagnostic ignored \"-Wunused-variable\"")
 #define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
 #define TEETIME_WARNING_DISABLE_UNREACHABLE
 
