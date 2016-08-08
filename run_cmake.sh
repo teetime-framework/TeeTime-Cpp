@@ -7,7 +7,7 @@ CMAKE_BUILD_TYPE="Debug"
 CMAKE_GENERATOR="Sublime Text 2 - Unix Makefiles"
 
 if [ "$#" -ne "2" ]; then
-  echo "Usage run_cmake.sh <gcc|clang|clang-libc++> <debug|release>"
+  echo "Usage run_cmake.sh <gcc|clang|clang-libc++> <debug|release|reldeb>"
   exit 1
 fi  
 
@@ -45,6 +45,11 @@ if [ "$#" -ge "2" ]; then
     BUILDTYPE="release"
     CMAKE_BUILD_TYPE="Release"
   fi  
+
+  if [ "$2" = "reldeb" ]; then
+    BUILDTYPE="relwithdebinfo"
+    CMAKE_BUILD_TYPE="relwithdebinfo"
+  fi    
 fi
 
 BUILDDIR=build/$DIRECTORY/$BUILDTYPE

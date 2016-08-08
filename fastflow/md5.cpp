@@ -22,6 +22,7 @@
 #include <random> 
 
 #include <teetime/Md5Hash.h>
+#include <teetime/logging.h>
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
@@ -56,6 +57,7 @@ struct Producer: ff_node_t<char, int>
     for (unsigned i = 0; i < m_num; ++i) 
     {
       int value = distr(generator);
+      TEETIME_TRACE() << "produced: " << value;
       ff_send_out(new int(value));
     }
 
@@ -73,6 +75,7 @@ struct Hasher: ff_node_t<int, Md5Hash>
   Md5Hash* svc(int* value) 
   {
     auto hash = Md5Hash::generate(value, sizeof(*value));
+    TEETIME_TRACE() << "generated hash: " << hash.toHexString();
     delete value;
     return new Md5Hash(hash);
   }
@@ -85,12 +88,13 @@ struct HashCracker: ff_node_t<Md5Hash, int>
     int ret = -1;
     for(int i=0; i<INT_MAX; ++i) {
       if( Md5Hash::generate(&i, sizeof(i)) == *value ) {
-        ret = i;
+        ret = i;        
         break;
       }
     }    
 
     delete value;
+    TEETIME_TRACE() << "cracked hash: " << ret;
     return new int(ret);
   }
 }; 
@@ -100,6 +104,7 @@ struct Sink: ff_node_t<int, char>
   virtual char* svc(int* value) override
   {
     m_values.push_back(*value);
+    TEETIME_TRACE() << "sinked: " << *value;
     delete value;
     return GO_ON;
   }
@@ -120,27 +125,52 @@ struct Deleter: ff_node_t<int,char>
 int main(int argc, char** argv) 
 {
   if(argc < 5) {
-    std::cout << "usage: md5 <count> <min> <max> <threads> [verbose]" << std::endl;
+    std::cout << "usage: md5 <count> <min> <max> <threads>" << std::endl;
     return EXIT_FAILURE;
   }
-  
+
+  ::teetime::setLogCallback(::teetime::simpleLogging);
+  ::teetime::setLogLevel(::teetime::getLogLevelFromArgs(argc, argv));
+
   int num = atoi(argv[1]);
   int min = atoi(argv[2]);
   int max = atoi(argv[3]);
   int threads = atoi(argv[4]);
-  bool verbose = (argc > 5 && atoi(argv[5]) > 0);
 
-  std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << ", verbose=" << verbose << std::endl;
+  std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << std::endl;
 
-  Producer producer(num, min, max);
-  Hasher hasher;
-  HashCracker cracker;
-  Sink sink;
-  
-  ff_Pipe<> pipe(producer, hasher, cracker, sink);      // NOTE: references used here instead of pointers
-  
-  if (pipe.run_and_wait_end()<0) 
-    error("running pipe\n");
+  if(threads > 0)
+  {
+    std::vector<std::unique_ptr<ff_node>> W; 
+    for(size_t i=0;i<threads;++i)
+        W.push_back(std::unique_ptr<ff_node_t<Md5Hash, int> >(make_unique<HashCracker>()));
+        
+    Producer producer(num, min, max);
+    Hasher hasher;       
+    Sink sink;
+        
+    ff_Farm<Md5Hash, char> farm(std::move(W), hasher, sink);
+
+    ff_Pipe<> pipe(producer, farm);
+
+    if (pipe.run_and_wait_end()<0) 
+      error("running pipe\n");    
+  }
+  else
+  {
+    Producer producer(num, min, max);
+    Hasher hasher;
+    HashCracker cracker;
+    Sink sink;
+
+    ff_Pipe<> pipe(producer, hasher, cracker, sink);      // NOTE: references used here instead of pointers
+    
+    if (pipe.run_and_wait_end()<0) 
+      error("running pipe\n");
+
+  }
+
+
 
   return EXIT_SUCCESS;
 }
