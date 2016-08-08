@@ -26,15 +26,23 @@
 #define thread_local __declspec(thread)
 #endif
 
+//pragmas 'managed' and 'unmanaged' are meaningful only when compiled with '/clr[:option]', we can ignore that everywhere
+__pragma(warning(disable: 4949))
+
 #define TEETIME_WARNING_PUSH __pragma(warning( push ))
 #define TEETIME_WARNING_POP __pragma(warning( pop ))
 
 #define TEETIME_WARNING_DISABLE_CONSTANT_CONDITION __pragma(warning( disable: 4127 ))
 #define TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER __pragma(warning( disable: 4100 4189 ))
-#define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION __pragma(warning( disable: 4244 ))
+#define TEETIME_WARNING_DISABLE_LOSSY_CONVERSION __pragma(warning( disable: 4244 4309 ))
 #define TEETIME_WARNING_DISABLE_UNREACHABLE __pragma(warning( disable: 4702 ))
 #define TEETIME_WARNING_DISABLE_EMPTY_BODY
 #define TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT
+#define TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT __pragma(warning( disable: 4324 ))
+#define TEETIME_WARNING_DISABLE_MAY_NOT_ALIGNED __pragma(warning( disable: 4316 ))
+#define TEETIME_WARNING_DISABLE_SIGNED_UNSIGNED_MISMATCH __pragma(warning( disable: 4245 ))
+#define TEETIME_WARNING_DISABLE_HIDDEN __pragma(warning( disable: 4458 4456 ))
+#define TEETIME_WARNING_DISABLE_UNSAFE_USE_OF_BOOL __pragma(warning( disable: 4804 ))
 
 #elif defined(__GNUC__)
 
@@ -49,7 +57,11 @@
 #define TEETIME_WARNING_DISABLE_UNREACHABLE
 #define TEETIME_WARNING_DISABLE_EMPTY_BODY _Pragma("GCC diagnostic ignored \"-Wempty-body\"")
 #define TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"")
-
+#define TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
+#define TEETIME_WARNING_DISABLE_SIGNED_UNSIGNED_MISMATCH
+#define TEETIME_WARNING_DISABLE_MAY_NOT_ALIGNED
+#define TEETIME_WARNING_DISABLE_HIDDEN
+#define TEETIME_WARNING_DISABLE_UNSAFE_USE_OF_BOOL
 #endif
 
 namespace teetime

@@ -28,6 +28,13 @@ TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
 TEETIME_WARNING_DISABLE_EMPTY_BODY
 TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT
+TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
+TEETIME_WARNING_DISABLE_MAY_NOT_ALIGNED
+TEETIME_WARNING_DISABLE_SIGNED_UNSIGNED_MISMATCH
+TEETIME_WARNING_DISABLE_HIDDEN
+TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
+TEETIME_WARNING_DISABLE_UNSAFE_USE_OF_BOOL
+TEETIME_WARNING_DISABLE_UNREACHABLE
 
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
@@ -54,7 +61,7 @@ struct Producer: ff_node_t<char, int>
     std::mt19937                        generator(0);
     std::uniform_int_distribution<int>  distr(m_min, m_max);
 
-    for (unsigned i = 0; i < m_num; ++i) 
+    for (int i = 0; i < m_num; ++i) 
     {
       int value = distr(generator);
       TEETIME_TRACE() << "produced: " << value;
@@ -171,6 +178,8 @@ int main(int argc, char** argv)
   }
 
 
+
+  std::cout << "sink size: " << sink.m_values.size() << std::endl;
 
   return EXIT_SUCCESS;
 }
