@@ -73,7 +73,6 @@ public:
     auto hash = createStageFromFunction<int, Md5Hash, hashInt>();
     auto sink = createStage<CollectorSink<int>>();
 
-    hash->declareActive();
     producer->declareActive();
     merger->declareActive();
 

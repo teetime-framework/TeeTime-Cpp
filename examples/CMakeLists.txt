@@ -15,8 +15,7 @@
 
 include_directories(../include)
 
-add_executable("md5" "md5.cpp")
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-target_link_libraries(md5 Threads::Threads teetime)
+find_package (Threads)
+add_executable("md5" "md5.cpp")
+target_link_libraries(md5 teetime ${CMAKE_THREAD_LIBS_INIT})

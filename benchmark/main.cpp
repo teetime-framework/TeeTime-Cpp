@@ -119,6 +119,37 @@ BENCHMARK(TeeTime_MultiThreaded);
 
 
 
+static void Optional_Create(benchmark::State& state) {  
+  while (state.KeepRunning())
+  { 
+    Optional<int> o = Optional<int>(42);
+    (void)o;
+  }
+}
+BENCHMARK(Optional_Create);
+
+static void Int_Create(benchmark::State& state) {  
+  while (state.KeepRunning())
+  { 
+    int o = 42;
+    (void)o;
+  }
+}
+BENCHMARK(Int_Create);
+
+
+static void Queue(benchmark::State& state) {  
+  std::atomic<bool> start = false;
+  std::vector<int> source;
+  std::vector<int> destination;
+
+  while (state.KeepRunning())
+  { 
+        
+  }
+}
+
+#if 0
 
 struct Settings {
   int num;
@@ -150,6 +181,6 @@ static void TeeTime_Dist(benchmark::State& state) {
 }
 BENCHMARK(TeeTime_Dist)->Apply(CustomArguments);
 
-
+#endif
 
 BENCHMARK_MAIN()

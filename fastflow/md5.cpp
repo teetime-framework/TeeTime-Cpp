@@ -47,7 +47,7 @@ using namespace ff;
 
 using teetime::Md5Hash;
 
-struct Producer: ff_node_t<char, int> 
+struct Producer: ff_node_t<char, Md5Hash> 
 { 
   Producer(int num, int min, int max)
     : m_num(num)
@@ -56,7 +56,7 @@ struct Producer: ff_node_t<char, int>
   {
   } 
 
-  int* svc(char*) 
+  Md5Hash* svc(char*) 
   {
     std::mt19937                        generator(0);
     std::uniform_int_distribution<int>  distr(m_min, m_max);
@@ -65,7 +65,10 @@ struct Producer: ff_node_t<char, int>
     {
       int value = distr(generator);
       TEETIME_TRACE() << "produced: " << value;
-      ff_send_out(new int(value));
+
+      auto hash = Md5Hash::generate(&value, sizeof(value));
+      TEETIME_TRACE() << "generated hash: " << hash.toHexString();    
+      ff_send_out(new Md5Hash(hash));
     }
 
     return EOS;
@@ -152,34 +155,31 @@ int main(int argc, char** argv)
     for(size_t i=0;i<threads;++i)
         W.push_back(std::unique_ptr<ff_node_t<Md5Hash, int> >(make_unique<HashCracker>()));
         
-    Producer producer(num, min, max);
-    Hasher hasher;       
+    Producer producer(num, min, max);    
     Sink sink;
         
-    ff_Farm<Md5Hash, char> farm(std::move(W), hasher, sink);
+    ff_Farm<Md5Hash, char> farm(std::move(W), producer, sink);
 
-    ff_Pipe<> pipe(producer, farm);
+    ff_Pipe<> pipe(farm);
 
     if (pipe.run_and_wait_end()<0) 
       error("running pipe\n");    
+
+    std::cout << "sink size: " << sink.m_values.size() << std::endl;
   }
   else
   {
     Producer producer(num, min, max);
-    Hasher hasher;
     HashCracker cracker;
     Sink sink;
 
-    ff_Pipe<> pipe(producer, hasher, cracker, sink);      // NOTE: references used here instead of pointers
+    ff_Pipe<> pipe(producer, cracker, sink);      // NOTE: references used here instead of pointers
     
     if (pipe.run_and_wait_end()<0) 
       error("running pipe\n");
 
+    std::cout << "sink size: " << sink.m_values.size() << std::endl;
   }
-
-
-
-  std::cout << "sink size: " << sink.m_values.size() << std::endl;
 
   return EXIT_SUCCESS;
 }
