@@ -32,12 +32,12 @@ TEETIME_WARNING_POP
 
 namespace teetime
 {  
-#if 1
+
   template<typename T>
-  class SynchedPipe final : public Pipe<T>
+  class FollySynchedPipe final : public Pipe<T>
   {
   public:
-    explicit SynchedPipe(uint32 initialCapacity)
+    explicit FollySynchedPipe(uint32 initialCapacity)
      : m_queue(initialCapacity)
     {
     }
@@ -96,17 +96,20 @@ namespace teetime
     folly::ProducerConsumerQueue<T> m_queue;
   };
 
-#else  
   template<typename T>
-  class SynchedPipe final : public Pipe<T>
+  using SynchedPipe = FollySynchedPipe<T>;
+
+ 
+  template<typename T>
+  class LockingSynchedPipe final : public Pipe<T>
   {
   public:
-    SynchedPipe()
+    LockingSynchedPipe()
      : m_size(0)
     {      
     }
 
-    explicit SynchedPipe(uint32 initialCapacity)
+    explicit LockingSynchedPipe(uint32 initialCapacity)
      : m_size(0)
     {
       m_buffer.reserve(initialCapacity);
@@ -174,5 +177,5 @@ namespace teetime
     std::atomic<unsigned> m_size;
     mutable std::mutex m_mutex;
   };
-#endif  
+ 
 }

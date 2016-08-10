@@ -6,6 +6,7 @@
 #include <teetime/stages/DistributorStage.h>
 #include <teetime/stages/benchmark/ReverseIntMd5Hashing.h>
 #include <teetime/ports/Port.h>
+#include <teetime/pipes/SynchedPipe.h>
 #include <teetime/Configuration.h>
 #include <teetime/Md5Hash.h>
 #include <climits>
@@ -138,16 +139,72 @@ static void Int_Create(benchmark::State& state) {
 BENCHMARK(Int_Create);
 
 
-static void Queue(benchmark::State& state) {  
-  std::atomic<bool> start = false;
-  std::vector<int> source;
-  std::vector<int> destination;
+template<typename TPipe>
+void foo(benchmark::State& state, TPipe& pipe, int num)
+{
+  std::atomic<bool> start(false);
 
+  auto produce = [&](){
+    while(!start) {
+      //do nothing
+    }
+
+    const int local_num = num;
+
+    for(int i=0; i<local_num; ++i)
+    {
+      pipe.add(int(i));
+    }
+  };
+
+  auto consume = [&](){
+    while(!start) {
+      //do nothing
+    }
+
+    const int local_num = num;
+
+    for(int i=0; i<local_num; ++i)
+    {
+
+      while(true)
+      {
+        auto ret = pipe.removeLast();
+        if(ret)
+          break;
+      }
+    }
+  }; 
+  
   while (state.KeepRunning())
   { 
-        
+    std::thread producer(produce);
+    std::thread consumer(consume);
+
+    start.store(true);
+
+    producer.join();
+    consumer.join();        
   }
 }
+
+
+static void Pipe_Folly(benchmark::State& state) {   
+
+  FollySynchedPipe<int> pipe(1024);
+  foo(state, pipe, 1000000);
+}
+
+BENCHMARK(Pipe_Folly);
+
+static void Pipe_Locking(benchmark::State& state) {   
+
+  LockingSynchedPipe<int> pipe(1024);
+  foo(state, pipe, 1000000);
+}
+
+BENCHMARK(Pipe_Locking);
+
 
 #if 0
 
