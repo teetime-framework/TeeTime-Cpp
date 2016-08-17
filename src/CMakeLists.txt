@@ -16,6 +16,7 @@ SET(INCDIR "../include/teetime")
 
 SET(HEADERS
   ${INCDIR}/common.h
+  ${INCDIR}/platform.h
   ${INCDIR}/logging.h
   ${INCDIR}/Configuration.h
   ${INCDIR}/Execution.h  
@@ -63,6 +64,7 @@ SET(SOURCES
   Thread.cpp
   Image.cpp  
   Md5Hash.cpp
+  platform_posix.cpp
   ports/AbstractOutputPort.cpp  
   stages/RandomIntProducer.cpp
   stages/Directory2Files.cpp

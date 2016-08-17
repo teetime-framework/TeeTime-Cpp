@@ -25,6 +25,7 @@
 #include <teetime/Md5Hash.h>
 #include <teetime/ports/Port.h>
 #include <teetime/logging.h>
+#include <teetime/platform.h>
 #include <climits>
 #include <string>
 
@@ -129,6 +130,8 @@ int main(int argc, char** argv)
 
   std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << std::endl;
 
+  auto start = platform::microSeconds();
+
   if(threads > 0) {
     Config2 config(num, min, max, threads);
     config.executeBlocking();    
@@ -141,6 +144,8 @@ int main(int argc, char** argv)
     Config3 config(num, min, max);
     config.executeBlocking();        
   }
+
+  std::cout << "measured time: " << (platform::microSeconds() - start) * 0.001 << "ms" << std::endl;
 
   return EXIT_SUCCESS;
 }

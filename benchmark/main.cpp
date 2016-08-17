@@ -10,6 +10,7 @@
 #include <teetime/Configuration.h>
 #include <teetime/Md5Hash.h>
 #include <climits>
+#include <iostream>
 
 using namespace teetime;
 
@@ -105,7 +106,7 @@ static void TeeTime_SingleThreaded(benchmark::State& state) {
     config.executeBlocking();
   }
 }
-BENCHMARK(TeeTime_SingleThreaded);
+//BENCHMARK(TeeTime_SingleThreaded);
 
 static void TeeTime_MultiThreaded(benchmark::State& state) {
   MultihreadedConfig config(100000, 100, 1000);
@@ -114,7 +115,7 @@ static void TeeTime_MultiThreaded(benchmark::State& state) {
     config.executeBlocking();
   }
 }
-BENCHMARK(TeeTime_MultiThreaded);
+//BENCHMARK(TeeTime_MultiThreaded);
 
 
 
@@ -144,6 +145,13 @@ void foo(benchmark::State& state, TPipe& pipe, int num)
 {
   std::atomic<bool> start(false);
 
+
+  std::vector<int> produced;
+  std::vector<int> consumed;
+
+  produced.reserve(num);
+  consumed.reserve(num);
+
   auto produce = [&](){
     while(!start) {
       //do nothing
@@ -153,6 +161,7 @@ void foo(benchmark::State& state, TPipe& pipe, int num)
 
     for(int i=0; i<local_num; ++i)
     {
+      //produced.push_back(i);
       pipe.add(int(i));
     }
   };
@@ -171,28 +180,137 @@ void foo(benchmark::State& state, TPipe& pipe, int num)
       {
         auto ret = pipe.removeLast();
         if(ret)
+        {
+          //consumed.push_back(*ret);
           break;
+        }
       }
     }
   }; 
-  
+
+
   while (state.KeepRunning())
   { 
+    produced.clear();
+    consumed.clear();
+
     std::thread producer(produce);
     std::thread consumer(consume);
 
     start.store(true);
 
     producer.join();
-    consumer.join();        
+    consumer.join(); 
+  }
+
+  if(produced.size() != consumed.size())
+  {
+    std::cout << "consumed.size() != produced.size()" << std::endl;
+  }
+  else if(memcmp(produced.data(), consumed.data(), consumed.size() * sizeof(int)) != 0)
+  {
+    std::cout << "consumed != produced" << std::endl;
   }
 }
 
 
+
+template<typename T>
+class MyQueue
+{
+public:
+
+  explicit MyQueue(unsigned capacity)
+   : m_array(new Entry[capacity])
+   , m_capacity(capacity)
+   , m_readIndex(0)
+   , m_writeIndex(0)
+  {}
+_
+  ~MyQueue()
+  {
+    delete m_array;
+  }
+
+  bool tryAdd(const T& t)
+  {
+    auto& entry = m_array[m_writeIndex];
+
+    if(!entry.hasValue.load(std::memory_order_acquire))
+    {
+      new (&entry.data[0]) T(t);
+      entry.hasValue.store(true, std::memory_order_release);
+
+      if(++m_writeIndex == m_capacity)
+      {
+        m_writeIndex = 0;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  void add(const T& t)
+  {
+    for(;;)
+    {
+      if(tryAdd(t))
+      {
+        break;
+      }
+    }
+  }
+
+  Optional<T> removeLast()
+  {
+    auto& entry = m_array[m_readIndex];
+
+    Optional<T> ret;
+
+    if(entry.hasValue.load(std::memory_order_acquire))
+    {
+      ret.set(std::move(*reinterpret_cast<T*>(&entry.data[0])));
+      entry.hasValue.store(false, std::memory_order_release);
+
+      if(++m_readIndex == m_capacity)
+      {
+        m_readIndex = 0;
+      }      
+    }
+
+    return ret;
+  }
+
+
+private:
+  struct Entry
+  {
+    Entry()
+    {
+      hasValue.store(false);
+    }
+
+    std::atomic<bool> hasValue;
+    char data[sizeof(T)];
+  };
+
+  char padding1_[64];
+  unsigned m_readIndex;
+  char padding2_[64];
+  unsigned m_writeIndex;
+  char padding3_[64];  
+
+  Entry* m_array;
+  unsigned m_capacity;
+};
+
+static const int queuetestnum = 100000000;
+
 static void Pipe_Folly(benchmark::State& state) {   
 
   FollySynchedPipe<int> pipe(1024);
-  foo(state, pipe, 1000000);
+  foo(state, pipe, queuetestnum);
 }
 
 BENCHMARK(Pipe_Folly);
@@ -200,10 +318,18 @@ BENCHMARK(Pipe_Folly);
 static void Pipe_Locking(benchmark::State& state) {   
 
   LockingSynchedPipe<int> pipe(1024);
-  foo(state, pipe, 1000000);
+  foo(state, pipe, queuetestnum);
 }
 
-BENCHMARK(Pipe_Locking);
+//BENCHMARK(Pipe_Locking);
+
+static void Pipe_MyQueue(benchmark::State& state) {   
+
+  MyQueue<int> pipe(1024);
+  foo(state, pipe, queuetestnum);
+}
+
+BENCHMARK(Pipe_MyQueue);
 
 
 #if 0
