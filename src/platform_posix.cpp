@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+#ifdef __linux__
+
 #include <teetime/platform.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 namespace teetime
 {
@@ -38,7 +41,56 @@ namespace platform
 
   void yield()
   {
-    
+    pthread_yield();
+  }
+
+  void setThreadAffinityMask(unsigned mask)
+  {
+    pthread_t thread = pthread_self();
+
+    /* Set affinity mask to include CPUs 0 to 7 */
+
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+
+    for (int i = 0; i < 32; ++i)
+    {
+      if (mask & (1 << i))
+      {
+        CPU_SET(i, &cpuset);
+      }
+    }
+
+    if (CPU_COUNT(&cpuset) == 0)
+    {
+      TEETIME_WARN() << "thread affinity mask ignored, thread must be assigned to at least one CPU";
+      return;
+    }
+
+    if (pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset) != 0)
+    {
+      TEETIME_WARN() << "failed to set thread affinity";
+    }
+  }
+
+  void* aligned_malloc(size_t size, size_t align)
+  {
+    void *result;
+
+    if (posix_memalign(&result, align, size))
+    {
+      result = nullptr;
+    }
+
+    return result;
+  }
+
+  void  aligned_free(void* p)
+  {
+    free(p);
   }
 }
 }
+
+
+#endif

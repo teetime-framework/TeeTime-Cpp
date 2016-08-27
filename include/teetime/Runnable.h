@@ -29,22 +29,23 @@ namespace teetime
   class AbstractStageRunnable : public Runnable
   {
   protected:
-    explicit AbstractStageRunnable(AbstractStage* stage);
+    explicit AbstractStageRunnable(AbstractStage* stage, int cpu);
     AbstractStage* m_stage;
+    int            m_cpu;
   };
 
   class ProducerStageRunnable final : public AbstractStageRunnable
   {
   public:
 
-    explicit ProducerStageRunnable(AbstractStage* stage);
+    explicit ProducerStageRunnable(AbstractStage* stage, int cpu);
     virtual void run() override;
   };
 
   class ConsumerStageRunnable final : public AbstractStageRunnable
   {
   public:
-    explicit ConsumerStageRunnable(AbstractStage* stage);
+    explicit ConsumerStageRunnable(AbstractStage* stage, int cpu);
 
     virtual void run() override;
   }; 

@@ -13,21 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
-#include "AbstractPipe.h"
+
+#ifdef _WIN32
+
+#include <teetime/platform.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 namespace teetime
 {
-  template<typename T> class Optional;
-  
-  template<typename T>
-  class Pipe : public AbstractPipe
+namespace platform
+{
+  uint64 microSeconds()
   {
-  public:
-    virtual ~Pipe() = default;
-    virtual Optional<T> removeLast() = 0;
-    virtual void add(T&& t) = 0;
-    virtual bool tryAdd(T&& t) = 0;
-    virtual bool isEmpty() const = 0;
-  };
+    static LARGE_INTEGER frequency;
+    static BOOL b = QueryPerformanceFrequency(&frequency);
+
+    LARGE_INTEGER now;
+    QueryPerformanceCounter(&now);
+    return (1000000LL * now.QuadPart) / frequency.QuadPart;
+  }
+
+  void yield()
+  {
+    SwitchToThread();
+  }
+
+  void setThreadAffinityMask(unsigned mask)
+  {
+    SetThreadAffinityMask(GetCurrentThread(), mask);
+  }
+
+  void* aligned_malloc(size_t size, size_t align)
+  {
+    return _mm_malloc(size, align);
+  }
+
+  void  aligned_free(void* p)
+  {
+    _mm_free(p);
+  }
 }
+}
+
+#endif

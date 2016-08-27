@@ -64,12 +64,9 @@ Runnable* AbstractStage::getRunnable() const
   return m_runnable.get();
 }
 
-void AbstractStage::declareActive()
-{
-  if(!m_runnable)
-  {    
-    m_runnable = createRunnable();
-  }
+void AbstractStage::declareActive(int cpu)
+{   
+  m_runnable = createRunnable(cpu); 
 }
 
 void AbstractStage::declareNonActive()

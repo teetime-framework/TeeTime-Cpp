@@ -38,6 +38,7 @@ SET(SOURCES
   SynchedPipeTest.cpp
   UnsynchedPipeTest.cpp
   LogTest.cpp
+  SpscQueueTest.cpp
   main.cpp
 )
 

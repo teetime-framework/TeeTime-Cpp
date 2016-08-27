@@ -28,12 +28,41 @@
 #include <teetime/platform.h>
 #include <climits>
 #include <string>
+#include <random>
 
 using namespace teetime;
 
-Md5Hash hashInt(int i) {
-  return Md5Hash::generate(&i, sizeof(i));
-}
+namespace {
+
+class Producer : public AbstractProducerStage<Md5Hash>
+{
+public:
+  Producer(int min, int max, int num)
+    : m_min(min)
+    , m_max(max)
+    , m_num(num)
+  {}
+
+private:
+  virtual void execute() override
+  {
+    //std::random_device                  rand_dev;
+    std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
+    std::uniform_int_distribution<int>  distr(m_min, m_max);
+
+    for (unsigned i = 0; i < m_num; ++i)
+    {
+      int value = distr(generator);
+      AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash::generate(&value, sizeof(value)));
+    }
+
+    AbstractProducerStage<Md5Hash>::terminate();
+  }
+
+  int m_min;
+  int m_max;
+  int m_num;
+};
 
 int reverseHash(Md5Hash hash) {
   for(int i=0; i<INT_MAX; ++i) {
@@ -50,15 +79,13 @@ class Config : public Configuration
 public:
   Config(int num, int min, int max) 
   {
-    auto producer = createStage<RandomIntProducer>(min, max, num);
-    auto hash = createStageFromFunction<int, Md5Hash, hashInt>();
+    auto producer = createStage<Producer>(min, max, num);
     auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
     auto sink = createStage<CollectorSink<int>>();
 
     producer->declareActive();
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), revhash->getInputPort());
+    connect(producer->getOutputPort(), revhash->getInputPort());
     connect(revhash->getOutputPort(), sink->getInputPort());      
   }
 };
@@ -68,26 +95,38 @@ class Config2 : public Configuration
 public:
   Config2(int num, int min, int max, int threads) 
   {
-    auto producer = createStage<RandomIntProducer>(min, max, num);
+    int cpu = 0;
+
+    auto nextCpu = [&]() {
+#if 1
+      return -1;
+#else
+      int numThreads = std::thread::hardware_concurrency();
+      
+      int ret = cpu;
+      cpu = (cpu + 1) % numThreads;
+      return ret;
+#endif
+    };
+
+    auto producer = createStage<Producer>(min, max, num);
     auto distributor = createStage<DistributorStage<Md5Hash>>();
     auto merger = createStage<MergerStage<int>>();
-    auto hash = createStageFromFunction<int, Md5Hash, hashInt>();
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive();
-    merger->declareActive();
+    producer->declareActive(nextCpu());
+    merger->declareActive(nextCpu());
 
     for(int i=0; i<threads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive();
+      revhash->declareActive(nextCpu());
 
       connect(distributor->getNewOutputPort(), revhash->getInputPort());
       connect(revhash->getOutputPort(), merger->getNewInputPort());
     }
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), distributor->getInputPort());
+    connect(producer->getOutputPort(), distributor->getInputPort());
     connect(merger->getOutputPort(), sink->getInputPort());      
   }
 };
@@ -97,55 +136,33 @@ class Config3 : public Configuration
 public:
   Config3(int num, int min, int max) 
   {
-    auto producer = createStage<RandomIntProducer>(min, max, num);
-    auto hash = createStageFromFunction<int, Md5Hash, hashInt>();
+    auto producer = createStage<Producer>(min, max, num);
     auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
     auto sink = createStage<CollectorSink<int>>();
 
     producer->declareActive();
-    hash->declareActive();
     revhash->declareActive();
     sink->declareActive();
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), revhash->getInputPort());
+    connect(producer->getOutputPort(), revhash->getInputPort());
     connect(revhash->getOutputPort(), sink->getInputPort());
   }
 };
 
-int main(int argc, char** argv) 
+}
+
+void benchmark_teetime(int num, int min, int max, int threads)
 {
-  if(argc < 5) {
-    std::cout << "usage: md5 <count> <min> <max> <threads>" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  setLogCallback(::teetime::simpleLogging);
-  setLogLevel(getLogLevelFromArgs(argc, argv));
-
-  int num = atoi(argv[1]);
-  int min = atoi(argv[2]);
-  int max = atoi(argv[3]);
-  int threads = atoi(argv[4]);
-
-  std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << std::endl;
-
-  auto start = platform::microSeconds();
-
-  if(threads > 0) {
+  if (threads > 0) {
     Config2 config(num, min, max, threads);
-    config.executeBlocking();    
+    config.executeBlocking();
   }
-  else if(threads == 0) {
+  else if (threads == 0) {
     Config config(num, min, max);
-    config.executeBlocking();    
-  } 
+    config.executeBlocking();
+  }
   else {
     Config3 config(num, min, max);
-    config.executeBlocking();        
+    config.executeBlocking();
   }
-
-  std::cout << "measured time: " << (platform::microSeconds() - start) * 0.001 << "ms" << std::endl;
-
-  return EXIT_SUCCESS;
 }

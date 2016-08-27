@@ -19,6 +19,6 @@ include_directories(../include)
 
 find_package (Threads)
 
-add_executable("ff_md5" "md5.cpp")
+add_executable("fastflow_md5" "md5.cpp")
 
-target_link_libraries(ff_md5 ${CMAKE_THREAD_LIBS_INIT} teetime)
+target_link_libraries(fastflow_md5 ${CMAKE_THREAD_LIBS_INIT} teetime)

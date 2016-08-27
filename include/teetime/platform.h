@@ -23,5 +23,12 @@ namespace platform
   uint64 microSeconds();
 
   void yield();
+
+  void setThreadAffinityMask(unsigned mask);
+
+  int getCachelineSize(unsigned cpu);
+
+  void* aligned_malloc(size_t size, size_t align);
+  void  aligned_free(void* p);
 }
 }

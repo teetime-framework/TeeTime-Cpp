@@ -15,20 +15,22 @@
  */
 #include <teetime/Runnable.h>
 #include <teetime/logging.h>
+#include <teetime/platform.h>
 #include <teetime/stages/AbstractStage.h>
 #include <teetime/ports/InputPort.h>
 #include <teetime/ports/OutputPort.h>
 
 using namespace teetime;
   
-AbstractStageRunnable::AbstractStageRunnable(AbstractStage* stage)
+AbstractStageRunnable::AbstractStageRunnable(AbstractStage* stage, int cpu)
  : m_stage(stage)
+ , m_cpu(cpu)
 {
   assert(m_stage);
 }
 
-ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage)
- : AbstractStageRunnable(stage)
+ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage, int cpu)
+ : AbstractStageRunnable(stage, cpu)
 {
 
 }
@@ -50,15 +52,19 @@ void ProducerStageRunnable::run()
   m_stage->executeStage();      
 }
 
-ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage)
- : AbstractStageRunnable(stage)
+ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage, int cpu)
+ : AbstractStageRunnable(stage, cpu)
 {
-
 }
 
 void ConsumerStageRunnable::run()
 {
   TEETIME_INFO() << "ConsumerStageRunnable::run(): " << m_stage->debugName();
+
+  if (m_cpu >= 0)
+  {
+    platform::setThreadAffinityMask(1 << m_cpu);
+  }
 
   const uint32 numInputPorts = m_stage->numInputPorts();
   for(uint32 i=0; i<numInputPorts; ++i)

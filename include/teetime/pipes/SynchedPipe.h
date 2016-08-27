@@ -24,39 +24,58 @@
 #include "../logging.h"
 #include "../Signal.h"
 #include "../Optional.h"
+#include "../platform.h"
+
+#include "SpscQueue.h"
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
 #include "ProducerConsumerQueue.h"
+#include "AlignedProducerConsumerQueue.h"
 TEETIME_WARNING_POP
 
-namespace teetime
-{  
+#ifndef TEETIME_DEFAULT_QUEUE
+//#define TEETIME_DEFAULT_QUEUE folly::ProducerConsumerQueue
+//#define TEETIME_DEFAULT_QUEUE folly::AlignedProducerConsumerQueue
+#define TEETIME_DEFAULT_QUEUE teetime::SpscValueQueue
+#endif
 
-  template<typename T>
-  class FollySynchedPipe final : public Pipe<T>
+namespace teetime
+{
+  template<typename T, template<typename> class TQueue = TEETIME_DEFAULT_QUEUE>
+  class SynchedPipe final : public Pipe<T>
   {
   public:
-    explicit FollySynchedPipe(uint32 initialCapacity)
+    explicit SynchedPipe(uint32 initialCapacity)
      : m_queue(initialCapacity)
     {
     }
 
     virtual Optional<T> removeLast() override
     {
-      T ret;
-      if(m_queue.read(ret)) {
-        return Optional<T>(ret);
+      if (T* p = m_queue.frontPtr())
+      {
+        Optional<T> ret(std::move(*p));
+        m_queue.popFront();
+
+        return ret;
       }
-            
+
       return Optional<T>();
+    }
+
+    virtual bool tryAdd(T&& t) override
+    {
+      return m_queue.write(std::move(t));
     }
 
     virtual void add(T&& t) override
     {
       while (!m_queue.write(std::move(t)))
       {
-        //do nothing
+#ifndef TEETIME_DISABLE_YIELD
+        platform::yield();
+#endif
       }
     }
 
@@ -90,92 +109,19 @@ namespace teetime
       return (size() == 0);
     }
 
-  private:
-    //TODO(johl): merge m_signals and m_buffer into one queue, so order is always preserved?
-    BlockingQueue<Signal> m_signals;
-    folly::ProducerConsumerQueue<T> m_queue;
-  };
-
-  template<typename T>
-  using SynchedPipe = FollySynchedPipe<T>;
-
- 
-  template<typename T>
-  class LockingSynchedPipe final : public Pipe<T>
-  {
-  public:
-    LockingSynchedPipe()
-     : m_size(0)
-    {      
-    }
-
-    explicit LockingSynchedPipe(uint32 initialCapacity)
-     : m_size(0)
+    void* operator new(size_t i)
     {
-      m_buffer.reserve(initialCapacity);
+      return platform::aligned_malloc(i, 64);
     }
 
-    virtual Optional<T> removeLast() override
+    void operator delete(void* p)
     {
-      Optional<T> ret;
-      
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if(m_size.load() > 0)
-      {
-        ret.set(std::move(m_buffer.back()));
-        m_buffer.pop_back();
-        m_size.fetch_sub(1);
-      }
-      
-      return ret;
-    }
-
-    virtual void add(T&& t) override
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-
-      m_buffer.insert(m_buffer.begin(), std::move(t));
-      m_size.fetch_add(1);
-    }
-
-    virtual void addSignal(const Signal& signal) override
-    {    
-      if(signal.type == SignalType::Terminating)
-      {
-        this->close();
-        return;
-      }
-
-      std::lock_guard<std::mutex> lock(m_mutex);
-      m_signals.add(signal);
-    }
-
-    virtual void waitForStartSignal() override
-    {      
-      auto s = m_signals.take();
-      if(s.type != SignalType::Start)
-      {
-        throw std::runtime_error("Wrong signal type");
-      }
-    }
-
-    unsigned size() const
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      return m_size.load();
-    }      
-
-    virtual bool isEmpty() const override
-    {
-      return (size() == 0);
+      platform::aligned_free(p);
     }
 
   private:
     //TODO(johl): merge m_signals and m_buffer into one queue, so order is always preserved?
     BlockingQueue<Signal> m_signals;
-    std::vector<T> m_buffer;
-    std::atomic<unsigned> m_size;
-    mutable std::mutex m_mutex;
+    TQueue<T> m_queue;
   };
- 
 }

@@ -47,7 +47,7 @@ namespace teetime
     StageState currentState() const;
     void setState(StageState state);
 
-    void declareActive();
+    void declareActive(int cpu = -1);
     void declareNonActive();
 
     void onSignal(const Signal& signal);
@@ -71,7 +71,7 @@ namespace teetime
     const std::vector<AbstractInputPort*>& getInputPorts() const;
 
   private:   
-    virtual unique_ptr<Runnable> createRunnable() = 0;
+    virtual unique_ptr<Runnable> createRunnable(int cpu) = 0;
     virtual void execute() = 0;
 
     StageState                       m_state;

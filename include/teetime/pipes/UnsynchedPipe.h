@@ -36,6 +36,12 @@ namespace teetime
       return ret;
     }
 
+    virtual bool tryAdd(T&& t) override
+    {
+      add(std::move(t));
+      return true;
+    }
+
     virtual void add(T&& t) override
     {
       //TODO(johl): what to do if pipe is non-empty?

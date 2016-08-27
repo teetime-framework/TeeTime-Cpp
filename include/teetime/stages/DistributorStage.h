@@ -42,19 +42,27 @@ namespace teetime
         throw std::logic_error("distributor stage needs at least on output port");
       }
 
-      const uint32 portIndex = m_next % numOutputPorts;
+      while (true)
+      {
+        uint32 portIndex = m_next;
+        m_next = portIndex + 1;
+        if (m_next == numOutputPorts)
+        {
+          m_next = 0;
+        }
 
-      //TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
-      auto abstractPort = AbstractStage::getOutputPort(portIndex);
-      assert(abstractPort);
+        //TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
+        auto abstractPort = AbstractStage::getOutputPort(portIndex);
+        assert(abstractPort);
 
-      auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
-      assert(typedPort);      
+        auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
+        assert(typedPort);
 
-
-      typedPort->send(std::move(value));
-      
-      m_next = portIndex + 1;
+        if (typedPort->trySend(std::move(value)))
+        {
+          break;
+        }
+      }
     }    
 
     uint32 m_next;

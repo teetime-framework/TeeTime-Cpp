@@ -55,6 +55,8 @@ SET(HEADERS
   ${INCDIR}/pipes/AbstractPipe.h
   ${INCDIR}/pipes/UnsynchedPipe.h  
   ${INCDIR}/pipes/SynchedPipe.h  
+  ${INCDIR}/pipes/ProducerConsumerQueue.h  
+  ${INCDIR}/pipes/SpscQueue.h  
 )
 
 SET(SOURCES
@@ -65,6 +67,7 @@ SET(SOURCES
   Image.cpp  
   Md5Hash.cpp
   platform_posix.cpp
+  platform_win32.cpp
   ports/AbstractOutputPort.cpp  
   stages/RandomIntProducer.cpp
   stages/Directory2Files.cpp

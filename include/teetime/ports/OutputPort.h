@@ -48,6 +48,11 @@ namespace teetime
       }      
     }
 
+    bool trySend(T&& t)
+    {
+      return m_pipe->tryAdd(std::move(t));
+    }
+
   private:  
     virtual AbstractPipe* getPipe() override
     {
