@@ -15,6 +15,7 @@
  */
 #pragma once
 #include "../common.h"
+#include "../platform.h"
 #include "../ports/InputPort.h"
 #include "../Runnable.h"
 #include "../Optional.h"
@@ -57,6 +58,10 @@ namespace teetime
       else if(m_inputport->isClosed())
       {
         terminate();
+      }
+      else
+      {
+        platform::yield();
       }
     }
 

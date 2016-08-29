@@ -50,7 +50,7 @@ namespace teetime
       m_pipe->waitForStartSignal();
     }
 
-    virtual bool isClosed() const override
+    bool isClosed() const
     {
       return m_pipe->isClosed() && m_pipe->isEmpty();
     }

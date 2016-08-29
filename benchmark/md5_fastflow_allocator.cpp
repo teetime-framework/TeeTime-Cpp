@@ -40,6 +40,7 @@ TEETIME_WARNING_DISABLE_UNREACHABLE
 
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
+#include <ff/allocator.hpp>
 
 TEETIME_WARNING_POP
 
@@ -48,6 +49,24 @@ using teetime::Md5Hash;
 
 namespace
 {
+  template<typename T, typename... TArgs>
+  T* ff_new(TArgs&&... args)
+  {
+    void* p = ff_malloc(sizeof(T));
+    new (p) T(std::forward<TArgs>(args)...);
+    return static_cast<T*>(p);
+  }
+
+  template<typename T>
+  void ff_delete(T* p)
+  {
+    if (p)
+    {
+      p->~T();
+      ff_free(p);
+    }
+  }
+
   struct Producer : ff_node_t<char, Md5Hash>
   {
     Producer(int num, int min, int max)
@@ -64,8 +83,8 @@ namespace
         auto hash = Md5Hash::generate(&m_min, sizeof(m_min));
 
         for (int i = 0; i < m_num; ++i)
-        {
-          ff_send_out(new Md5Hash(hash));
+        { 
+          ff_send_out(ff_new<Md5Hash>(hash));
         }
       }
       else
@@ -81,7 +100,7 @@ namespace
           auto hash = Md5Hash::generate(&value, sizeof(value));
           TEETIME_TRACE() << "generated hash: " << hash.toHexString();
 
-          ff_send_out(new Md5Hash(hash));
+          ff_send_out(ff_new<Md5Hash>(hash));
         }
       }
 
@@ -99,8 +118,8 @@ namespace
     Md5Hash* svc(int* value)
     {
       auto hash = Md5Hash::generate(value, sizeof(*value));
-      delete value;
-      return new Md5Hash(hash);
+      ff_delete(value);
+      return ff_new<Md5Hash>(hash);
     }
   };
 
@@ -116,8 +135,9 @@ namespace
         }
       }
 
-      delete value;
-      return new int(ret);
+      ff_delete(value);
+      
+      return ff_new<int>(ret);
     }
   };
 
@@ -126,7 +146,7 @@ namespace
     virtual char* svc(int* value) override
     {
       m_values.push_back(*value);
-      delete value;
+      ff_delete(value);
       return GO_ON;
     }
 
@@ -135,7 +155,7 @@ namespace
 
 }
 
-void benchmark_fastflow(int num, int min, int max, int threads)
+void benchmark_fastflow_allocator(int num, int min, int max, int threads)
 {
   std::vector<std::unique_ptr<ff_node>> W;
   for (size_t i = 0; i<threads; ++i)

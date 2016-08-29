@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 #pragma once
-#include "AbstractPort.h"
+#include "AbstractConsumerStage.h"
+#include "../ports/OutputPort.h"
 
 namespace teetime
 {
-  class AbstractInputPort : public AbstractPort
+  template<typename TIn, typename TOut = TIn>
+  class AbstractFilterStage : public AbstractConsumerStage<TIn>
   {
   public:
-    explicit AbstractInputPort(AbstractStage* owner)
-     : AbstractPort(owner)
-    {}
+    explicit AbstractFilterStage(const char* debugName = nullptr)
+      : AbstractConsumerStage<TIn>(debugName)
+      , m_outputport(AbstractStage::addNewOutputPort<TOut>())
+    {
+      assert(m_outputport);
+    }
 
-    virtual ~AbstractInputPort() = default;
+    OutputPort<TOut>& getOutputPort()
+    {
+      assert(m_outputport);
+      return *m_outputport;
+    }   
 
-    virtual void waitForStartSignal() = 0;
+  private:
+    OutputPort<TOut>* m_outputport;
+
+    virtual void execute(TIn&& value) = 0;
   };
 }
+
+

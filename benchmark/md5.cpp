@@ -1,5 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <cstring>
+#include <cassert>
 #include <teetime/logging.h>
 #include <teetime/platform.h>
 
@@ -7,11 +10,128 @@ using namespace teetime;
 
 void benchmark_teetime(int num, int min, int max, int threads);
 void benchmark_fastflow(int num, int min, int max, int threads);
+void benchmark_fastflow_allocator(int num, int min, int max, int threads);
 
-struct result
+class Benchmark
 {
-  uint64 teetime;
-  uint64 fastflow;
+public:
+  using Function = void(int num, int min, int max, int threads);
+
+  void configureFromCmdArgs(int argc, char** argv)
+  {
+
+  }
+
+  void setNumValues(int num)
+  {
+    numValues = num;
+  }
+
+  void setValueRange(int min, int max)
+  {
+    minValue = min;
+    maxValue = max;
+  }
+
+  void setThreadRange(int min, int max)
+  {
+    minThreads = min;
+    maxThreads = max;
+  }
+
+  void addConfiguration(Function* f, const char* name)
+  {
+    Config cfg;
+    cfg.f = f;
+    cfg.name = name;
+
+    configs.push_back(cfg);
+  }
+
+  void runAll()
+  {
+    for (int numThreads = minThreads; numThreads <= maxThreads; ++numThreads)
+    {
+      for (auto& cfg : configs)
+      {
+        std::cout << "running '" << cfg.name << "' with " << numThreads << " threads...";
+        std::cout.flush();
+        run(cfg, numThreads);
+        std::cout << std::endl;
+      }
+    }
+  }
+
+  void print()
+  {
+    for ( int i = 0; i < maxThreads; ++i)
+    {
+      int numThreads = minThreads + i;
+
+      std::cout << "threads=" << numThreads;
+      for (auto& cfg : configs)
+      { 
+        assert(cfg.results.size() == maxThreads);
+        uint64 baseTime = cfg.results[0].totalTime - cfg.results[0].overheadTime;
+        uint64 resultTime = cfg.results[i].totalTime - cfg.results[i].overheadTime;
+
+        std::cout << "  " << cfg.name << ": " << resultTime * 0.001 << "ms ";
+        std::cout << "(s=" << static_cast<float>(baseTime) / static_cast<float>(resultTime) << ")";
+      }
+
+      std::cout << std::endl;
+    }
+  }
+
+private:
+  struct Result
+  {
+    int threadNum;
+    uint64 totalTime;
+    uint64 overheadTime;
+  };
+
+  struct Config
+  {
+    Function* f;
+    std::string name;
+    std::vector<Result> results;
+  };
+
+  void run(Config& cfg, int numThreads)
+  {
+    Result res;
+    res.overheadTime = overhead(cfg, numThreads, 10);
+
+    auto start = platform::microSeconds();
+    cfg.f(numValues, minValue, maxValue, numThreads);
+    res.totalTime = platform::microSeconds() - start;
+
+    std::cout << res.totalTime * 0.001 << "ms (overhead: " << res.overheadTime * 0.001 << "ms)";
+
+    cfg.results.push_back(res);
+  }
+
+  uint64 overhead(Config& cfg, int numThreads, int iterations)
+  {
+    uint64 overhead = 0;
+
+    for (int i = 0; i < iterations; ++i)
+    {
+      auto start = platform::microSeconds();
+      cfg.f(0, minValue, maxValue, numThreads);
+      overhead += (platform::microSeconds() - start);
+    }
+
+    return overhead / iterations;
+  }
+
+  std::vector<Config> configs;
+  int numValues;
+  int minValue;
+  int maxValue;
+  int minThreads;
+  int maxThreads;
 };
 
 int main(int argc, char** argv)
@@ -19,6 +139,20 @@ int main(int argc, char** argv)
   if (argc < 5) {
     std::cout << "usage: md5 <count> <min> <max> <threads>" << std::endl;
     return EXIT_FAILURE;
+  }
+
+  bool no_teetime = false;
+  bool no_fastflow = false;
+  bool no_fastflow_alloc = false;
+
+  for (int i = 1; i < argc; ++i)
+  {
+    if (strcmp(argv[i], "nofastflow") == 0)
+      no_fastflow = true;
+    else if (strcmp(argv[i], "noteetime") == 0)
+      no_teetime = true;
+    else if (strcmp(argv[i], "nofastflow_alloc") == 0)
+      no_fastflow_alloc = true;
   }
 
   setLogCallback(::teetime::simpleLogging);
@@ -31,31 +165,23 @@ int main(int argc, char** argv)
 
   std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << std::endl;
 
-  std::vector<result> results;
 
-  for (int i = 1; i <= threads; ++i)
-  {
-    result res;
-    auto start = platform::microSeconds();
-    benchmark_teetime(num, min, max, i);
-    res.teetime = platform::microSeconds() - start;
-    
-    start = platform::microSeconds();
-    benchmark_fastflow(num, min, max, i);
-    res.fastflow = platform::microSeconds() - start;
+  Benchmark benchmark;
+  benchmark.setNumValues(num);
+  benchmark.setValueRange(min, max);
+  benchmark.setThreadRange(1, threads);
 
-    double speedupTeeTime = 1.0f;
-    double speedupFastFlow = 1.0f;
-    if (i > 1)
-    {
-      speedupTeeTime = static_cast<double>(results[0].teetime) / res.teetime;
-      speedupFastFlow = static_cast<double>(results[0].fastflow) / res.fastflow;
-    }
+  if(!no_teetime)
+    benchmark.addConfiguration(&benchmark_teetime, "teetime");
 
-    std::cout << "threads: " << i << "teetime: " << res.teetime * 0.001 << "ms (" << speedupTeeTime << "),     fastflow: "  << res.fastflow * 0.001  << "ms (" << speedupFastFlow << ")" << std::endl;
+  if(!no_fastflow)
+    benchmark.addConfiguration(&benchmark_fastflow, "fastflow");
 
-    results.push_back(res);
-  }
+  if(!no_fastflow_alloc)
+    benchmark.addConfiguration(&benchmark_fastflow_allocator, "fastflow (allocator)");
+
+  benchmark.runAll();
+  benchmark.print();
 
   return EXIT_SUCCESS;
 }

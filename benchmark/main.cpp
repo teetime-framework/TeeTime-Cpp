@@ -135,6 +135,17 @@ static void Int_Create(benchmark::State& state) {
 }
 BENCHMARK(Int_Create);
 
+static void HashInt(benchmark::State& state) {  
+
+  int foo = 42;
+  while (state.KeepRunning())
+  { 
+    auto o = Md5Hash::generate(&foo, sizeof(foo));
+    (void)o;
+  }
+}
+BENCHMARK(HashInt);
+
 
 
 BENCHMARK_MAIN()

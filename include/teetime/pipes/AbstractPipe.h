@@ -35,7 +35,7 @@ namespace teetime
 
     bool isClosed() const
     {
-      return m_closed;
+      return m_closed.load(std::memory_order_relaxed);
     }
 
     void close()
@@ -44,6 +44,8 @@ namespace teetime
     }
 
   private:
+    char padding0[64];
     std::atomic<bool> m_closed;
+    char padding1[64];
   };
 }

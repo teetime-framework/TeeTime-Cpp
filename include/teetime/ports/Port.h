@@ -20,24 +20,30 @@
 #include "../pipes/UnsynchedPipe.h"
 #include "../pipes/SynchedPipe.h"
 
+#ifndef TEETIME_DEFAULT_QUEUE
+ //#define TEETIME_DEFAULT_QUEUE folly::ProducerConsumerQueue
+ //#define TEETIME_DEFAULT_QUEUE folly::AlignedProducerConsumerQueue
+#define TEETIME_DEFAULT_QUEUE teetime::SpscValueQueue
+#endif
+
 namespace teetime
 {
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input)
-  {    
+  {
     assert(output.owner());
     assert(input.owner());
 
     TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
     if (input.owner()->getRunnable())
     {
-      output.m_pipe.reset(new SynchedPipe<T>(1 << 20));
+      output.m_pipe.reset(new SynchedPipe<T, SpscValueQueue>(1024));
     }
     else
     {
       output.m_pipe.reset(new UnsynchedPipe<T>(input.owner()));
     }
-    
+
     input.m_pipe = output.m_pipe.get();
   }
 }

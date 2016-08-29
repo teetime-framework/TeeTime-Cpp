@@ -30,6 +30,7 @@ SET(HEADERS
   ${INCDIR}/Md5Hash.h   
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
+  ${INCDIR}/stages/AbstractFilterStage.h
   ${INCDIR}/stages/AbstractProducerStage.h
   ${INCDIR}/stages/InitialElementProducer.h
   ${INCDIR}/stages/CollectorSink.h

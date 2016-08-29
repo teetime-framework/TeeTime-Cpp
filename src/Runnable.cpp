@@ -22,6 +22,11 @@
 
 using namespace teetime;
   
+Runnable::Runnable()
+  : creationTime(platform::microSeconds())
+{}
+
+
 AbstractStageRunnable::AbstractStageRunnable(AbstractStage* stage, int cpu)
  : m_stage(stage)
  , m_cpu(cpu)
@@ -39,6 +44,8 @@ void ProducerStageRunnable::run()
 {
   TEETIME_INFO() << "ProducerStageRunnable::run(): " << m_stage->debugName();
 
+  auto start = platform::microSeconds();
+
   const uint32 numOutputPorts = m_stage->numOutputPorts();
   for(uint32 i=0; i<numOutputPorts; ++i)
   {
@@ -49,7 +56,9 @@ void ProducerStageRunnable::run()
   }
 
   TEETIME_DEBUG() << "execute producer stage '" << m_stage->debugName() << "'";
-  m_stage->executeStage();      
+  m_stage->executeStage();   
+
+  TEETIME_TRACE() << "stage '" << m_stage->debugName() << "' was terminated after " << (platform::microSeconds() - start) * 0.001 << "ms (" << (platform::microSeconds() - creationTime) * 0.001 << "ms)";
 }
 
 ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage, int cpu)
@@ -87,11 +96,13 @@ void ConsumerStageRunnable::run()
     }
   }
 
-  TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'";  
+  TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'"; 
+  auto start = platform::microSeconds();
   while(m_stage->currentState() == StageState::Started)
   {
     m_stage->executeStage();
   }
+  TEETIME_DEBUG() << "stage '" << m_stage->debugName() << "' was executing " << (platform::microSeconds() - start) * 0.001 << "ms";
 
   TEETIME_DEBUG() << "terminating consumer stage '" << m_stage->debugName() << "'";
   //FIXME(johl): should we assert the current state is 'Terminating'?
@@ -109,5 +120,5 @@ void ConsumerStageRunnable::run()
     }
   }
 
-  TEETIME_DEBUG() << "leaving stage '" << m_stage->debugName() << "'";
+  TEETIME_TRACE() << "stage '" << m_stage->debugName() << "' was terminated after " << (platform::microSeconds() - start) * 0.001 << "ms (" << (platform::microSeconds() - creationTime) * 0.001 << "ms)";
 }

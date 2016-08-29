@@ -46,15 +46,27 @@ public:
 private:
   virtual void execute() override
   {
-    //std::random_device                  rand_dev;
-    std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
-    std::uniform_int_distribution<int>  distr(m_min, m_max);
-
-    for (unsigned i = 0; i < m_num; ++i)
+    if (m_min == m_max)
     {
-      int value = distr(generator);
-      AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash::generate(&value, sizeof(value)));
+      auto hash = Md5Hash::generate(&m_min, sizeof(m_min));
+      for (unsigned i = 0; i < m_num; ++i)
+      {
+        AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash(hash));
+      }
     }
+    else
+    {
+      //std::random_device                  rand_dev;
+      std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
+      std::uniform_int_distribution<int>  distr(m_min, m_max);
+
+      for (unsigned i = 0; i < m_num; ++i)
+      {
+        int value = distr(generator);
+        AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash::generate(&value, sizeof(value)));
+      }
+    }
+
 
     AbstractProducerStage<Md5Hash>::terminate();
   }
@@ -90,37 +102,31 @@ public:
   }
 };
 
+static int cpus[] = {
+  0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23
+};
+
+static int cpus2[] = {
+  0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+};
+
 class Config2 : public Configuration
 {
 public:
   Config2(int num, int min, int max, int threads) 
   {
-    int cpu = 0;
-
-    auto nextCpu = [&]() {
-#if 1
-      return -1;
-#else
-      int numThreads = std::thread::hardware_concurrency();
-      
-      int ret = cpu;
-      cpu = (cpu + 1) % numThreads;
-      return ret;
-#endif
-    };
-
     auto producer = createStage<Producer>(min, max, num);
     auto distributor = createStage<DistributorStage<Md5Hash>>();
     auto merger = createStage<MergerStage<int>>();
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive(nextCpu());
-    merger->declareActive(nextCpu());
+    producer->declareActive();
+    merger->declareActive();
 
     for(int i=0; i<threads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive(nextCpu());
+      revhash->declareActive();
 
       connect(distributor->getNewOutputPort(), revhash->getInputPort());
       connect(revhash->getOutputPort(), merger->getNewInputPort());

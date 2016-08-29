@@ -129,7 +129,7 @@ namespace teetime
     }
 
   private:
-    struct alignas(64) Entry
+    struct Entry
     {
       Entry()
       {
@@ -139,8 +139,6 @@ namespace teetime
       std::atomic<bool> hasValue;
       char data[sizeof(T)];
     };
-
-    static_assert(sizeof(Entry) % 64 == 0, "");
 
     static const size_t CacheLineSize = TEETIME_CACHELINESIZE;
 

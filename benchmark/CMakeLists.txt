@@ -13,9 +13,14 @@ target_link_libraries(queue teetime ${CMAKE_THREAD_LIBS_INIT})
 
 include_directories(${CMAKE_SOURCE_DIR}/fastflow/fastflow)
 
-find_package (Threads)
-add_executable("teetime_md5" md5.cpp fastflow_md5.cpp "teetime_md5.cpp")
+add_executable("teetime_md5" md5.cpp fastflow_md5.cpp md5_fastflow_allocator.cpp  "teetime_md5.cpp")
 target_link_libraries(teetime_md5 teetime ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable("io" io.cpp io_teetime.cpp)
+target_link_libraries(io teetime ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable("sleeper" sleeper.cpp sleeper_teetime.cpp)
+target_link_libraries(sleeper teetime ${CMAKE_THREAD_LIBS_INIT})
 
 IF(NOT UNIX)
   RETURN()

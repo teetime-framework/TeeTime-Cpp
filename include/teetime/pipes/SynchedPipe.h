@@ -34,15 +34,11 @@ TEETIME_WARNING_DISABLE_CONSTANT_CONDITION
 #include "AlignedProducerConsumerQueue.h"
 TEETIME_WARNING_POP
 
-#ifndef TEETIME_DEFAULT_QUEUE
-//#define TEETIME_DEFAULT_QUEUE folly::ProducerConsumerQueue
-//#define TEETIME_DEFAULT_QUEUE folly::AlignedProducerConsumerQueue
-#define TEETIME_DEFAULT_QUEUE teetime::SpscValueQueue
-#endif
+
 
 namespace teetime
 {
-  template<typename T, template<typename> class TQueue = TEETIME_DEFAULT_QUEUE>
+  template<typename T, template<typename> class TQueue = folly::ProducerConsumerQueue>
   class SynchedPipe final : public Pipe<T>
   {
   public:

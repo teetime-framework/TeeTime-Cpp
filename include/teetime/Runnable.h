@@ -14,6 +14,7 @@
  * limitations under the License.
  */ 
 #pragma once
+#include "common.h"
 
 namespace teetime
 {
@@ -22,8 +23,12 @@ namespace teetime
   class Runnable
   {
   public:
+    Runnable();
     virtual ~Runnable() = default;
     virtual void run() = 0;
+
+  protected:
+    uint64 creationTime;
   };
 
   class AbstractStageRunnable : public Runnable
