@@ -27,6 +27,41 @@ TEETIME_WARNING_POP
 #include <vector>
 #include <string>
 
+#include "fastflow/buffer.hpp"
+
+static const size_t numValues = 10000000L;
+static const size_t capacity = 1024;
+
+template<typename T>
+class FastFlowQueue
+{
+public:
+  explicit FastFlowQueue(size_t capacity)
+    : m_buffer(capacity)
+  {
+    m_buffer.init();
+  }
+
+  bool write(T&& t)
+  {
+    return m_buffer.push(t);
+  }
+
+  bool write(const T& t)
+  {
+    return m_buffer.push(t);
+  }
+
+  bool read(T& t)
+  {
+    return m_buffer.pop(reinterpret_cast<void**>(&t));
+  }
+
+private:
+  ff::SWSR_Ptr_Buffer m_buffer;
+};
+
+
 #ifdef TEETIME_HAS_BOOST
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -61,18 +96,16 @@ using namespace teetime;
 template<template<typename> class TQueue>
 uint64 benchmark_value()
 {
-  size_t num = 10000000L;
-  
-  TQueue<std::string> pipe(1024);
+  TQueue<std::string> pipe(capacity);
   std::vector<std::string> dest;
-  dest.reserve(num);
+  dest.reserve(numValues);
 
   std::atomic<bool> started(false);
   std::atomic<int> ready(0);
 
   auto produce = [&](){ 
     platform::setThreadAffinityMask(1);
-    const size_t local_num = num;
+    const size_t local_num = numValues;
 
     ready.fetch_add(1);
     while(started.load() == false)
@@ -94,7 +127,7 @@ uint64 benchmark_value()
 
   auto consume = [&](){
     platform::setThreadAffinityMask(2);
-    const size_t local_num = num;
+    const size_t local_num = numValues;
 
     ready.fetch_add(1);
     while(started.load() == false)
@@ -169,18 +202,22 @@ void runValue(int num, const char* name)
 template<template<typename> class TQueue>
 uint64 benchmark2()
 {
-  size_t num = 100000000L;
-
-  TQueue<size_t*> pipe(1024);
+  TQueue<size_t*> pipe(capacity);
   std::vector<size_t*> dest;
-  dest.reserve(num);
+  dest.reserve(numValues);
 
   std::atomic<bool> started(false);
   std::atomic<int> ready(0);
 
+  size_t* tmp = nullptr;
+  if (pipe.read(tmp))
+  {
+    TEETIME_DEBUG() << "WTF?";
+  }
+
   auto produce = [&]() {
     platform::setThreadAffinityMask(1);
-    const size_t local_num = num;
+    const size_t local_num = numValues;
 
     ready.fetch_add(1);
     while (started.load() == false)
@@ -189,6 +226,7 @@ uint64 benchmark2()
 
     for (size_t i = 1; i<local_num; ++i)
     {
+      TEETIME_TRACE() << "producing " << i << "/" << local_num;
       while (true)
       {
         if (pipe.write(reinterpret_cast<size_t*>(i)))
@@ -197,11 +235,13 @@ uint64 benchmark2()
           platform::yield();
       }
     }
+
+    TEETIME_TRACE() << "producer done";
   };
 
   auto consume = [&]() {
     platform::setThreadAffinityMask(2);
-    const size_t local_num = num;
+    const size_t local_num = numValues;
 
     ready.fetch_add(1);
     while (started.load() == false)
@@ -210,11 +250,13 @@ uint64 benchmark2()
 
     for (size_t i = 1; i<local_num; ++i)
     {
+      
       size_t* val;
       while (true)
       {
         if (pipe.read(val))
         {
+          TEETIME_TRACE() << "consuming " << i << "/" << local_num << " (" << reinterpret_cast<size_t>(val) << ")";
           dest.push_back(val);
           break;
         }
@@ -224,6 +266,8 @@ uint64 benchmark2()
         }
       }
     }
+
+    TEETIME_TRACE() << "consumer done";
   };
 
 
@@ -267,7 +311,9 @@ void run(int num, const char* name)
   for (int i = 0; i<num; ++i)
   {
     //auto ns = benchmark<folly::ProducerConsumerQueue>();
+    TEETIME_INFO() << "starting run " << i << "...";
     auto ns = benchmark2<TQueue>();
+    TEETIME_INFO() << "    run " << i << " done.";
     //std::cout << i << ": " << ns << std::endl;
     sum += ns;
   }
@@ -279,8 +325,9 @@ int main(int argc, char** argv)
 {
   setLogCallback(::teetime::simpleLogging);
   setLogLevel(getLogLevelFromArgs(argc, argv));
-  
   int num = 10;
+
+
   runValue<SpscValueQueue>(num, "SpscValueQueue");
   runValue<folly::ProducerConsumerQueue>(num, "Folly");
   runValue<folly::AlignedProducerConsumerQueue>(num, "Folly (cache aligned)");
@@ -290,6 +337,7 @@ int main(int argc, char** argv)
 
   run<SpscValueQueue>(num, "SpscValueQueue");
   run<SpscPointerQueue>(num, "SpscPointerQueue");
+  run<FastFlowQueue>(num, "FastFlowQueue");
   run<folly::ProducerConsumerQueue>(num, "Folly");
   run<folly::AlignedProducerConsumerQueue>(num, "Folly (cache aligned)");
 #ifdef TEETIME_HAS_BOOST
