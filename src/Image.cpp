@@ -158,8 +158,10 @@ bool Image::loadFromMemory(const uint8* data, size_t dataSize, const char* filen
   int width = 0;
   int height = 0;
   int comp = 0;
+
+  assert(dataSize < INT_MAX);
   
-  if (auto p = stbi_load_from_memory(data, dataSize, &width, &height, &comp, 4))
+  if (auto p = stbi_load_from_memory(data, static_cast<int>(dataSize), &width, &height, &comp, 4))
   {
     assert(width > 0);
     assert(height > 0);
@@ -178,5 +180,7 @@ bool Image::loadFromMemory(const uint8* data, size_t dataSize, const char* filen
 
 Image Image::resize(size_t width, size_t height) const
 {
+  unused(width);
+  unused(height);
   return *this;
 }

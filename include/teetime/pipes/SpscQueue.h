@@ -15,10 +15,7 @@
  */
 #pragma once
 #include <atomic>
-
-#ifndef TEETIME_CACHELINESIZE
-#define TEETIME_CACHELINESIZE 64
-#endif
+#include <teetime/platform.h>
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
@@ -138,15 +135,18 @@ namespace teetime
 
       std::atomic<bool> hasValue;
       char data[sizeof(T)];
-    };
+    }; 
 
-    static const size_t CacheLineSize = TEETIME_CACHELINESIZE;
+    char _padding0[platform::CacheLineSize];
 
-    char padding0[64];
     unsigned m_readIndex;
-    char padding1[64 - sizeof(unsigned)];
-    unsigned m_writeIndex alignas(CacheLineSize);
-    char padding2[64 - sizeof(unsigned)];
+
+    char _padding1[platform::CacheLineSize];
+
+    unsigned m_writeIndex;
+
+    char _padding2[platform::CacheLineSize];
+
     Entry* m_array;
     unsigned m_capacity;
   };
@@ -155,8 +155,9 @@ namespace teetime
   template<typename T>
   class SpscPointerQueue
   {
-  public:
+    static_assert(std::is_pointer<T>::value, "T must be a pointer type");
 
+  public:
     explicit SpscPointerQueue(unsigned capacity)
       : m_readIndex(0)
       , m_writeIndex(0)
@@ -221,13 +222,15 @@ namespace teetime
       std::atomic<T> value;
     };
 
-    static const size_t CacheLineSize = TEETIME_CACHELINESIZE;
+    char _padding0[platform::CacheLineSize];
 
-    char pagging0[64];
     unsigned m_readIndex;
-    char pagging1[64 - sizeof(unsigned)];
+
+    char _padding1[platform::CacheLineSize];
+
     unsigned m_writeIndex;
-    char pagging2[64 - sizeof(unsigned)];
+
+    char _padding2[platform::CacheLineSize];
 
     Entry* m_array;
     unsigned m_capacity;

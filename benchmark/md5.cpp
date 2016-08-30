@@ -17,11 +17,6 @@ class Benchmark
 public:
   using Function = void(int num, int min, int max, int threads);
 
-  void configureFromCmdArgs(int argc, char** argv)
-  {
-
-  }
-
   void setNumValues(int num)
   {
     numValues = num;

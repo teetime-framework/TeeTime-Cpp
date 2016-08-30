@@ -157,6 +157,7 @@ namespace
 
 void benchmark_fastflow_allocator(int num, int min, int max, int threads)
 {
+
   std::vector<std::unique_ptr<ff_node>> W;
   for (size_t i = 0; i<threads; ++i)
     W.push_back(std::unique_ptr<ff_node_t<Md5Hash, int> >(make_unique<HashCracker>()));

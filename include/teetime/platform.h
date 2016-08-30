@@ -26,9 +26,12 @@ namespace platform
 
   void setThreadAffinityMask(unsigned mask);
 
-  int getCachelineSize(unsigned cpu);
-
   void* aligned_malloc(size_t size, size_t align);
   void  aligned_free(void* p);
+
+#ifndef TEETIME_CACHELINESIZE
+#define TEETIME_CACHELINESIZE 64
+#endif
+  static const size_t CacheLineSize = TEETIME_CACHELINESIZE;
 }
 }

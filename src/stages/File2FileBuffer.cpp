@@ -43,7 +43,7 @@ void File2FileBuffer::execute(File&& value)
   std::streamsize size = file.tellg();
 
   assert(size >= 0);
-  if (size > std::numeric_limits<size_t>::max()) 
+  if (static_cast<size_t>(size) > std::numeric_limits<size_t>::max()) 
   {
     TEETIME_ERROR() << "file too big: " << value.path;
     return;

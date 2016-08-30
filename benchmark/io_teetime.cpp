@@ -51,7 +51,7 @@ namespace {
       std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
       std::uniform_int_distribution<int>  distr(m_min, m_max);
 
-      for (unsigned i = 0; i < m_num; ++i)
+      for (int i = 0; i < m_num; ++i)
       {
         int value = distr(generator);
         AbstractProducerStage<int>::getOutputPort().send(std::move(value));
@@ -146,6 +146,8 @@ namespace {
   public:
     Config(int num, int min, int max, int threads)
     {
+      unused(threads);
+
       auto producer = createStage<Producer>(min, max, num);
       auto writer = createStage<Writer>("writer0_");
       auto reader = createStage<Reader>();

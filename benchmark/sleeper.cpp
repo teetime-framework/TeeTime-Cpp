@@ -8,7 +8,10 @@ using namespace teetime;
 void sleeper_benchmark_teetime(int num, int min, int max, int threads);
 void sleeper_benchmark_fastflow(int num, int min, int max, int threads)
 {
-
+  unused(num);
+  unused(min);
+  unused(max);
+  unused(threads);
 }
 
 struct result

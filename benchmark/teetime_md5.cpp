@@ -49,7 +49,7 @@ private:
     if (m_min == m_max)
     {
       auto hash = Md5Hash::generate(&m_min, sizeof(m_min));
-      for (unsigned i = 0; i < m_num; ++i)
+      for (int i = 0; i < m_num; ++i)
       {
         AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash(hash));
       }
@@ -60,7 +60,7 @@ private:
       std::mt19937                        generator(0); //TODO(johl): currently using 0 as seed (instead of rand_dev) for reproducable results. This should be adjustable.
       std::uniform_int_distribution<int>  distr(m_min, m_max);
 
-      for (unsigned i = 0; i < m_num; ++i)
+      for (int i = 0; i < m_num; ++i)
       {
         int value = distr(generator);
         AbstractProducerStage<Md5Hash>::getOutputPort().send(Md5Hash::generate(&value, sizeof(value)));

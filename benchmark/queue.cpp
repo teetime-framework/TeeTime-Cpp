@@ -26,18 +26,32 @@ TEETIME_WARNING_POP
 #include <iostream>
 #include <vector>
 #include <string>
+#include <type_traits>
 
+TEETIME_WARNING_PUSH
+TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
+TEETIME_WARNING_DISABLE_EMPTY_BODY
+TEETIME_WARNING_DISABLE_MISSING_FIELD_INIT
+TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
+TEETIME_WARNING_DISABLE_MAY_NOT_ALIGNED
+TEETIME_WARNING_DISABLE_SIGNED_UNSIGNED_MISMATCH
+TEETIME_WARNING_DISABLE_HIDDEN
+TEETIME_WARNING_DISABLE_LOSSY_CONVERSION
+TEETIME_WARNING_DISABLE_UNSAFE_USE_OF_BOOL
+TEETIME_WARNING_DISABLE_UNREACHABLE
 #include "fastflow/buffer.hpp"
+TEETIME_WARNING_POP
 
 static const size_t numValues = 10000000L;
-static const size_t capacity = 1024;
+static const size_t queueCapacity = 1024;
 
 template<typename T>
 class FastFlowQueue
 {
+  static_assert(std::is_pointer<T>::value, "T must be a pointer type");
 public:
   explicit FastFlowQueue(size_t capacity)
-    : m_buffer(capacity)
+    : m_buffer(static_cast<unsigned long>(capacity))
   {
     m_buffer.init();
   }
@@ -96,7 +110,7 @@ using namespace teetime;
 template<template<typename> class TQueue>
 uint64 benchmark_value()
 {
-  TQueue<std::string> pipe(capacity);
+  TQueue<std::string> pipe(queueCapacity);
   std::vector<std::string> dest;
   dest.reserve(numValues);
 
@@ -179,8 +193,6 @@ uint64 benchmark_value()
   return (end - start);
 }
 
-
-
 template<template<typename> class TQueue>
 void runValue(int num, const char* name)
 {
@@ -197,12 +209,10 @@ void runValue(int num, const char* name)
   std::cout << "[value] " << name << ": " << (double)sum / num * 0.001 << "ms" << std::endl;
 }
 
-
-
 template<template<typename> class TQueue>
 uint64 benchmark2()
 {
-  TQueue<size_t*> pipe(capacity);
+  TQueue<size_t*> pipe(queueCapacity);
   std::vector<size_t*> dest;
   dest.reserve(numValues);
 

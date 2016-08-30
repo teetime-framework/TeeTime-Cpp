@@ -112,8 +112,8 @@ namespace teetime
 
     std::cout << threadid << ": " << LogLevel2String(level) << " ";
 
-    static const int filenameFieldWidth = 30;
-    const int filenameLen = strlen(file);
+    static const size_t filenameFieldWidth = 30;
+    const size_t filenameLen = strlen(file);
     if(filenameLen > filenameFieldWidth)
     {
       std::cout.write( "...", 3 );

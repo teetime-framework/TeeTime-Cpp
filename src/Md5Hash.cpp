@@ -362,11 +362,14 @@ std::string Md5Hash::toHexString() const
 
 Md5Hash Md5Hash::generate(const void* data, size_t dataSize)
 {
+  assert(dataSize == 0 || data);
+  assert(dataSize <= UINT_MAX);
+
   unsigned char buffer[16];
 
   MD5_CTX ctx;
   MD5_Init(&ctx);
-  MD5_Update(&ctx, data, dataSize);
+  MD5_Update(&ctx, data, static_cast<unsigned long>(dataSize));
   MD5_Final(&buffer[0], &ctx);
   
   return Md5Hash(buffer);
