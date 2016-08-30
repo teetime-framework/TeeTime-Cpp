@@ -194,22 +194,6 @@ uint64 benchmark_value()
 }
 
 template<template<typename> class TQueue>
-void runValue(int num, const char* name)
-{
-  uint64 sum = 0;
-
-  for (int i = 0; i<num; ++i)
-  {
-    //auto ns = benchmark<folly::ProducerConsumerQueue>();
-    auto ns = benchmark_value<TQueue>();
-    //std::cout << i << ": " << ns << std::endl;
-    sum += ns;
-  }
-
-  std::cout << "[value] " << name << ": " << (double)sum / num * 0.001 << "ms" << std::endl;
-}
-
-template<template<typename> class TQueue>
 uint64 benchmark2()
 {
   TQueue<size_t*> pipe(queueCapacity);
@@ -313,22 +297,21 @@ uint64 benchmark2()
 
 
 
-template<template<typename> class TQueue>
-void run(int num, const char* name)
+void run(int num, const char* name, uint64(*benchmark_f)())
 {
   uint64 sum = 0;
 
-  for (int i = 0; i<num; ++i)
+  for (int i = 0; i < num; ++i)
   {
     //auto ns = benchmark<folly::ProducerConsumerQueue>();
     TEETIME_INFO() << "starting run " << i << "...";
-    auto ns = benchmark2<TQueue>();
+    auto ns = benchmark_f();
     TEETIME_INFO() << "    run " << i << " done.";
     //std::cout << i << ": " << ns << std::endl;
     sum += ns;
   }
 
-  std::cout << "[pointers] " << name << ": " << (double)sum / num * 0.001 << "ms" << std::endl;
+  std::cout << name << ": " << (double)sum / num * 0.001 << "ms" << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -337,20 +320,19 @@ int main(int argc, char** argv)
   setLogLevel(getLogLevelFromArgs(argc, argv));
   int num = 10;
 
-
-  runValue<SpscValueQueue>(num, "SpscValueQueue");
-  runValue<folly::ProducerConsumerQueue>(num, "Folly");
-  runValue<folly::AlignedProducerConsumerQueue>(num, "Folly (cache aligned)");
+  run(num, "SpscValueQueue", benchmark_value<SpscValueQueue>);
+  run(num, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
+  run(num, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
 #ifdef TEETIME_HAS_BOOST
-  runValue<BoostSpscQueue>(num, "boost::spsc_queue");
+  run(num, "boost::spsc_queue", benchmark_value<BoostSpscQueue>);
 #endif
 
-  run<SpscValueQueue>(num, "SpscValueQueue");
-  run<SpscPointerQueue>(num, "SpscPointerQueue");
-  run<FastFlowQueue>(num, "FastFlowQueue");
-  run<folly::ProducerConsumerQueue>(num, "Folly");
-  run<folly::AlignedProducerConsumerQueue>(num, "Folly (cache aligned)");
+  run(num, "SpscValueQueue", benchmark2<SpscValueQueue>);
+  run(num, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
+  run(num, "Folly", benchmark2<folly::ProducerConsumerQueue>);
+  run(num, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
+  run(num, "FastFlowQueue", benchmark2<FastFlowQueue>);
 #ifdef TEETIME_HAS_BOOST
-  run<BoostSpscQueue>(num, "boost::spsc_queue");
+  run(num, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
 #endif
 }
