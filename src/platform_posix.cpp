@@ -18,6 +18,7 @@
 
 #include <teetime/platform.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <pthread.h>
 
 namespace teetime
@@ -37,6 +38,17 @@ namespace platform
     }
 
     return uint64(tp.tv_sec - sys_timeBase) * 1000000 + tp.tv_usec;
+  }
+
+  bool isFile(const char* path)
+  {
+    assert(path);
+    struct stat buf;
+
+    if (stat(path, &buf) != -1)
+      return (bool)S_ISREG(buf.st_mode);
+
+    return false;
   }
 
   void yield()

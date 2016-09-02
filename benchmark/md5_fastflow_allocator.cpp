@@ -49,6 +49,20 @@ using teetime::Md5Hash;
 
 namespace
 {
+  struct task
+  {
+    explicit task(int i)
+      : i(i)
+    {}
+
+    explicit task(const Md5Hash& hash)
+      : hash(hash)
+    {}
+
+    int i;
+    Md5Hash hash;
+  };
+
   template<typename T, typename... TArgs>
   T* ff_new(TArgs&&... args)
   {
@@ -67,7 +81,7 @@ namespace
     }
   }
 
-  struct Producer : ff_node_t<char, Md5Hash>
+  struct Producer : ff_node_t<char, task>
   {
     Producer(int num, int min, int max)
       : m_num(num)
@@ -76,7 +90,7 @@ namespace
     {
     }
 
-    Md5Hash* svc(char*)
+    task* svc(char*)
     {
       if (m_min == m_max)
       {
@@ -84,7 +98,7 @@ namespace
 
         for (int i = 0; i < m_num; ++i)
         { 
-          ff_send_out(ff_new<Md5Hash>(hash));
+          ff_send_out(ff_new<task>(hash));
         }
       }
       else
@@ -100,7 +114,7 @@ namespace
           auto hash = Md5Hash::generate(&value, sizeof(value));
           TEETIME_TRACE() << "generated hash: " << hash.toHexString();
 
-          ff_send_out(ff_new<Md5Hash>(hash));
+          ff_send_out(ff_new<task>(hash));
         }
       }
 
@@ -113,39 +127,28 @@ namespace
     int m_max;
   };
 
-  struct Hasher : ff_node_t<int, Md5Hash>
-  {
-    Md5Hash* svc(int* value)
-    {
-      auto hash = Md5Hash::generate(value, sizeof(*value));
-      ff_delete(value);
-      return ff_new<Md5Hash>(hash);
-    }
-  };
 
-  struct HashCracker : ff_node_t<Md5Hash, int>
+  struct HashCracker : ff_node_t<task, task>
   {
-    int* svc(Md5Hash* value)
+    task* svc(task* value)
     {
       int ret = -1;
       for (int i = 0; i < INT_MAX; ++i) {
-        if (Md5Hash::generate(&i, sizeof(i)) == *value) {
-          ret = i;
+        if (Md5Hash::generate(&i, sizeof(i)) == value->hash) {
+          value->i = i;
           break;
         }
       }
 
-      ff_delete(value);
-      
-      return ff_new<int>(ret);
+      return value;
     }
   };
 
-  struct Sink : ff_node_t<int, char>
+  struct Sink : ff_node_t<task, char>
   {
-    virtual char* svc(int* value) override
+    virtual char* svc(task* value) override
     {
-      m_values.push_back(*value);
+      m_values.push_back(value->i);
       ff_delete(value);
       return GO_ON;
     }
@@ -160,7 +163,7 @@ void benchmark_fastflow_allocator(int num, int min, int max, int threads)
 
   std::vector<std::unique_ptr<ff_node>> W;
   for (size_t i = 0; i<threads; ++i)
-    W.push_back(std::unique_ptr<ff_node_t<Md5Hash, int> >(make_unique<HashCracker>()));
+    W.push_back(std::unique_ptr<ff_node_t<task, task> >(make_unique<HashCracker>()));
 
   Producer producer(num, min, max);
   Sink sink;

@@ -21,6 +21,7 @@ namespace teetime
 namespace platform
 {
   uint64 microSeconds();
+  bool isFile(const char* path);
 
   void yield();
 

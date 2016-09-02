@@ -42,9 +42,6 @@ TEETIME_WARNING_DISABLE_UNREACHABLE
 #include "fastflow/buffer.hpp"
 TEETIME_WARNING_POP
 
-static const size_t numValues = 10000000L;
-static const size_t queueCapacity = 1024;
-
 template<typename T>
 class FastFlowQueue
 {
@@ -108,9 +105,9 @@ public:
 using namespace teetime;
 
 template<template<typename> class TQueue>
-uint64 benchmark_value()
+uint64 benchmark_value(size_t numValues, size_t capacity)
 {
-  TQueue<std::string> pipe(queueCapacity);
+  TQueue<std::string> pipe(capacity);
   std::vector<std::string> dest;
   dest.reserve(numValues);
 
@@ -194,63 +191,43 @@ uint64 benchmark_value()
 }
 
 template<template<typename> class TQueue>
-uint64 benchmark2()
+uint64 benchmark2(size_t numValues, size_t capacity)
 {
-  TQueue<size_t*> pipe(queueCapacity);
+  TQueue<size_t*> pipe(capacity);
   std::vector<size_t*> dest;
   dest.reserve(numValues);
-
-  std::atomic<bool> started(false);
-  std::atomic<int> ready(0);
-
-  size_t* tmp = nullptr;
-  if (pipe.read(tmp))
-  {
-    TEETIME_DEBUG() << "WTF?";
-  }
 
   auto produce = [&]() {
     platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
 
-    ready.fetch_add(1);
-    while (started.load() == false)
-    {
-    }
-
     for (size_t i = 1; i<local_num; ++i)
-    {
-      TEETIME_TRACE() << "producing " << i << "/" << local_num;
+    { 
       while (true)
       {
         if (pipe.write(reinterpret_cast<size_t*>(i)))
+        {
           break;
+        }
         else
+        {
           platform::yield();
+        }
       }
     }
-
-    TEETIME_TRACE() << "producer done";
   };
 
   auto consume = [&]() {
     platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
 
-    ready.fetch_add(1);
-    while (started.load() == false)
-    {
-    }
-
     for (size_t i = 1; i<local_num; ++i)
     {
-      
       size_t* val;
       while (true)
       {
         if (pipe.read(val))
         {
-          TEETIME_TRACE() << "consuming " << i << "/" << local_num << " (" << reinterpret_cast<size_t>(val) << ")";
           dest.push_back(val);
           break;
         }
@@ -260,21 +237,11 @@ uint64 benchmark2()
         }
       }
     }
-
-    TEETIME_TRACE() << "consumer done";
   };
 
-
+  auto start = teetime::platform::microSeconds();
   std::thread consumer(consume);
   std::thread producer(produce);
-
-  while (ready.load() != 2)
-  {
-  }
-
-  auto start = teetime::platform::microSeconds();
-  started.store(true);
-
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
@@ -297,42 +264,47 @@ uint64 benchmark2()
 
 
 
-void run(int num, const char* name, uint64(*benchmark_f)())
+void run(size_t iterations, size_t numValues, size_t capacity, const char* name, uint64(*benchmark_f)(size_t, size_t))
 {
   uint64 sum = 0;
 
-  for (int i = 0; i < num; ++i)
+  for (int i = 0; i < iterations; ++i)
   {
     //auto ns = benchmark<folly::ProducerConsumerQueue>();
     TEETIME_INFO() << "starting run " << i << "...";
-    auto ns = benchmark_f();
+    auto ns = benchmark_f(numValues, capacity);
     TEETIME_INFO() << "    run " << i << " done.";
     //std::cout << i << ": " << ns << std::endl;
     sum += ns;
   }
 
-  std::cout << name << ": " << (double)sum / num * 0.001 << "ms" << std::endl;
+  std::cout << name << ": " << (double)sum / iterations * 0.001 << "ms" << std::endl;
 }
 
 int main(int argc, char** argv)
 {
   setLogCallback(::teetime::simpleLogging);
   setLogLevel(getLogLevelFromArgs(argc, argv));
-  int num = 10;
+  size_t iterations = 10;  
+  size_t capacity = 1024;
 
-  run(num, "SpscValueQueue", benchmark_value<SpscValueQueue>);
-  run(num, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
-  run(num, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
+  std::cout << "value based (std::string):" << std::endl;
+  size_t numValues = 10000000L;
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
 #ifdef TEETIME_HAS_BOOST
-  run(num, "boost::spsc_queue", benchmark_value<BoostSpscQueue>);
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_value<BoostSpscQueue>);
 #endif
 
-  run(num, "SpscValueQueue", benchmark2<SpscValueQueue>);
-  run(num, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
-  run(num, "Folly", benchmark2<folly::ProducerConsumerQueue>);
-  run(num, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
-  run(num, "FastFlowQueue", benchmark2<FastFlowQueue>);
+  std::cout << "pointer based (size_t*):" << std::endl;
+  numValues = 100000000L;
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue", benchmark2<FastFlowQueue>);
 #ifdef TEETIME_HAS_BOOST
-  run(num, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
 #endif
 }

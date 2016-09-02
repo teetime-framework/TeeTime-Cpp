@@ -86,47 +86,51 @@ int reverseHash(Md5Hash hash) {
   return -1;
 }
 
-class Config : public Configuration
-{
-public:
-  Config(int num, int min, int max) 
-  {
-    auto producer = createStage<Producer>(min, max, num);
-    auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-    auto sink = createStage<CollectorSink<int>>();
-
-    producer->declareActive();
-
-    connect(producer->getOutputPort(), revhash->getInputPort());
-    connect(revhash->getOutputPort(), sink->getInputPort());      
-  }
+static const std::vector<int> affinity_none = {
+  -1
 };
 
-static int cpus[] = {
-  0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,23
+static const std::vector<int> affinity_avoidSameCore = {
+  0,1,2,3,4,5,6,7,
+  8,9,10,11,12,13,14,15,
+  16,17,18,19,20,21,22,23,
+  24,25,26,27,28,29,30,31
 };
 
-static int cpus2[] = {
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+static const std::vector<int> affinity_preferSameCpu = {
+  0,1,2,3,4,5,6,7,
+  16,17,18,19,20,21,22,23,
+  8,9,10,11,12,13,14,15,
+  24,25,26,27,28,29,30,31
 };
 
 class Config2 : public Configuration
 {
 public:
-  Config2(int num, int min, int max, int threads) 
+  Config2(int num, int min, int max, int threads, const std::vector<int>& affinity) 
   {
+    int nextCpu = 0;
+    auto getNextCpu = [&]() {
+      int cpu = affinity[nextCpu++ % affinity.size()];
+
+      if (cpu > std::thread::hardware_concurrency())
+        return -1;
+
+      return cpu;
+    };
+
     auto producer = createStage<Producer>(min, max, num);
     auto distributor = createStage<DistributorStage<Md5Hash>>();
     auto merger = createStage<MergerStage<int>>();
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive();
-    merger->declareActive();
+    producer->declareActive(getNextCpu());
+    merger->declareActive(getNextCpu());
 
     for(int i=0; i<threads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive();
+      revhash->declareActive(getNextCpu());
 
       connect(distributor->getNewOutputPort(), revhash->getInputPort());
       connect(revhash->getOutputPort(), merger->getNewInputPort());
@@ -137,38 +141,22 @@ public:
   }
 };
 
-class Config3 : public Configuration
-{
-public:
-  Config3(int num, int min, int max) 
-  {
-    auto producer = createStage<Producer>(min, max, num);
-    auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-    auto sink = createStage<CollectorSink<int>>();
-
-    producer->declareActive();
-    revhash->declareActive();
-    sink->declareActive();
-
-    connect(producer->getOutputPort(), revhash->getInputPort());
-    connect(revhash->getOutputPort(), sink->getInputPort());
-  }
-};
-
 }
 
 void benchmark_teetime(int num, int min, int max, int threads)
 {
-  if (threads > 0) {
-    Config2 config(num, min, max, threads);
-    config.executeBlocking();
-  }
-  else if (threads == 0) {
-    Config config(num, min, max);
-    config.executeBlocking();
-  }
-  else {
-    Config3 config(num, min, max);
-    config.executeBlocking();
-  }
+  Config2 config(num, min, max, threads, affinity_none);
+  config.executeBlocking();
+}
+
+void benchmark_teetime_prefer_same_cpu(int num, int min, int max, int threads)
+{
+  Config2 config(num, min, max, threads, affinity_preferSameCpu);
+  config.executeBlocking();
+}
+
+void benchmark_teetime_avoid_same_core(int num, int min, int max, int threads)
+{
+  Config2 config(num, min, max, threads, affinity_avoidSameCore);
+  config.executeBlocking();
 }

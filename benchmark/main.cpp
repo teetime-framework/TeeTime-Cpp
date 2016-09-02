@@ -147,5 +147,33 @@ static void HashInt(benchmark::State& state) {
 BENCHMARK(HashInt);
 
 
+static void HashInt2(benchmark::State& state) {  
+
+  int foo = 42;
+  while (state.KeepRunning())
+  { 
+    auto o1 = Md5Hash::generate(&foo, sizeof(foo));
+    auto o2 = Md5Hash::generate(&foo, sizeof(foo));
+    (void)o1;
+    (void)o2;
+  }
+}
+BENCHMARK(HashInt2);
+
+static void HashInt20(benchmark::State& state) {  
+
+  int foo = 42;
+  while (state.KeepRunning())
+  { 
+    for(int i=0; i<20; ++i)
+    {
+      auto o1 = Md5Hash::generate(&foo, sizeof(foo));
+      (void)o1;
+    }
+  }
+}
+BENCHMARK(HashInt20);
+
+
 
 BENCHMARK_MAIN()

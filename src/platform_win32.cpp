@@ -34,6 +34,13 @@ namespace platform
     return (1000000LL * now.QuadPart) / frequency.QuadPart;
   }
 
+  bool isFile(const char* path)
+  {
+    assert(path);
+    const DWORD d = GetFileAttributesA(path);
+    return (d != INVALID_FILE_ATTRIBUTES) && !(d & FILE_ATTRIBUTE_DIRECTORY);
+  }
+
   void yield()
   {
     SwitchToThread();
