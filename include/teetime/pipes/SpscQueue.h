@@ -126,16 +126,19 @@ namespace teetime
     }
 
   private:
-    struct alignas(T) Entry
+    struct Entry
     {
       Entry()
       {
         hasValue.store(false);
       }
 
+      std::atomic<bool> hasValue alignas(T);
       char data[sizeof(T)];
-      std::atomic<bool> hasValue;
     }; 
+
+    static_assert(alignof(Entry) == alignof(T), "alignment mismatch");
+
 
     char _padding0[platform::CacheLineSize];
 

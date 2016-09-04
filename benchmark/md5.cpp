@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     num = num / 4;
   }
 
-  std::cout << "settings: num=" << num << ", value=" << value << ", min threads=" << minthreads << ", max threads=" << maxthreads << std::endl
+  std::cout << "settings: num=" << num << ", value=" << value << ", min threads=" << minthreads << ", max threads=" << maxthreads << std::endl;
 
   Benchmark benchmark;
   benchmark.setNumValues(num);
