@@ -17,6 +17,7 @@
 #include <iostream>
 #include <teetime/stages/RandomIntProducer.h>
 #include <teetime/stages/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractFilterStage.h>
 #include <teetime/stages/FunctionStage.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/DistributorStage.h>
@@ -30,8 +31,11 @@
 #include <string>
 #include <random>
 #include <fstream>
+#include "Benchmark.h"
 
 using namespace teetime;
+
+int writeAndReadFile(const char* fileprefix, int fileNum, int size);
 
 namespace {
 
@@ -65,107 +69,77 @@ namespace {
     int m_num;
   };
 
-  class Writer : public AbstractConsumerStage<int>
+  class WriterReader : public AbstractFilterStage<int, int>
   {
   public:
-    explicit Writer(const char* filePrefix)
+    explicit WriterReader(const char* filePrefix)
       : m_filePrefix(filePrefix)
       , m_counter(0)
     {
-      m_outputPort = AbstractConsumerStage<int>::addNewOutputPort<std::string>();
     }
-
-    OutputPort<std::string>& getOutputPort()
-    {
-      return *m_outputPort;
-    }
-
+  
   private:
     virtual void execute(int&& value) override
     {
-      char filename[256];
-      sprintf(filename, "%s%d", m_filePrefix.c_str(), m_counter++);
+      int ret = writeAndReadFile(m_filePrefix.c_str(), m_counter++, value);
 
-      std::ofstream file;
-      file.open(filename, std::ios_base::out | std::ios_base::binary);
-
-      uint8 b = static_cast<uint8>(value % 256);
-      for (int i = 0; i < value; ++i)
-      {
-        file.write(reinterpret_cast<const char*>(&b), 1);
-      }
-      file.close();
-
-      m_outputPort->send(std::string(filename));
+      getOutputPort().send(std::move(ret));
     }
 
-    OutputPort<std::string>* m_outputPort;
     std::string              m_filePrefix;
     int                      m_counter;
-  };
-
-  class Reader : public AbstractConsumerStage<std::string>
-  {
-  public:
-    explicit Reader()
-    {
-      m_outputPort = AbstractConsumerStage<std::string>::addNewOutputPort<int>();
-    }
-
-    OutputPort<int>& getOutputPort()
-    {
-      return *m_outputPort;
-    }
-
-  private:
-    virtual void execute(std::string&& value) override
-    {
-      std::ifstream file;
-      file.open(value, std::ios_base::in | std::ios_base::binary);
-
-      int count = 0;
-      while (true)
-      {
-        uint8 b;
-        file.read(reinterpret_cast<char*>(&b), 1);
-
-        if (file.eof())
-          break;
-        else
-          count += 1;
-      }
-      
-      m_outputPort->send(std::move(count));
-    }
-
-    OutputPort<int>* m_outputPort;
   };
 
   class Config : public Configuration
   {
   public:
-    Config(int num, int min, int max, int threads)
+    Config(int num, int min, int max, int threads, const std::vector<int>& affinity)
     {
-      unused(threads);
+      CpuDispenser cpus(affinity);
 
       auto producer = createStage<Producer>(min, max, num);
-      auto writer = createStage<Writer>("writer0_");
-      auto reader = createStage<Reader>();
+      auto dist = createStage<DistributorStage<int>>();
+      auto merger = createStage<MergerStage<int>>();
       auto sink = createStage<CollectorSink<int>>();
 
-      producer->declareActive();     
-      reader->declareActive();
+      producer->declareActive(cpus.next());
+      merger->declareActive(cpus.next());
 
-      connect(producer->getOutputPort(), writer->getInputPort());
-      connect(writer->getOutputPort(), reader->getInputPort());
-      connect(reader->getOutputPort(), sink->getInputPort());
+      for (int i = 0; i < threads; ++i)
+      {
+        char prefix[256];
+        sprintf(prefix, "writer%d_", i);
+        auto writerReader = createStage<WriterReader>(prefix);        
+
+        writerReader->declareActive(cpus.next());
+
+        connect(dist->getNewOutputPort(), writerReader->getInputPort());
+        connect(writerReader->getOutputPort(), merger->getNewInputPort());
+      }
+
+      connect(producer->getOutputPort(), dist->getInputPort());
+      connect(merger->getOutputPort(), sink->getInputPort());
     }
   };
 
 }
 
-void io_benchmark_teetime(int num, int min, int max, int threads)
-{  
-  Config config(num, min, max, threads);
-  config.executeBlocking(); 
+
+
+void io_teetime_noAffinity(int num, int min, int max, int threads)
+{
+  Config config(num, min, max, threads, affinity_none);
+  config.executeBlocking();
+}
+
+void io_teetime_preferSameCpu(int num, int min, int max, int threads)
+{
+  Config config(num, min, max, threads, affinity_preferSameCpu);
+  config.executeBlocking();
+}
+
+void io_teetime_avoidSameCore(int num, int min, int max, int threads)
+{
+  Config config(num, min, max, threads, affinity_avoidSameCore);
+  config.executeBlocking();
 }

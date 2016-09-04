@@ -41,6 +41,12 @@ namespace platform
     return (d != INVALID_FILE_ATTRIBUTES) && !(d & FILE_ATTRIBUTE_DIRECTORY);
   }
 
+  bool removeFile(const char* path)
+  {
+    BOOL ret = DeleteFileA(path);
+    return (ret == TRUE);
+  }
+
   void yield()
   {
     SwitchToThread();

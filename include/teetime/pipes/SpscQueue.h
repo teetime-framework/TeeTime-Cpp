@@ -126,15 +126,15 @@ namespace teetime
     }
 
   private:
-    struct Entry
+    struct alignas(T) Entry
     {
       Entry()
       {
         hasValue.store(false);
       }
 
-      std::atomic<bool> hasValue;
       char data[sizeof(T)];
+      std::atomic<bool> hasValue;
     }; 
 
     char _padding0[platform::CacheLineSize];

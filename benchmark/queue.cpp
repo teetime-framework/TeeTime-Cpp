@@ -107,8 +107,10 @@ using namespace teetime;
 template<template<typename> class TQueue>
 uint64 benchmark_value(size_t numValues, size_t capacity)
 {
-  TQueue<std::string> pipe(capacity);
-  std::vector<std::string> dest;
+  using intlist = std::vector<int>;
+
+  TQueue<intlist> pipe(capacity);
+  std::vector<intlist> dest;
   dest.reserve(numValues);
 
   std::atomic<bool> started(false);
@@ -125,7 +127,7 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
 
     for(size_t i=0; i<local_num; ++i)
     {
-      std::string s(64, 't');
+      intlist s(64, 0);
       while(true)
       {
         if (pipe.write(std::move(s)))
@@ -147,12 +149,12 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
 
     for(size_t i=0; i<local_num; ++i)
     {
-      std::string val;
       while(true)
       {
-        if(pipe.read(val))
+        intlist tmp;
+        if (pipe.read(tmp))
         {
-          dest.push_back(std::move(val));
+          dest.push_back(std::move(tmp));
           break;
         }
         else
@@ -178,14 +180,106 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
   consumer.join();
   auto end = teetime::platform::microSeconds();
 
-  std::string s(64, 't');
+  const intlist s(64, 0);
   for(size_t i=0; i<dest.size(); ++i)
   {
     if(dest[i] != s) {
-      std::cout << "ERROR: " << i << ":" << dest[i] << std::endl;
+      std::cout << "ERROR: " << i << ":" << dest[i].size() << std::endl;
       break;
     }
   }  
+
+  return (end - start);
+}
+
+
+
+template<template<typename> class TQueue>
+uint64 benchmark_value2(size_t numValues, size_t capacity)
+{
+  struct Mat4
+  {
+    Mat4()
+    {
+      memset(m, 0, sizeof(m));
+      m[0] = 1;
+      m[5] = 1;
+      m[10] = 1;
+      m[15] = 1;
+    }
+
+    float m[16];
+  };
+
+  TQueue<Mat4> pipe(capacity);
+  std::vector<Mat4> dest;
+  dest.reserve(numValues);
+
+  std::atomic<bool> started(false);
+  std::atomic<int> ready(0);
+
+  auto produce = [&]() {
+    platform::setThreadAffinityMask(1);
+    const size_t local_num = numValues;
+
+    ready.fetch_add(1);
+    while (started.load() == false)
+    {
+    }
+
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      while (true)
+      {
+        if (pipe.write(Mat4()))
+          break;
+        else
+          platform::yield();
+      }
+    }
+  };
+
+  auto consume = [&]() {
+    platform::setThreadAffinityMask(2);
+    const size_t local_num = numValues;
+
+    ready.fetch_add(1);
+    while (started.load() == false)
+    {
+    }
+
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      while (true)
+      {
+        Mat4 m;
+        if (pipe.read(m))
+        {
+          dest.push_back(std::move(m));
+          break;
+        }
+        else
+        {
+          platform::yield();
+        }
+      }
+    }
+  };
+
+
+  std::thread consumer(consume);
+  std::thread producer(produce);
+
+  while (ready.load() != 2)
+  {
+  }
+
+  auto start = teetime::platform::microSeconds();
+  started.store(true);
+
+  producer.join();
+  consumer.join();
+  auto end = teetime::platform::microSeconds();
 
   return (end - start);
 }
@@ -288,8 +382,8 @@ int main(int argc, char** argv)
   size_t iterations = 10;  
   size_t capacity = 1024;
 
-  std::cout << "value based (std::string):" << std::endl;
-  size_t numValues = 10000000L;
+  std::cout << "value based (std::vector<int>):" << std::endl;
+  size_t numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
   run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
@@ -297,8 +391,18 @@ int main(int argc, char** argv)
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_value<BoostSpscQueue>);
 #endif
 
+
+  std::cout << "value based (4x4 float matrix):" << std::endl;
+  size_t numMatrices = 1000000;
+  run(iterations, numMatrices, capacity, "SpscValueQueue", benchmark_value2<SpscValueQueue>);
+  run(iterations, numMatrices, capacity, "Folly", benchmark_value2<folly::ProducerConsumerQueue>);
+  run(iterations, numMatrices, capacity, "Folly (cache optimized)", benchmark_value2<folly::AlignedProducerConsumerQueue>);
+#ifdef TEETIME_HAS_BOOST
+  run(iterations, numMatrices, capacity, "boost::spsc_queue", benchmark_value2<BoostSpscQueue>);
+#endif
+
   std::cout << "pointer based (size_t*):" << std::endl;
-  numValues = 100000000L;
+  numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);

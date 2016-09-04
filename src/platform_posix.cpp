@@ -19,6 +19,7 @@
 #include <teetime/platform.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <pthread.h>
 
 namespace teetime
@@ -49,6 +50,11 @@ namespace platform
       return (bool)S_ISREG(buf.st_mode);
 
     return false;
+  }
+
+  bool removeFile(const char* path)
+  {
+    return remove(path) == 0;
   }
 
   void yield()

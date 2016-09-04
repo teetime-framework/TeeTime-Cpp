@@ -29,6 +29,7 @@
 #include <climits>
 #include <string>
 #include <random>
+#include "Benchmark.h"
 
 using namespace teetime;
 
@@ -86,51 +87,27 @@ int reverseHash(Md5Hash hash) {
   return -1;
 }
 
-static const std::vector<int> affinity_none = {
-  -1
-};
 
-static const std::vector<int> affinity_avoidSameCore = {
-  0,1,2,3,4,5,6,7,
-  8,9,10,11,12,13,14,15,
-  16,17,18,19,20,21,22,23,
-  24,25,26,27,28,29,30,31
-};
-
-static const std::vector<int> affinity_preferSameCpu = {
-  0,1,2,3,4,5,6,7,
-  16,17,18,19,20,21,22,23,
-  8,9,10,11,12,13,14,15,
-  24,25,26,27,28,29,30,31
-};
 
 class Config2 : public Configuration
 {
 public:
   Config2(int num, int min, int max, int threads, const std::vector<int>& affinity) 
   {
-    int nextCpu = 0;
-    auto getNextCpu = [&]() {
-      int cpu = affinity[nextCpu++ % affinity.size()];
-
-      if (cpu > std::thread::hardware_concurrency())
-        return -1;
-
-      return cpu;
-    };
+    CpuDispenser cpus(affinity);
 
     auto producer = createStage<Producer>(min, max, num);
     auto distributor = createStage<DistributorStage<Md5Hash>>();
     auto merger = createStage<MergerStage<int>>();
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive(getNextCpu());
-    merger->declareActive(getNextCpu());
+    producer->declareActive(cpus.next());
+    merger->declareActive(cpus.next());
 
     for(int i=0; i<threads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive(getNextCpu());
+      revhash->declareActive(cpus.next());
 
       connect(distributor->getNewOutputPort(), revhash->getInputPort());
       connect(revhash->getOutputPort(), merger->getNewInputPort());

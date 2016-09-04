@@ -1,67 +1,122 @@
-#include <iostream>
-#include <vector>
-#include <teetime/logging.h>
-#include <teetime/platform.h>
+#include "Benchmark.h"
 
 using namespace teetime;
 
-void io_benchmark_teetime(int num, int min, int max, int threads);
-void io_benchmark_fastflow(int num, int min, int max, int threads)
+void io_teetime_noAffinity(int num, int min, int max, int threads);
+void io_teetime_preferSameCpu(int num, int min, int max, int threads);
+void io_teetime_avoidSameCore(int num, int min, int max, int threads);
+void io_fastflow(int num, int min, int max, int threads);
+void io_fastflow_allocator(int num, int min, int max, int threads);
+
+static void writeFile(const char* filename, int value)
 {
-  unused(num);
-  unused(min);
-  unused(max);
-  unused(threads);
+  std::ofstream file;
+  file.open(filename, std::ios_base::out | std::ios_base::binary);
+
+  const uint8 b = static_cast<uint8>(value % 256);
+  for (int i = 0; i < value; ++i)
+  {
+    file.write(reinterpret_cast<const char*>(&b), 1);
+  }
+  file.close();
 }
 
-struct result
+static int readFile(const char* filename)
 {
-  uint64 teetime;
-  uint64 fastflow;
-};
+  std::ifstream file;
+  file.open(filename, std::ios_base::in | std::ios_base::binary);
+
+  int count = 0;
+  while (true)
+  {
+    uint8 b;
+    file.read(reinterpret_cast<char*>(&b), 1);
+
+    if (file.eof())
+      break;
+    else
+      count += 1;
+  }
+  file.close();
+
+  platform::removeFile(filename);
+  return count;
+}
+
+int writeAndReadFile(const char* fileprefix, int fileNum, int size)
+{
+  char filename[256];
+  sprintf(filename, "%s_%d", fileprefix, fileNum);
+
+  writeFile(filename, size);
+  int count = readFile(filename);
+
+  assert(count == size);
+  return count;
+}
 
 int main(int argc, char** argv)
 {
-  if (argc < 5) {
-    std::cout << "usage: md5 <count> <min> <max> <threads>" << std::endl;
-    return EXIT_FAILURE;
-  }
-
   setLogCallback(::teetime::simpleLogging);
   setLogLevel(getLogLevelFromArgs(argc, argv));
 
-  int num = atoi(argv[1]);
-  int min = atoi(argv[2]);
-  int max = atoi(argv[3]);
-  int threads = atoi(argv[4]);
+  Arguments args(argc, argv);
 
-  std::cout << "settings: num=" << num << ", min=" << min << ", max=" << max << ", threads=" << threads << std::endl;
+  const char* name = "io";
+  const char* prettyname = name;
+  int num = 0;
+  int value = 0;
+  int minthreads = 1;
+  int maxthreads = 34;
 
-  std::vector<result> results;
-
-  for (int i = 1; i <= threads; ++i)
+  if (args.contains("fine"))
   {
-    result res;
-    auto start = platform::microSeconds();
-    io_benchmark_teetime(num, min, max, i);
-    res.teetime = platform::microSeconds() - start;
-
-    start = platform::microSeconds();
-    io_benchmark_fastflow(num, min, max, i);
-    res.fastflow = platform::microSeconds() - start;
-
-    double speedupTeeTime = 1.0f;
-    double speedupFastFlow = 1.0f;
-    if (i > 1)
-    {
-      speedupTeeTime = static_cast<double>(results[0].teetime) / res.teetime;
-      speedupFastFlow = static_cast<double>(results[0].fastflow) / res.fastflow;
-    }
-
-    std::cout << "threads: " << i << "teetime: " << res.teetime * 0.001 << "ms (" << speedupTeeTime << "),     fastflow: " << res.fastflow * 0.001 << "ms (" << speedupFastFlow << ")" << std::endl;
-
-    results.push_back(res);
+    num = 100000;
+    value = 1024; 
+    name = "io_fine";
+    prettyname = "IO Benchmark, fine grain (100,000 * 1kb)";
   }
+  else if (args.contains("medium-fine"))
+  {
+    num = 100000;
+    value = 4096;
+    name = "io_medium-fine";
+    prettyname = "IO Benchmark, medium-fine grain (100,000 * 4kb)";
+  }
+  else if (args.contains("medium"))
+  {
+    num = 1000;
+    value = 1024 * 256;
+    name = "io_medium";
+    prettyname = "IO Benchmark, medium grain (1,000 * 256kb)";
+  }
+  else if (args.contains("coarse"))
+  {
+    num = 100;
+    value = 1024 * 1024;
+    name = "io_coarse";
+    prettyname = "IO Benchmark, coarse grain (100 * 1Mb)";
+  }
+
+  num = args.getInt("num", num);
+  value = args.getInt("value", value);
+  minthreads = args.getInt("minthreads", minthreads);
+  maxthreads = args.getInt("threads", maxthreads);
+
+  std::cout << "settings: num=" << num << ", value=" << value << ", min threads=" << minthreads << ", max threads=" << maxthreads << std::endl;
+
+  Benchmark benchmark;
+  benchmark.setNumValues(num);
+  benchmark.setValueRange(value, value);
+  benchmark.setThreadRange(minthreads, maxthreads);
+  benchmark.addConfiguration(io_teetime_noAffinity, "teetime (no affinity)");
+  benchmark.addConfiguration(io_teetime_preferSameCpu, "teetime (prefer same CPU)");
+  benchmark.addConfiguration(io_teetime_avoidSameCore, "teetime (avoid same core)");
+  benchmark.addConfiguration(io_fastflow, "fastflow (multi alloc)");
+  benchmark.addConfiguration(io_fastflow_allocator, "fastflow (single alloc)");
+  benchmark.runAll();
+  benchmark.print();
+  benchmark.save(name, prettyname);
 
   return EXIT_SUCCESS;
 }
