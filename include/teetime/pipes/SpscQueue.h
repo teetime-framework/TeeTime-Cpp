@@ -133,12 +133,9 @@ namespace teetime
         hasValue.store(false);
       }
 
-      std::atomic<bool> hasValue alignas(T);
-      char data[sizeof(T)];
+      std::atomic<bool> hasValue;
+      char data[sizeof(T)] alignas(T);
     }; 
-
-    static_assert(alignof(Entry) == alignof(T), "alignment mismatch");
-
 
     char _padding0[platform::CacheLineSize];
 
