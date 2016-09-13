@@ -15,6 +15,7 @@
 */
 #include <teetime/Image.h>
 #include <mutex>
+#include <climits>
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_CONSTANT_CONDITION

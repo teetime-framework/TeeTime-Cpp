@@ -16,6 +16,7 @@
 
 #include <teetime/Md5Hash.h> 
 #include <string.h> 
+#include <climits>
 
 namespace 
 { 
