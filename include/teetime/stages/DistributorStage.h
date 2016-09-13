@@ -37,10 +37,6 @@ namespace teetime
     virtual void execute(T&& value) override
     {
       const uint32 numOutputPorts = AbstractStage::numOutputPorts();
-      if(numOutputPorts == 0) 
-      {
-        throw std::logic_error("distributor stage needs at least on output port");
-      }
 
       while (true)
       {
