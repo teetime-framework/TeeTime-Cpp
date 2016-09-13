@@ -30,17 +30,14 @@ namespace teetime
     explicit SpscValueQueue(unsigned capacity)
      : m_readIndex(0)
      , m_writeIndex(0)
-     , m_array(nullptr)
+     , m_array(new Entry[capacity])
      , m_capacity(capacity)
     {
       assert(m_capacity >= 2 && "queue capacity must be at least 2");
-
-      m_array = new Entry[capacity];
     }
 
     ~SpscValueQueue()
     {
-      delete m_array;
     }
 
     bool write(T&& t)
@@ -147,7 +144,7 @@ namespace teetime
 
     char _padding2[platform::CacheLineSize];
 
-    Entry* m_array;
+    unique_ptr<Entry[]> m_array;
     unsigned m_capacity;
   };
 
