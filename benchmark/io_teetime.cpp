@@ -35,7 +35,8 @@
 
 using namespace teetime;
 
-int writeAndReadFile(const char* fileprefix, int fileNum, int size);
+
+int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size);
 
 namespace {
 
@@ -76,18 +77,25 @@ namespace {
       : m_filePrefix(filePrefix)
       , m_counter(0)
     {
+      m_writeBuffer.resize(1024 * 1024 * 100, 'X');
+      m_readBuffer.resize(1024 * 1024 * 100, '\0');
     }
   
   private:
     virtual void execute(int&& value) override
     {
-      int ret = writeAndReadFile(m_filePrefix.c_str(), m_counter++, value);
+      assert(value < m_writeBuffer.size());
+      assert(value < m_readBuffer.size());
+
+      int ret = writeAndReadFile(m_filePrefix.c_str(), m_counter++, m_writeBuffer, m_readBuffer, value);
 
       getOutputPort().send(std::move(ret));
     }
 
     std::string              m_filePrefix;
     int                      m_counter;
+    std::vector<char>        m_writeBuffer;
+    std::vector<char>        m_readBuffer;
   };
 
   class Config : public Configuration

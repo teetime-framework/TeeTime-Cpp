@@ -44,7 +44,7 @@ TEETIME_WARNING_POP
 using namespace ff;
 using teetime::Md5Hash;
 
-int writeAndReadFile(const char* fileprefix, int fileNum, int size);
+int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size);
 
 namespace
 {
@@ -94,19 +94,24 @@ namespace
       : m_prefix(prefix)
       , m_counter(0)
     {
+      m_writeBuffer.resize(1024 * 1024 * 100, 'X');
+      m_readBuffer.resize(1024 * 1024 * 100, '\0');
     }
 
     int* svc(int* value)
     {
-      int count = writeAndReadFile(m_prefix.c_str(), m_counter++, *value);
+      int ret = writeAndReadFile(m_prefix.c_str(), m_counter++, m_writeBuffer, m_readBuffer, *value);
       
       delete value;
-      return new int(count);
+      return new int(ret);
     }
 
   private:
     std::string m_prefix;
     int m_counter;
+
+    std::vector<char> m_writeBuffer;
+    std::vector<char> m_readBuffer;
   };
 
   struct Sink : ff_node_t<int, char>
