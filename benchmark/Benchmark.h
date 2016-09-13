@@ -203,7 +203,7 @@ namespace teetime
 
     void print()
     {
-      for (int i = 0; i < maxThreads; ++i)
+      for (int i = 0; (minThreads + i) < maxThreads; ++i)
       {
         int numThreads = minThreads + i;
 
