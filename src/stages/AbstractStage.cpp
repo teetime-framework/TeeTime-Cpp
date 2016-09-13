@@ -93,48 +93,6 @@ void AbstractStage::onSignal(const Signal& s)
   }
 }
 
-StageState AbstractStage::currentState() const
-{
-  return m_state;
-}
-
-void AbstractStage::setState(StageState state)
-{
-  m_state = state;
-}
-
-uint32 AbstractStage::numInputPorts() const
-{
-  size_t s = m_inputPorts.size();
-  assert(s < UINT32_MAX);
-
-  return static_cast<uint32>(s);
-}
-
-uint32 AbstractStage::numOutputPorts() const
-{
-  size_t s = m_outputPorts.size();
-  assert(s < UINT32_MAX);
-  
-  return static_cast<uint32>(s);
-}
-
-AbstractInputPort* AbstractStage::getInputPort(uint32 index)
-{
-  assert(index < m_inputPorts.size());
-  return m_inputPorts[index];
-}
-
-AbstractOutputPort* AbstractStage::getOutputPort(uint32 index)
-{
-  assert(index < m_outputPorts.size());
-  return m_outputPorts[index];
-}
-
-const char* AbstractStage::debugName() const
-{
-  return m_debugName.c_str();
-} 
 
 void AbstractStage::terminate()
 {
