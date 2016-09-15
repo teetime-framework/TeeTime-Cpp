@@ -110,11 +110,19 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
   using intlist = std::vector<int>;
 
   TQueue<intlist> pipe(capacity);
+  std::vector<intlist> source;
   std::vector<intlist> dest;
   dest.reserve(numValues);
+  source.reserve(numValues);
+
+  for(size_t i=0; i<numValues; ++i)
+  {
+    source.push_back(intlist(64, 0));
+  }
 
   std::atomic<bool> started(false);
   std::atomic<int> ready(0);
+
 
   auto produce = [&](){ 
     platform::setThreadAffinityMask(1);
@@ -126,11 +134,10 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
     }
 
     for(size_t i=0; i<local_num; ++i)
-    {
-      intlist s(64, 0);
+    {      
       while(true)
       {
-        if (pipe.write(std::move(s)))
+        if (pipe.write(std::move(source[i])))
           break;
         else
           platform::yield();
