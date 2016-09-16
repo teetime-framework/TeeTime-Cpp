@@ -58,7 +58,7 @@ namespace teetime
     {
       int cpu = m_affinity[m_next++ % m_affinity.size()];
 
-      if (cpu >= std::thread::hardware_concurrency())
+      if (cpu >= static_cast<int>(std::thread::hardware_concurrency()))
         return -1;
 
       return cpu;

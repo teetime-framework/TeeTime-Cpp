@@ -45,8 +45,8 @@ struct AlignedProducerConsumerQueue {
   // Also, note that the number of usable slots in the queue at any
   // given time is actually (size-1), so if you start with an empty queue,
   // isFull() will return true after size-1 insertions.
-  explicit AlignedProducerConsumerQueue(uint32_t size)
-    : size_(size)
+  explicit AlignedProducerConsumerQueue(size_t size)
+    : size_(static_cast<uint32_t>(size))
     , records_(static_cast<T*>(std::malloc(sizeof(T) * size)))
     , readIndex_(0)
     , writeIndex_(0)
