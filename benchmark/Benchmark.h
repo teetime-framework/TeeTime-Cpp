@@ -69,6 +69,90 @@ namespace teetime
     int m_next;
   };
 
+
+  class Params
+  {
+  public:
+    Params() = default;
+    ~Params() = default;
+    Params(const Params&) = default;
+    Params& operator=(const Params&) = default;
+
+    void set(const char* name, const char* value)
+    {
+      entry(name, true)->value = value;
+    }
+
+    void set(const char* name, int i)
+    {
+      char buffer[256];
+      sprintf(buffer, "%d", i);
+      set(name, buffer);
+    }
+
+    void set(const char* name, float f)
+    {
+      char buffer[256];
+      sprintf(buffer, "%f", f);
+      set(name, buffer);
+    }
+
+    const char* getString(const char* name) const
+    {
+      if (auto e = entry(name))
+      {
+        return e->value.c_str();
+      }
+
+      return "";
+    }
+
+    int getInt32(const char* name) const
+    {
+      return std::atoi(getString(name));
+    }
+
+  private:
+    struct Entry {
+      std::string name;
+      std::string value;
+    };
+
+    const Entry* entry(const char* name) const
+    {
+      for (const auto& e : m_entries)
+      {
+        if (e.name == name)
+        {
+          return &e;
+        }
+      }
+
+      return nullptr;
+    }
+
+    Entry* entry(const char* name, bool create)
+    {
+      for (auto& e : m_entries)
+      {
+        if (e.name == name)
+        {
+          return &e;
+        }
+      }
+
+      if (create)
+      {
+        m_entries.push_back(Entry{ name, "" });
+        return &m_entries[m_entries.size() - 1];
+      }
+
+      return nullptr;
+    }
+
+    std::vector<Entry> m_entries;
+  };
+
   class Arguments
   {
   public:
@@ -159,17 +243,17 @@ namespace teetime
   class Benchmark
   {
   public:
-    using Function = void(int num, int min, int max, int threads);
+    using Function = void(const Params& params, int threads);
 
     void setNumValues(int num)
     {
-      numValues = num;
+      m_params.set("num", num);
     }
 
     void setValueRange(int min, int max)
     {
-      minValue = min;
-      maxValue = max;
+      m_params.set("minvalue", min);
+      m_params.set("maxvalue", max);
     }
 
     void setThreadRange(int min, int max)
@@ -275,6 +359,16 @@ namespace teetime
     }
 
   private:
+    virtual void setup(const Params& params)
+    {
+      unused(params);
+    }
+
+    virtual void teardown(const Params& params)
+    {
+      unused(params);
+    }
+
     struct Result
     {
       int threadNum;
@@ -291,30 +385,39 @@ namespace teetime
 
     void run(Config& cfg, int numThreads)
     {
+      setup(m_params);
       Result res;
       res.overheadTime = overhead(cfg, numThreads, 10);
 
       auto start = platform::microSeconds();
-      cfg.f(numValues, minValue, maxValue, numThreads);
+      cfg.f(m_params, numThreads);
       res.totalTime = platform::microSeconds() - start;
 
       std::cout << res.totalTime * 0.001 << "ms (overhead: " << res.overheadTime * 0.001 << "ms)";
 
       cfg.results.push_back(res);
+      teardown(m_params);
     }
 
     uint64 overhead(Config& cfg, int numThreads, int iterations)
     {
+#if 1
+      unused(cfg);
+      unused(numThreads);
+      unused(iterations);
+      return 0;
+#else
       uint64 overhead = 0;
 
       for (int i = 0; i < iterations; ++i)
       {
         auto start = platform::microSeconds();
-        cfg.f(0, minValue, maxValue, numThreads);
+        cfg.f(m_params, numThreads);
         overhead += (platform::microSeconds() - start);
       }
 
       return overhead / iterations;
+#endif
     }
 
     std::string nextDataFilename(const char* name)
@@ -502,9 +605,7 @@ namespace teetime
     }
 
     std::vector<Config> configs;
-    int numValues;
-    int minValue;
-    int maxValue;
+    Params m_params;
     int minThreads;
     int maxThreads;
   };

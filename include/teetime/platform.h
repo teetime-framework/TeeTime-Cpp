@@ -15,14 +15,41 @@
  */
 #pragma once
 #include "common.h"
+#include <vector>
+#include <string>
 
 namespace teetime
 {
 namespace platform
 {
   uint64 microSeconds();
+  bool createDirectory(const char* path);
   bool isFile(const char* path);
+  bool isDirectory(const char* path);
   bool removeFile(const char* path);
+  bool listFiles(const char* directory, std::vector<std::string>& entries, bool recursive);
+  bool listSubDirectories(const char* directory, std::vector<std::string>& entries, bool recursive);
+  bool getCurrentWorkingDirectory(char* buffer, size_t buffersize);
+
+  inline bool createDirectory(const std::string& path) { return createDirectory(path.c_str()); }
+  inline bool isFile(const std::string& path) { return isFile(path.c_str()); }
+  inline bool isDirectory(const std::string& path) { return isDirectory(path.c_str()); }
+  inline bool removeFile(const std::string& path) { return removeFile(path.c_str());  }
+  inline bool listFiles(const std::string& path, std::vector<std::string>& entries, bool recursive) {
+    return listFiles(path.c_str(), entries, recursive);
+  }
+  inline bool listSubDirectories(const std::string& path, std::vector<std::string>& entries, bool recursive) {
+    return listSubDirectories(path.c_str(), entries, recursive);
+  }
+  inline bool getCurrentWorkingDirectory(std::string& s) {
+    char buffer[256];
+    if (getCurrentWorkingDirectory(buffer, sizeof(buffer))) {
+      s = buffer;
+      return true;
+    } 
+
+    return false;
+  }
 
   void yield();
 

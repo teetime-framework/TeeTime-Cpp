@@ -2,11 +2,11 @@
 
 using namespace teetime;
 
-void io_teetime_noAffinity(int num, int min, int max, int threads);
-void io_teetime_preferSameCpu(int num, int min, int max, int threads);
-void io_teetime_avoidSameCore(int num, int min, int max, int threads);
-void io_fastflow(int num, int min, int max, int threads);
-void io_fastflow_allocator(int num, int min, int max, int threads);
+void io_teetime_noAffinity(const Params& params, int threads);
+void io_teetime_preferSameCpu(const Params& params, int threads);
+void io_teetime_avoidSameCore(const Params& params, int threads);
+void io_fastflow(const Params& params, int threads);
+void io_fastflow_allocator(const Params& params, int threads);
 
 static void writeFile(const char* filename, const std::vector<char>& writeBuffer, int size)
 {

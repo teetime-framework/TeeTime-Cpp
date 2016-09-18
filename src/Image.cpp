@@ -29,6 +29,9 @@ TEETIME_WARNING_DISABLE_UNREACHABLE
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 TEETIME_WARNING_POP
 
 using namespace teetime;
@@ -181,7 +184,71 @@ bool Image::loadFromMemory(const uint8* data, size_t dataSize, const char* filen
 
 Image Image::resize(size_t width, size_t height) const
 {
-  unused(width);
-  unused(height);
-  return *this;
+  unique_ptr<Rgba[]> p(new Rgba[width * height]);
+
+  Image image;
+
+  if (stbir_resize_uint8((const uint8*)m_data, (int)m_width, (int)m_height, 0, (uint8*)p.get(), (int)width, (int)height, 0, 4) != 0)
+  {
+    image.m_data = p.release();
+    image.m_width = width;
+    image.m_height = height;
+  }
+
+  return image;
+}
+
+bool Image::saveToFile(const std::string& filename) const
+{
+  if (filename.size() <= 4)
+    return false;
+
+  char ext[5];
+  for (int i = 0; i < 4; ++i)
+  {
+    const char* c = filename.c_str() + (filename.size() - 4) + i;
+    ext[i] = static_cast<char>(tolower(*c));
+  }
+  ext[4] = '\0';
+  
+  if (strcmp(ext, ".tga") == 0)
+    return saveToTgaFile(filename);
+
+  if (strcmp(ext, ".png") == 0)
+    return saveToPngFile(filename);
+
+  if (strcmp(ext, ".bmp") == 0)
+    return saveToBmpFile(filename);
+
+  return false;
+}
+
+bool Image::saveToFile(const std::string& filename, ImageFileFormat format) const
+{
+  switch (format)
+  {
+  case ImageFileFormat::Tga:
+    return saveToTgaFile(filename);
+  case ImageFileFormat::Bmp:
+    return saveToBmpFile(filename);
+  case ImageFileFormat::Png:
+    return saveToPngFile(filename);
+  default:
+    return false;
+  }
+}
+
+bool Image::saveToPngFile(const std::string& filename) const
+{
+  return stbi_write_png(filename.c_str(), (int)m_width, (int)m_height, 4, m_data, 0) != 0;
+}
+
+bool Image::saveToTgaFile(const std::string& filename) const
+{
+  return stbi_write_tga(filename.c_str(), (int)m_width, (int)m_height, 4, m_data) != 0;
+}
+
+bool Image::saveToBmpFile(const std::string& filename) const
+{
+  return stbi_write_bmp(filename.c_str(), (int)m_width, (int)m_height, 4, m_data) != 0;
 }

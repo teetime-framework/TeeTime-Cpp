@@ -92,9 +92,13 @@ int reverseHash(Md5Hash hash) {
 class Config2 : public Configuration
 {
 public:
-  Config2(int num, int min, int max, int threads, const std::vector<int>& affinity) 
+  Config2(const Params& params, int threads, const std::vector<int>& affinity)
   {
     CpuDispenser cpus(affinity);
+
+    int min = params.getInt32("minvalue");
+    int max = params.getInt32("maxvalue");
+    int num = params.getInt32("num");
 
     auto producer = createStage<Producer>(min, max, num);
     auto distributor = createStage<DistributorStage<Md5Hash>>();
@@ -120,20 +124,20 @@ public:
 
 }
 
-void benchmark_teetime(int num, int min, int max, int threads)
+void benchmark_teetime(const Params& params, int threads)
 {
-  Config2 config(num, min, max, threads, affinity_none);
+  Config2 config(params, threads, affinity_none);
   config.executeBlocking();
 }
 
-void benchmark_teetime_prefer_same_cpu(int num, int min, int max, int threads)
+void benchmark_teetime_prefer_same_cpu(const Params& params, int threads)
 {
-  Config2 config(num, min, max, threads, affinity_preferSameCpu);
+  Config2 config(params, threads, affinity_preferSameCpu);
   config.executeBlocking();
 }
 
-void benchmark_teetime_avoid_same_core(int num, int min, int max, int threads)
+void benchmark_teetime_avoid_same_core(const Params& params, int threads)
 {
-  Config2 config(num, min, max, threads, affinity_avoidSameCore);
+  Config2 config(params, threads, affinity_avoidSameCore);
   config.executeBlocking();
 }

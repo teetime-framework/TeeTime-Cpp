@@ -25,6 +25,7 @@
 
 #include <teetime/Md5Hash.h>
 #include <teetime/logging.h>
+#include "Benchmark.h"
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
@@ -46,6 +47,7 @@ TEETIME_WARNING_POP
 
 using namespace ff;
 using teetime::Md5Hash;
+using teetime::Params;
 
 namespace
 {
@@ -132,7 +134,6 @@ namespace
   {
     task* svc(task* value)
     {
-      int ret = -1;
       for (int i = 0; i < INT_MAX; ++i) {
         if (Md5Hash::generate(&i, sizeof(i)) == value->hash) {
           value->i = i;
@@ -158,8 +159,11 @@ namespace
 
 }
 
-void benchmark_fastflow_allocator(int num, int min, int max, int threads)
+void benchmark_fastflow_allocator(const Params& params, int threads)
 {
+  int min = params.getInt32("minvalue");
+  int max = params.getInt32("maxvalue");
+  int num = params.getInt32("num");
 
   std::vector<std::unique_ptr<ff_node>> W;
   for (size_t i = 0; i<threads; ++i)

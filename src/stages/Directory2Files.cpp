@@ -17,6 +17,7 @@
 #include <teetime/stages/Directory2Files.h>
 #include <teetime/ports/OutputPort.h>
 #include <teetime/File.h>
+#include <teetime/platform.h>
 
 #include <algorithm>
 
@@ -38,14 +39,14 @@ OutputPort<File>& Directory2Files::getOutputPort()
 void Directory2Files::execute(std::string&& value)
 {
   std::vector<std::string> files;
-  collectFilesName(value, files, true);
-
+  platform::listFiles(value.c_str(), files, true);
+  
   std::sort(files.begin(), files.end());
 
   for (const auto& f : files)
   {
     File file;
-    file.path = f;
+    file.path = value + "/" + f;
 
     getOutputPort().send(std::move(file));
   }
