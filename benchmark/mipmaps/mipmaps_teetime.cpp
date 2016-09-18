@@ -27,12 +27,12 @@
 #include <teetime/ports/Port.h>
 #include <teetime/logging.h>
 #include <teetime/platform.h>
+#include <teetime/BufferedFile.h>
 #include <climits>
 #include <string>
 #include <algorithm>
 #include <fstream>
 #include "../Benchmark.h"
-
 
 using namespace teetime;
 
@@ -40,82 +40,6 @@ std::string getImageInputDirectory(int num, int size);
 std::string getImageOutputDirectory();
 
 namespace {
-
-  class BufferedFile
-  {
-  public:
-    BufferedFile() = default;
-    BufferedFile(const BufferedFile&) = default;
-    ~BufferedFile() = default;
-    BufferedFile& operator=(const BufferedFile&) = default;
-
-    BufferedFile(BufferedFile&& f)
-      : m_path(std::move(f.m_path))
-      , m_bytes(std::move(f.m_bytes))
-    {
-    }
-    
-    BufferedFile& operator=(BufferedFile&& f)
-    {
-      m_path = std::move(f.m_path);
-      m_bytes = std::move(f.m_bytes);
-    }
-
-    const char* path() const {
-      return m_path.c_str();
-    }
-
-    size_t size() const {
-      return m_bytes.size();
-    }
-
-    const uint8* data() const {
-      return m_bytes.data();
-    }
-
-    bool load(const char* path)
-    {
-      assert(path);
-
-      std::ifstream file(path, std::ios::binary | std::ios::in);
-
-      file.seekg(0, file.end);
-      std::streamsize size = file.tellg();
-
-      if (file.fail())
-        return false;
-
-      assert(size >= 0);
-      if (static_cast<size_t>(size) > std::numeric_limits<size_t>::max())
-      {
-        TEETIME_ERROR() << "file too big: " << path;
-        return false;
-      }
-
-      file.seekg(0, std::ios::beg);
-
-      m_path = path;
-      m_bytes.resize(static_cast<size_t>(size));
-
-      //don't try to read if size is 0 anyway (because buffer.bytes.data() may return null in this case)
-      if (size == 0 || file.read((char*)m_bytes.data(), size))
-      {
-        return true;
-      }
-
-      return false;
-    }
-
-    bool load(const std::string& path)
-    {
-      return load(path.c_str());
-    }
-
-  private:
-    std::string m_path;
-    std::vector<uint8> m_bytes;
-  };
-
   struct MipMapTask
   {
     MipMapTask() = default;
@@ -204,7 +128,7 @@ namespace {
       height = std::max<size_t>(height, 1);
 
       auto image = task.sourceImage->resize(width, height);
-      
+     
       char filename[256];
       sprintf(filename, "%s/%d_%s", m_outputdir.c_str(), static_cast<int>(task.level), task.filename.c_str());
       image.saveToPngFile(filename);

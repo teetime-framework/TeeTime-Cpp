@@ -149,16 +149,16 @@ int main(int argc, char** argv)
 
   if(!args.contains("noteetime"))
     benchmark.addConfiguration(mipmaps_teetime_noAffinity, "teetime (no affinity)");
-#if 0
+
   if(!args.contains("noteetime_sameCPU"))
-    benchmark.addConfiguration(io_teetime_preferSameCpu, "teetime (prefer same CPU)");
+    benchmark.addConfiguration(mipmaps_teetime_preferSameCpu, "teetime (prefer same CPU)");
 
   if(!args.contains("noteetime_sameCore"))
-    benchmark.addConfiguration(io_teetime_avoidSameCore, "teetime (avoid same core)");
+    benchmark.addConfiguration(mipmaps_teetime_avoidSameCore, "teetime (avoid same core)");
 
   if(!args.contains("nofastflow"))
-    benchmark.addConfiguration(io_fastflow, "fastflow (multi alloc)");
-
+    benchmark.addConfiguration(mipmaps_fastflow, "fastflow (multi alloc)");
+#if 0
   if(!args.contains("nofastflow_alloc"))
     benchmark.addConfiguration(io_fastflow_allocator, "fastflow (single alloc)");
 #endif

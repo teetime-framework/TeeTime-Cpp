@@ -25,7 +25,7 @@ SET(HEADERS
   ${INCDIR}/Runnable.h
   ${INCDIR}/BlockingQueue.h  
   ${INCDIR}/File.h    
-  ${INCDIR}/FileBuffer.h  
+  ${INCDIR}/BufferedFile.h  
   ${INCDIR}/Image.h   
   ${INCDIR}/Md5Hash.h   
   ${INCDIR}/stages/AbstractStage.h
@@ -67,6 +67,7 @@ SET(SOURCES
   Thread.cpp
   Image.cpp  
   Md5Hash.cpp
+  BufferedFile.cpp
   platform_posix.cpp
   platform_win32.cpp
   ports/AbstractOutputPort.cpp  

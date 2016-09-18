@@ -50,6 +50,8 @@ int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char
 
 namespace
 {
+
+
   struct Producer : ff_node_t<char, int>
   {
     Producer(int num, int min, int max)
