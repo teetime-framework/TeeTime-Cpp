@@ -25,7 +25,7 @@ SET(HEADERS
   ${INCDIR}/Runnable.h
   ${INCDIR}/BlockingQueue.h  
   ${INCDIR}/File.h    
-  ${INCDIR}/FileBuffer.h  
+  ${INCDIR}/BufferedFile.h  
   ${INCDIR}/Image.h   
   ${INCDIR}/Md5Hash.h   
   ${INCDIR}/stages/AbstractStage.h
@@ -67,13 +67,12 @@ SET(SOURCES
   Thread.cpp
   Image.cpp  
   Md5Hash.cpp
+  BufferedFile.cpp
   platform_posix.cpp
   platform_win32.cpp
   ports/AbstractOutputPort.cpp  
   stages/RandomIntProducer.cpp
   stages/Directory2Files.cpp
-  stages/Directory2Files_win32.cpp
-  stages/Directory2Files_posix.cpp
   stages/File2FileBuffer.cpp
   stages/FileExtensionSwitch.cpp
   stages/Md5Hashing.cpp

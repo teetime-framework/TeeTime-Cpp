@@ -19,6 +19,13 @@
 
 namespace teetime
 {
+  enum class ImageFileFormat  
+  {
+    Png,
+    Tga,
+    Bmp
+  };
+
   class Image
   {
   public:
@@ -49,6 +56,12 @@ namespace teetime
 
     bool loadFromFile(const std::string& filename);
     bool loadFromMemory(const uint8* data, size_t dataSize, const char* filename);
+
+    bool saveToFile(const std::string& filename) const;
+    bool saveToFile(const std::string& filename, ImageFileFormat format) const;
+    bool saveToPngFile(const std::string& filename) const;
+    bool saveToTgaFile(const std::string& filename) const;
+    bool saveToBmpFile(const std::string& filename) const;
 
     void reset();
 

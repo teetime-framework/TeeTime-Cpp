@@ -21,11 +21,64 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <dirent.h>
+#include <errno.h>
+#include <cstring>
+
 
 namespace teetime
 {
 namespace platform
 {
+  static bool listDirectoryContent(const char* path, std::vector<std::string>& entries, bool recursive, bool files, bool dirs)
+  {
+    assert(path);
+
+    DIR* dp;
+    struct dirent* ep;
+
+    dp = opendir(path);
+    if (dp)
+    {
+      while ((ep = readdir(dp)))
+      {
+        if (std::strcmp(".", ep->d_name) == 0 || std::strcmp("..", ep->d_name) == 0)
+          continue;
+
+        if (ep->d_type == DT_REG)
+        {
+          if(files)
+            entries.push_back(ep->d_name);
+        }
+        else if (ep->d_type == DT_DIR)
+        {
+          if(dirs)
+            entries.push_back(ep->d_name);
+
+          if (recursive)
+          {
+            char buffer[256];
+            sprintf(buffer, "%s/%s", path, ep->d_name);
+            std::vector<std::string> subentries;
+            if (!listDirectoryContent(buffer, subentries, recursive, files, dirs))
+              return false;
+
+            for (const auto& e : subentries)
+            {
+              entries.push_back(std::string(ep->d_name) + "/" + e);
+            }
+          }
+        }
+      }
+
+      (void)closedir(dp);
+      return true;
+    }
+
+    return false;
+  }
+
+
   uint64 microSeconds()
   {
     static unsigned long sys_timeBase = 0;
@@ -41,6 +94,13 @@ namespace platform
     return uint64(tp.tv_sec - sys_timeBase) * 1000000 + tp.tv_usec;
   }
 
+  bool getCurrentWorkingDirectory(char* buffer, size_t buffersize)
+  {
+    char* path = getcwd(buffer, buffersize);
+
+    return (path != nullptr);
+  }
+
   bool isFile(const char* path)
   {
     assert(path);
@@ -52,9 +112,38 @@ namespace platform
     return false;
   }
 
+  bool isDirectory(const char* path)
+  {
+    assert(path);
+    struct stat buf;
+
+    if (stat(path, &buf) != -1)
+      return (bool)S_ISDIR(buf.st_mode);
+
+    return false;
+  }
+
   bool removeFile(const char* path)
   {
     return remove(path) == 0;
+  }
+
+  bool createDirectory(const char* path)
+  {
+    assert(path);
+    static const mode_t mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH;
+
+    return (mkdir(path, mode) == 0);
+  }
+
+  bool listFiles(const char* directory, std::vector<std::string>& entries, bool recursive)
+  {
+    return listDirectoryContent(directory, entries, recursive, true, false);
+  }
+
+  bool listSubDirectories(const char* directory, std::vector<std::string>& entries, bool recursive)
+  {
+    return listDirectoryContent(directory, entries, recursive, false, true);
   }
 
   void yield()

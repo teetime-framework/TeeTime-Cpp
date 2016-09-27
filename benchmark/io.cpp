@@ -2,11 +2,11 @@
 
 using namespace teetime;
 
-void io_teetime_noAffinity(int num, int min, int max, int threads);
-void io_teetime_preferSameCpu(int num, int min, int max, int threads);
-void io_teetime_avoidSameCore(int num, int min, int max, int threads);
-void io_fastflow(int num, int min, int max, int threads);
-void io_fastflow_allocator(int num, int min, int max, int threads);
+void io_teetime_noAffinity(const Params& params, int threads);
+void io_teetime_preferSameCpu(const Params& params, int threads);
+void io_teetime_avoidSameCore(const Params& params, int threads);
+void io_fastflow(const Params& params, int threads);
+void io_fastflow_allocator(const Params& params, int threads);
 
 static void writeFile(const char* filename, const std::vector<char>& writeBuffer, int size)
 {
@@ -23,10 +23,11 @@ static int readFile(const char* filename, std::vector<char>& readBuffer, int siz
   std::ifstream file;
   file.open(filename, std::ios_base::in | std::ios_base::binary);
 
-  file.seekg(0, file.end);
-  int length = file.tellg();
+  file.seekg(0, file.end);  
+  std::streamsize length = file.tellg();
   file.seekg(0, file.beg);
 
+  assert(length >= 0);
   assert(length == size);
 
   file.read(readBuffer.data(), length);
@@ -34,7 +35,7 @@ static int readFile(const char* filename, std::vector<char>& readBuffer, int siz
   file.close();
 
   platform::removeFile(filename);
-  return length;
+  return static_cast<int>(length);
 }
 
 int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size)

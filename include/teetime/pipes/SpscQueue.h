@@ -27,11 +27,11 @@ namespace teetime
   {
   public:
 
-    explicit SpscValueQueue(unsigned capacity)
+    explicit SpscValueQueue(size_t capacity)
      : m_readIndex(0)
      , m_writeIndex(0)
      , m_array(new Entry[capacity])
-     , m_capacity(capacity)
+     , m_capacity(static_cast<unsigned>(capacity))
     {
       assert(m_capacity >= 2 && "queue capacity must be at least 2");
     }
@@ -423,20 +423,17 @@ namespace teetime
     static_assert(std::is_pointer<T>::value, "T must be a pointer type");
 
   public:
-    explicit SpscPointerQueue(unsigned capacity)
+    explicit SpscPointerQueue(size_t capacity)
       : m_readIndex(0)
       , m_writeIndex(0)
-      , m_array(nullptr)
-      , m_capacity(capacity)
+      , m_array(new Entry[capacity])
+      , m_capacity(static_cast<unsigned>(capacity))
     {
       assert(m_capacity >= 2 && "queue capacity must be at least 2");
-
-      m_array = new Entry[capacity];
     }
 
     ~SpscPointerQueue()
-    {
-      delete m_array;
+    {     
     }
 
     bool write(const T& t)
@@ -497,7 +494,7 @@ namespace teetime
 
     char _padding2[platform::CacheLineSize];
 
-    Entry* m_array;
+    unique_ptr<Entry[]> m_array;
     unsigned m_capacity;
   };
 

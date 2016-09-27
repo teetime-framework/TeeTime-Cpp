@@ -23,6 +23,7 @@
 
 #include <teetime/Md5Hash.h>
 #include <teetime/logging.h>
+#include "Benchmark.h"
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER
@@ -44,6 +45,7 @@ TEETIME_WARNING_POP
 
 using namespace ff;
 using teetime::Md5Hash;
+using teetime::Params;
 
 int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size);
 
@@ -157,7 +159,7 @@ namespace
 
 }
 
-void io_fastflow_allocator(int num, int min, int max, int threads)
+void io_fastflow_allocator(const Params& params, int threads)
 {
   std::vector<std::unique_ptr<ff_node>> W;
   for (size_t i = 0; i < threads; ++i)
@@ -168,7 +170,7 @@ void io_fastflow_allocator(int num, int min, int max, int threads)
     W.push_back(std::unique_ptr<ff_node_t<Data, Data> >(make_unique<WriterReader>(prefix)));
   }
 
-  Producer producer(num, min, max);
+  Producer producer(params.getInt32("num"), params.getInt32("minvalue"), params.getInt32("maxvalue"));
   Sink sink;
 
   ff_Farm<Md5Hash, char> farm(std::move(W), producer, sink);

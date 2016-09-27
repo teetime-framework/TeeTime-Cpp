@@ -129,25 +129,22 @@ namespace {
       connect(merger->getOutputPort(), sink->getInputPort());
     }
   };
-
 }
 
-
-
-void io_teetime_noAffinity(int num, int min, int max, int threads)
+void io_teetime_noAffinity(const Params& params, int threads)
 {
-  Config config(num, min, max, threads, affinity_none);
+  Config config(params.getInt32("num"), params.getInt32("minvalue"), params.getInt32("maxvalue"), threads, affinity_none);
   config.executeBlocking();
 }
 
-void io_teetime_preferSameCpu(int num, int min, int max, int threads)
+void io_teetime_preferSameCpu(const Params& params, int threads)
 {
-  Config config(num, min, max, threads, affinity_preferSameCpu);
+  Config config(params.getInt32("num"), params.getInt32("minvalue"), params.getInt32("maxvalue"), threads, affinity_preferSameCpu);
   config.executeBlocking();
 }
 
-void io_teetime_avoidSameCore(int num, int min, int max, int threads)
+void io_teetime_avoidSameCore(const Params& params, int threads)
 {
-  Config config(num, min, max, threads, affinity_avoidSameCore);
+  Config config(params.getInt32("num"), params.getInt32("minvalue"), params.getInt32("maxvalue"), threads, affinity_avoidSameCore);
   config.executeBlocking();
 }

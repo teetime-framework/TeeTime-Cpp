@@ -2,11 +2,11 @@
 
 using namespace teetime;
 
-void benchmark_teetime(int num, int min, int max, int threads);
-void benchmark_teetime_prefer_same_cpu(int num, int min, int max, int threads);
-void benchmark_teetime_avoid_same_core(int num, int min, int max, int threads);
-void benchmark_fastflow(int num, int min, int max, int threads);
-void benchmark_fastflow_allocator(int num, int min, int max, int threads);
+void benchmark_teetime(const Params&, int threads);
+void benchmark_teetime_prefer_same_cpu(const Params&, int threads);
+void benchmark_teetime_avoid_same_core(const Params&, int threads);
+void benchmark_fastflow(const Params&, int threads);
+void benchmark_fastflow_allocator(const Params&, int threads);
 
 int main(int argc, char** argv)
 {
