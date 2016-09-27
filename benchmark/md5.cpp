@@ -24,15 +24,15 @@ int main(int argc, char** argv)
 
   if (args.contains("fine"))
   {
-    num = 70000000;
+    num = 20000000;
     value = 2;
     name = "md5_fine";
-    prettyname = "MD5 Benchmark, fine grained (360ns)";
+    prettyname = "MD5 Benchmark, fine grained (540ns)";
   }
 
   if (args.contains("medium-fine"))
   {
-    num = 20000000;
+    num = 10000000;
     value = 10;
     name = "md5_medium_fine";
     prettyname = "MD5 Benchmark, medium-fine grained (2us)";
@@ -40,15 +40,15 @@ int main(int argc, char** argv)
 
   if (args.contains("medium"))
   {
-    num = 10000000;
+    num = 5000000;
     value = 20;
     name = "md5_medium";
-    prettyname = "MD5 Benchmark, medium grained (3.6us)";
+    prettyname = "MD5 Benchmark, medium grained (3.8us)";
   }
 
   if (args.contains("coarse"))
   {
-    num = 3000000;
+    num = 1000000;
     value = 100;
     name = "md5_coarse";
     prettyname = "MD5 Benchmark, coarse grained (18us)";

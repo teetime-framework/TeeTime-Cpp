@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 
   Arguments args(argc, argv);
 
-  const char* name = "mipmap";
+  const char* name = "mipmaps";
   const char* prettyname = name;
   int num = 0;
   int value = 0;
@@ -106,31 +106,31 @@ int main(int argc, char** argv)
 
   if (args.contains("fine"))
   {
-    num = 1000000;
-    value = 1024; 
-    name = "io_fine";
-    prettyname = "IO Benchmark, fine grain (1,000,000 * 1kb)";
+    num = 2000;
+    value = 6; 
+    name = "mipmaps_fine";
+    prettyname = "Mipmaps Benchmark, fine grain (1,000,000 * 1kb)";
   }
   else if (args.contains("medium-fine"))
   {
-    num = 100000;
-    value = 1024 * 128;
-    name = "io_medium-fine";
-    prettyname = "IO Benchmark, medium-fine grain (100,000 * 128kb)";
+    num = 200;
+    value = 8;
+    name = "mipmaps_medium-fine";
+    prettyname = "Mipmaps Benchmark, medium-fine grain (100,000 * 128kb)";
   }
   else if (args.contains("medium"))
   {
-    num = 10000;
-    value = 1024 * 1024;
-    name = "io_medium";
-    prettyname = "IO Benchmark, medium grain (10,000 * 1024Kb)";
+    num = 100;
+    value = 9;
+    name = "mipmaps_medium";
+    prettyname = "Mipmaps Benchmark, medium grain (10,000 * 1024Kb)";
   }
   else if (args.contains("coarse"))
   {
-    num = 1000;
-    value = 1024 * 1024 * 10;
-    name = "io_coarse";
-    prettyname = "IO Benchmark, coarse grain (1,000 * 10Mb)";
+    num = 20;
+    value = 10;
+    name = "mipmaps_coarse";
+    prettyname = "Mipmaps Benchmark, coarse grain (1,000 * 10Mb)";
   }
 
   num = args.getInt("num", num);
@@ -158,10 +158,10 @@ int main(int argc, char** argv)
 
   if(!args.contains("nofastflow"))
     benchmark.addConfiguration(mipmaps_fastflow, "fastflow (multi alloc)");
-#if 0
+
   if(!args.contains("nofastflow_alloc"))
-    benchmark.addConfiguration(io_fastflow_allocator, "fastflow (single alloc)");
-#endif
+    benchmark.addConfiguration(mipmaps_fastflow_allocator, "fastflow (single alloc)");
+
   benchmark.runAll();
   benchmark.print();
   benchmark.save(name, prettyname);

@@ -273,6 +273,19 @@ namespace teetime
 
     void runAll()
     {
+      for (auto& cfg : configs)
+      {
+        std::cout << "warmup '" << cfg.name << "' with " << minThreads << " threads...";
+        std::cout.flush();
+        run(cfg, minThreads);
+        std::cout << std::endl;
+      }
+
+      for (auto& cfg : configs)
+      {
+        cfg.results.clear();
+      }
+
       for (int numThreads = minThreads; numThreads <= maxThreads; ++numThreads)
       {
         for (auto& cfg : configs)
@@ -306,8 +319,38 @@ namespace teetime
       }
     }
 
+    void newSave(const char* name)
+    {
+      int num = 0;
+      for (const auto& cfg : configs)
+      {
+        char filename[256];
+        sprintf(filename, "%s_%d_%s.passes", name, num, cfg.name.c_str());
+
+        std::ofstream file;
+        file.open(filename, std::ios::app);
+
+        for (int i = 0; i < maxThreads; ++i)
+        {
+          uint64 resultTime = cfg.results[i].totalTime - cfg.results[i].overheadTime;
+
+          char timestring[256];
+          sprintf(timestring, "%16.4f", static_cast<double>(resultTime) * 0.001);
+
+          file << timestring << " ";
+        }
+
+        file << "\n";
+
+        file.close();
+        num++;
+      }
+    }
+
     void save(const char* name, const char* prettyname)
     {
+      newSave(name);
+
       auto filename = nextDataFilename(name);
 
       if (filename.size() == 0)

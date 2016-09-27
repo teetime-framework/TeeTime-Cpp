@@ -80,17 +80,17 @@ int main(int argc, char** argv)
   }
   else if (args.contains("medium"))
   {
-    num = 10000;
+    num = 20000;
     value = 1024 * 1024;
     name = "io_medium";
-    prettyname = "IO Benchmark, medium grain (10,000 * 1024Kb)";
+    prettyname = "IO Benchmark, medium grain (20,000 * 1024Kb)";
   }
   else if (args.contains("coarse"))
   {
-    num = 1000;
+    num = 2000;
     value = 1024 * 1024 * 10;
     name = "io_coarse";
-    prettyname = "IO Benchmark, coarse grain (1,000 * 10Mb)";
+    prettyname = "IO Benchmark, coarse grain (2,000 * 10Mb)";
   }
 
   num = args.getInt("num", num);

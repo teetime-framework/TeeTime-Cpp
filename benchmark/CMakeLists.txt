@@ -22,6 +22,9 @@ target_link_libraries(io teetime ${CMAKE_THREAD_LIBS_INIT})
 add_executable("sleeper" sleeper.cpp sleeper_teetime.cpp)
 target_link_libraries(sleeper teetime ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable("makeplot" makeplot.cpp)
+target_link_libraries(makeplot teetime ${CMAKE_THREAD_LIBS_INIT})
+
 add_subdirectory(mipmaps)
 
 IF(NOT UNIX)

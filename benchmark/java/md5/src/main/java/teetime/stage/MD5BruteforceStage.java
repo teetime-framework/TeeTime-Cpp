@@ -11,12 +11,12 @@ import teetime.stage.taskfarm.ITaskFarmDuplicable;
 public class MD5BruteforceStage extends AbstractTransformation<String, Long>
 		implements ITaskFarmDuplicable<String, Long> {
 
-	private final static long MAX_BRUTEFORCE_INPUT = 100000L;
+	private final static long MAX_BRUTEFORCE_INPUT = 10000000L;
 	private final static long FAILURE_OUTPUT = -1L;
 	
 	public static long bruteforce(final String inputHash) {
 		for (long i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {
-			String currentHash = getMD5(Long.toString(i));
+			final String currentHash = getMD5(Long.toString(i));
 			if (currentHash.equals(inputHash)) {
 				return i;
 			}
@@ -30,7 +30,7 @@ public class MD5BruteforceStage extends AbstractTransformation<String, Long>
 		this.outputPort.send(bruteforce(inputHash));
 	}
 
-	private static String getMD5(String input) {
+	public static String getMD5(String input) {
 		Hasher hasher = Hashing.md5().newHasher();
 		hasher.putString(input, Charset.forName("UTF-8"));
 		return hasher.hash().toString();
