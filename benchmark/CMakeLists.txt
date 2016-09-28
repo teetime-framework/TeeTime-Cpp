@@ -11,6 +11,9 @@ endif()
 add_executable("queue" queue.cpp)
 target_link_libraries(queue teetime ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable("pipeline" pipeline.cpp)
+target_link_libraries(pipeline teetime ${CMAKE_THREAD_LIBS_INIT})
+
 include_directories(${CMAKE_SOURCE_DIR}/fastflow/fastflow)
 
 add_executable("teetime_md5" Benchmark.h md5.cpp fastflow_md5.cpp md5_fastflow_allocator.cpp  "teetime_md5.cpp")
