@@ -68,13 +68,13 @@ namespace teetime
       {
         auto s = createStage<DummyStage>();
         s->declareActive();
-        connect(*prevOutputPort, s->getInputPort());
+        connect(*prevOutputPort, s->getInputPort(), 4096);
         prevOutputPort = &s->getOutputPort();
       }
 
       sink->declareActive();
 
-      connect(*prevOutputPort, sink->getInputPort());
+      connect(*prevOutputPort, sink->getInputPort(), 4096);
     }
 
     std::vector<int> values() const
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
   teetime::setLogLevel(teetime::getLogLevelFromArgs(argc, argv));
 
   int numValues = 1000000;
-  int numStages = 10;
+  int numStages = 1;
   
   {
     DummyConfig config(numValues, numStages);
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
   }
 
   {
-    ff::ff_pipeline pipeline;
+    ff::ff_pipeline pipeline(false, 4096, 4096);
     pipeline.add_stage(new fastflow::Producer(numValues));
     for(int i=0; i<numStages; ++i)
     {
