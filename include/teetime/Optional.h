@@ -15,8 +15,6 @@
  */
 #pragma once
 
-//alignas(alignof(T))
- 
 namespace teetime
 {
   template<typename T>
@@ -24,39 +22,42 @@ namespace teetime
   {
   public:
     Optional()
-     : m_ptr(nullptr)
+     : m_hasValue(false)
     {
     }
 
     explicit Optional(const T& t)
-     : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))
+     : m_hasValue(false)
     {
-      new (&m_buffer[0]) T(t);
+      new (ptr()) T(t);
+      m_hasValue = true;
     }
 
     explicit Optional(T&& t)
-     : m_ptr(reinterpret_cast<T*>(&m_buffer[0]))    
+     : m_hasValue(false)
     {
-      new (&m_buffer[0]) T(std::move(t));
+      new (ptr()) T(std::move(t));
+      m_hasValue = true;
     }   
 
     Optional(const Optional& rhs)
-      : m_ptr(nullptr)      
+      : m_hasValue(false)      
     {
-      if(rhs.m_ptr)
+      if(rhs.m_hasValue)
       {
-        new (&m_buffer[0]) T(*rhs);        
-        m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
+        new (ptr()) T(*rhs.ptr());
+        m_hasValue = true;
       }
     }
 
     Optional(Optional&& rhs)
-     : m_ptr(nullptr)
+     : m_hasValue(false)
     {
-      if(rhs.m_ptr)
+      if(rhs.m_hasValue)
       {
-        new (&m_buffer[0]) T(std::move(*rhs));
-        m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
+        new (ptr()) T(std::move(*rhs.ptr()));
+        m_hasValue = true;
+        rhs.reset();
       }
     }    
 
@@ -67,44 +68,54 @@ namespace teetime
 
     operator bool() const
     {
-      return !!m_ptr;
+      return m_hasValue;
     }
 
     void reset()
     {
-      if(m_ptr)
+      if(m_hasValue)
       {
-        m_ptr->~T();
-        m_ptr = nullptr;
+        ptr()->~T();
+        m_hasValue = false;
       }
     }
 
     T& operator*()
     {
-      return *m_ptr;
+      return *ptr();
     }
 
     const T& operator*() const
     {
-      return *m_ptr;
+      return *ptr();
     }  
 
     void set(const T& t)
     {
       reset();
-      new (&m_buffer[0]) T(t);
-      m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
+      new (ptr()) T(t);
+      m_hasValue = true;
     }
 
     void set(T&& t)
     {
       reset();
-      new (&m_buffer[0]) T(std::move(t));
-      m_ptr = reinterpret_cast<T*>(&m_buffer[0]);
+      new (ptr()) T(std::move(t));
+      m_hasValue = true;
     }  
 
   private:
-    char m_buffer[sizeof(T)];    
-    T*   m_ptr;
+    inline T* ptr()
+    {
+      return reinterpret_cast<T*>(&m_buffer[0]);
+    }
+
+    inline const T* ptr() const
+    {
+      return reinterpret_cast<const T*>(&m_buffer[0]);
+    }    
+
+    char m_buffer[sizeof(T)] alignas(T);    
+    bool m_hasValue;
   };
 }

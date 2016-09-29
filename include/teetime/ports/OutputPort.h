@@ -28,6 +28,9 @@ namespace teetime
 
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input);
+
+  template<typename T>
+  void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity);    
   
   template<typename T>  
   class OutputPort : public AbstractOutputPort
@@ -60,6 +63,7 @@ namespace teetime
     }
 
     friend void connect<T>(OutputPort<T>& output, InputPort<T>& input);
+    friend void connect<T>(OutputPort<T>& output, InputPort<T>& input, size_t capacity);
 
     unique_ptr<Pipe<T>> m_pipe;
   };

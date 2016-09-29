@@ -28,6 +28,9 @@ namespace teetime
   template<typename T>
   void connect(OutputPort<T>& output, InputPort<T>& input);
 
+  template<typename T>
+  void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity);  
+
   class AbstractStage;
 
   template<typename T>  
@@ -57,6 +60,7 @@ namespace teetime
 
   private:
     friend void connect<T>(OutputPort<T>& output, InputPort<T>& input);
+    friend void connect<T>(OutputPort<T>& output, InputPort<T>& input, size_t capacity);
 
     Pipe<T>* m_pipe;
   };

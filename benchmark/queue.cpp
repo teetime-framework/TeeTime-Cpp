@@ -392,6 +392,8 @@ int main(int argc, char** argv)
   std::cout << "value based (std::vector<int>):" << std::endl;
   size_t numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_value<SpscUnalignedValueQueue>);
+  //run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark_value<SpscStorageValueQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
   run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
 #ifdef TEETIME_HAS_BOOST
@@ -399,18 +401,22 @@ int main(int argc, char** argv)
 #endif
 
 
-  std::cout << "value based (4x4 float matrix):" << std::endl;
+  std::cout << "\n\nvalue based (4x4 float matrix):" << std::endl;
   size_t numMatrices = 1000000;
   run(iterations, numMatrices, capacity, "SpscValueQueue", benchmark_value2<SpscValueQueue>);
+  run(iterations, numMatrices, capacity, "SpscUnalignedValueQueue", benchmark_value2<SpscUnalignedValueQueue>);
+  //run(iterations, numMatrices, capacity, "SpscStorageValueQueue", benchmark_value2<SpscStorageValueQueue>);
   run(iterations, numMatrices, capacity, "Folly", benchmark_value2<folly::ProducerConsumerQueue>);
   run(iterations, numMatrices, capacity, "Folly (cache optimized)", benchmark_value2<folly::AlignedProducerConsumerQueue>);
 #ifdef TEETIME_HAS_BOOST
   run(iterations, numMatrices, capacity, "boost::spsc_queue", benchmark_value2<BoostSpscQueue>);
 #endif
 
-  std::cout << "pointer based (size_t*):" << std::endl;
+  std::cout << "\n\npointer based (size_t*):" << std::endl;
   numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark2<SpscUnalignedValueQueue>); 
+//  run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark2<SpscStorageValueQueue>); 
   run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);
   run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);

@@ -46,6 +46,145 @@ namespace teetime
 
       if (!entry.hasValue.load(std::memory_order_acquire))
       {
+        new (entry.ptr()) T(std::move(t));
+        entry.hasValue.store(true, std::memory_order_release);
+
+        if (++m_writeIndex == m_capacity)
+        {
+          m_writeIndex = 0;
+        }
+        return true;
+      }
+
+      return false;
+    }
+
+    bool write(const T& t)
+    {
+      return write(T(t));
+    }
+
+    bool read(T& value)
+    {
+      auto& entry = m_array[m_readIndex];
+
+      if(entry.hasValue.load(std::memory_order_acquire))
+      {
+        auto ptr = entry.ptr();
+        value = std::move(*ptr);
+        ptr->~T();
+        entry.hasValue.store(false, std::memory_order_release);
+
+        if(++m_readIndex == m_capacity)
+        {
+          m_readIndex = 0;
+        }  
+
+        return true;
+      }
+
+      return false;
+    }
+
+    T* frontPtr()
+    {
+      auto& entry = m_array[m_readIndex];
+
+      if (entry.hasValue.load(std::memory_order_acquire))
+      {
+        return entry.ptr();
+      }
+
+      return nullptr;
+    }
+
+    void popFront()
+    {
+      auto& entry = m_array[m_readIndex];
+
+      assert(entry.hasValue.load(std::memory_order_acquire));
+
+      entry.ptr()->~T();
+      entry.hasValue.store(false, std::memory_order_release);
+
+      if (++m_readIndex == m_capacity)
+      {
+        m_readIndex = 0;
+      }
+    }
+
+    int sizeGuess() const
+    {
+      int ret = m_writeIndex - m_readIndex;
+      if (ret < 0) {
+        ret += m_capacity;
+      }
+      return ret;
+    }
+
+  private:
+    struct Entry
+    {
+      Entry()
+      {
+        hasValue.store(false);
+      }
+
+      T* ptr()
+      {
+        return reinterpret_cast<T*>(&data[0]);
+      }
+
+      const T* ptr() const
+      {
+        return reinterpret_cast<const T*>(&data[0]);
+      }
+
+      std::atomic<bool> hasValue;
+
+    private:      
+      char data[sizeof(T)] alignas(T);
+    }; 
+
+    char _padding0[platform::CacheLineSize];
+
+    unsigned m_readIndex;
+
+    char _padding1[platform::CacheLineSize];
+
+    unsigned m_writeIndex;
+
+    char _padding2[platform::CacheLineSize];
+
+    unique_ptr<Entry[]> m_array;
+    unsigned m_capacity;
+  };
+
+
+  template<typename T>
+  class SpscUnalignedValueQueue
+  {
+  public:
+
+    explicit SpscUnalignedValueQueue(unsigned capacity)
+     : m_readIndex(0)
+     , m_writeIndex(0)
+     , m_array(new Entry[capacity])
+     , m_capacity(capacity)
+    {
+      assert(m_capacity >= 2 && "queue capacity must be at least 2");
+    }
+
+    ~SpscUnalignedValueQueue()
+    {
+    }
+
+    bool write(T&& t)
+    {
+      auto& entry = m_array[m_writeIndex];
+
+      if (!entry.hasValue.load(std::memory_order_acquire))
+      {
         new (&entry.data[0]) T(std::move(t));
         entry.hasValue.store(true, std::memory_order_release);
 
@@ -131,7 +270,7 @@ namespace teetime
       }
 
       std::atomic<bool> hasValue;
-      char data[sizeof(T)] alignas(T);
+      char data[sizeof(T)];
     }; 
 
     char _padding0[platform::CacheLineSize];
@@ -147,6 +286,135 @@ namespace teetime
     unique_ptr<Entry[]> m_array;
     unsigned m_capacity;
   };
+
+
+
+  template<typename T>
+  class SpscStorageValueQueue
+  {
+  public:
+
+    explicit SpscStorageValueQueue(unsigned capacity)
+     : m_readIndex(0)
+     , m_writeIndex(0)
+     , m_array(new Entry[capacity])
+     , m_capacity(capacity)
+    {
+      assert(m_capacity >= 2 && "queue capacity must be at least 2");
+    }
+
+    ~SpscStorageValueQueue()
+    {
+    }
+
+    bool write(T&& t)
+    {
+      auto& entry = m_array[m_writeIndex];
+
+      if (!entry.hasValue.load(std::memory_order_acquire))
+      {
+        new (&entry.data) T(std::move(t));
+        entry.hasValue.store(true, std::memory_order_release);
+
+        if (++m_writeIndex == m_capacity)
+        {
+          m_writeIndex = 0;
+        }
+        return true;
+      }
+
+      return false;
+    }
+
+    bool write(const T& t)
+    {
+      return write(T(t));
+    }
+
+    bool read(T& value)
+    {
+      auto& entry = m_array[m_readIndex];
+
+      if(entry.hasValue.load(std::memory_order_acquire))
+      {
+        auto ptr = reinterpret_cast<T*>(&entry.data);
+        value = std::move(*ptr);
+        ptr->~T();
+        entry.hasValue.store(false, std::memory_order_release);
+
+        if(++m_readIndex == m_capacity)
+        {
+          m_readIndex = 0;
+        }  
+
+        return true;
+      }
+
+      return false;
+    }
+
+    T* frontPtr()
+    {
+      auto& entry = m_array[m_readIndex];
+
+      if (entry.hasValue.load(std::memory_order_acquire))
+      {
+        return reinterpret_cast<T*>(&entry.data);
+      }
+
+      return nullptr;
+    }
+
+    void popFront()
+    {
+      auto& entry = m_array[m_readIndex];
+
+      assert(entry.hasValue.load(std::memory_order_acquire));
+
+      reinterpret_cast<T*>(&entry.data)->~T();
+      entry.hasValue.store(false, std::memory_order_release);
+
+      if (++m_readIndex == m_capacity)
+      {
+        m_readIndex = 0;
+      }
+    }
+
+    int sizeGuess() const
+    {
+      int ret = m_writeIndex - m_readIndex;
+      if (ret < 0) {
+        ret += m_capacity;
+      }
+      return ret;
+    }
+
+  private:
+    struct Entry
+    {
+      Entry()
+      {
+        hasValue.store(false);
+      }
+
+      std::atomic<bool> hasValue;
+      std::aligned_storage<sizeof(T), alignof(T)> data;
+    }; 
+
+    char _padding0[platform::CacheLineSize];
+
+    unsigned m_readIndex;
+
+    char _padding1[platform::CacheLineSize];
+
+    unsigned m_writeIndex;
+
+    char _padding2[platform::CacheLineSize];
+
+    unique_ptr<Entry[]> m_array;
+    unsigned m_capacity;
+  };
+
 
 
   template<typename T>
