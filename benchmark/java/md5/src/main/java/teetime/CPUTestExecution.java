@@ -2,6 +2,7 @@ package teetime;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
@@ -49,8 +50,10 @@ public class CPUTestExecution {
 		}
 
 		for (int i = 0; i < arguments.getRealExecutions(); i++) {
+			System.out.println("collectin garbage...");
+			gc();
 			System.out.println("Run #" + i + " started");
-			CPUTestConfiguration configuration = execute(arguments);						
+			execute(arguments);
 		}
 		
 		System.out.println("avg time: " + CPUTestExecution.measurementWriter.avgTime());
@@ -64,9 +67,9 @@ public class CPUTestExecution {
 
 		TimeMeasurement timeMeasurement = new TimeMeasurement();
 		timeMeasurement.startMeasurement();
-		execution.executeBlocking();
-		//System.out.println("executeBlocking done, collected elements: " + execution.getConfiguration().getCollectedElements().size());
+		execution.executeBlocking();		
 		timeMeasurement.endMeasurement();
+		System.out.println("executeBlocking done, time: " + timeMeasurement.getMeasuredTimespan());
 		CPUTestExecution.measurementWriter.addTimeMeasurement(timeMeasurement.getMeasuredTimespan());
 
 		return configuration;
@@ -90,4 +93,13 @@ public class CPUTestExecution {
 
 		return arguments;
 	}
+	
+	public static void gc() {
+	     Object obj = new Object();
+	     WeakReference ref = new WeakReference<Object>(obj);
+	     obj = null;
+	     while(ref.get() != null) {
+	       System.gc();
+	     }
+	   }
 }

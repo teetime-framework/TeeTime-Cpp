@@ -17,6 +17,8 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import com.google.common.hash.HashCode;
+
 import teetime.stage.MD5BruteforceStage;
 
 
@@ -24,14 +26,14 @@ public class Md5Benchmark {
 	
 	@State(Scope.Thread)
 	public static class MyState {
-        public String a = MD5BruteforceStage.getMD5("0");
-        public String b = MD5BruteforceStage.getMD5("10");
+        public HashCode a = MD5BruteforceStage.getMD5(0);
+        public HashCode b = MD5BruteforceStage.getMD5(10);        
     }
 	
 	@Benchmark
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public long benchmarkRuntimeOverhead(MyState state) {
+    public int benchmarkRuntimeOverhead(MyState state) {
         return MD5BruteforceStage.bruteforce(state.a);
     }
 	

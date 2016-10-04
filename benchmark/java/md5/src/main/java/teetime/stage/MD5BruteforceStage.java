@@ -1,42 +1,34 @@
 package teetime.stage;
 
-import java.nio.charset.Charset;
-
+import com.google.common.hash.HashCode;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 
 import teetime.stage.basic.AbstractTransformation;
-import teetime.stage.taskfarm.ITaskFarmDuplicable;
 
-public class MD5BruteforceStage extends AbstractTransformation<String, Long>
-		implements ITaskFarmDuplicable<String, Long> {
+public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer> {
 
-	private final static long MAX_BRUTEFORCE_INPUT = 10000000L;
-	private final static long FAILURE_OUTPUT = -1L;
+	private final static int MAX_BRUTEFORCE_INPUT = 10000000;
+	private final static int FAILURE_OUTPUT = -1;
 	
-	public static long bruteforce(final String inputHash) {
-		for (long i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {
-			final String currentHash = getMD5(Long.toString(i));
-			if (currentHash.equals(inputHash)) {
+	public static int bruteforce(final HashCode inputHash) {
+		for (int i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {			
+			if (getMD5(i).equals(inputHash)) {
 				return i;
 			}
 		}
 		
 		return FAILURE_OUTPUT;		
 	}
+	
+	public static HashCode getMD5(int i) {
+		final Hasher hasher = Hashing.md5().newHasher();
+		hasher.putInt(i);
+		return hasher.hash();
+	}
 
 	@Override
-	protected void execute(String inputHash) {
+	protected void execute(HashCode inputHash) {
 		this.outputPort.send(bruteforce(inputHash));
-	}
-
-	public static String getMD5(String input) {
-		Hasher hasher = Hashing.md5().newHasher();
-		hasher.putString(input, Charset.forName("UTF-8"));
-		return hasher.hash().toString();
-	}
-
-	public ITaskFarmDuplicable<String, Long> duplicate() {
-		return new MD5BruteforceStage();
 	}
 }
