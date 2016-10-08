@@ -69,9 +69,7 @@ namespace teetime
     {
       while (!m_queue.write(std::move(t)))
       {
-#ifndef TEETIME_DISABLE_YIELD
-        platform::yield();
-#endif
+        std::this_thread::yield();
       }
     }
 

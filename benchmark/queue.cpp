@@ -140,7 +140,7 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
         if (pipe.write(std::move(source[i])))
           break;
         else
-          platform::yield();
+          std::this_thread::yield();
       }
     }
   };
@@ -156,9 +156,10 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
 
     for(size_t i=0; i<local_num; ++i)
     {
+      intlist tmp;
       while(true)
       {
-        intlist tmp;
+        
         if (pipe.read(tmp))
         {
           dest.push_back(std::move(tmp));
@@ -166,7 +167,7 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
         }
         else
         {
-          platform::yield();
+          std::this_thread::yield();
         }
       }
     }
@@ -240,8 +241,10 @@ uint64 benchmark_value2(size_t numValues, size_t capacity)
       {
         if (pipe.write(Mat4()))
           break;
+#if 0
         else
-          platform::yield();
+          std::this_thread::yield();
+#endif
       }
     }
   };
@@ -257,18 +260,20 @@ uint64 benchmark_value2(size_t numValues, size_t capacity)
 
     for (size_t i = 0; i < local_num; ++i)
     {
+      Mat4 m;
       while (true)
-      {
-        Mat4 m;
+      { 
         if (pipe.read(m))
         {
           dest.push_back(std::move(m));
           break;
         }
+#if 0
         else
         {
-          platform::yield();
+          std::this_thread::yield();
         }
+#endif
       }
     }
   };
@@ -310,10 +315,12 @@ uint64 benchmark2(size_t numValues, size_t capacity)
         {
           break;
         }
+#if 1
         else
         {
-          platform::yield();
+          std::this_thread::yield();
         }
+#endif
       }
     }
   };
@@ -332,10 +339,12 @@ uint64 benchmark2(size_t numValues, size_t capacity)
           dest.push_back(val);
           break;
         }
+#if 1
         else
         {
-          platform::yield();
+          std::this_thread::yield();
         }
+#endif
       }
     }
   };
@@ -392,6 +401,7 @@ int main(int argc, char** argv)
   std::cout << "value based (std::vector<int>):" << std::endl;
   size_t numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_value<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_value<SpscUnalignedValueQueue>);
   //run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark_value<SpscStorageValueQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
@@ -404,6 +414,7 @@ int main(int argc, char** argv)
   std::cout << "\n\nvalue based (4x4 float matrix):" << std::endl;
   size_t numMatrices = 1000000;
   run(iterations, numMatrices, capacity, "SpscValueQueue", benchmark_value2<SpscValueQueue>);
+  run(iterations, numMatrices, capacity, "v2::SpscValueQueue", benchmark_value2<v2::SpscValueQueue>);
   run(iterations, numMatrices, capacity, "SpscUnalignedValueQueue", benchmark_value2<SpscUnalignedValueQueue>);
   //run(iterations, numMatrices, capacity, "SpscStorageValueQueue", benchmark_value2<SpscStorageValueQueue>);
   run(iterations, numMatrices, capacity, "Folly", benchmark_value2<folly::ProducerConsumerQueue>);
@@ -413,8 +424,9 @@ int main(int argc, char** argv)
 #endif
 
   std::cout << "\n\npointer based (size_t*):" << std::endl;
-  numValues = 1000000;
+  numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark2<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark2<SpscUnalignedValueQueue>); 
 //  run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark2<SpscStorageValueQueue>); 
   run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);

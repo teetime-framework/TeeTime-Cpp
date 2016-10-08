@@ -146,11 +146,6 @@ namespace platform
     return listDirectoryContent(directory, entries, recursive, false, true);
   }
 
-  void yield()
-  {
-    pthread_yield();
-  }
-
   void setThreadAffinityMask(unsigned mask)
   {
     pthread_t thread = pthread_self();

@@ -61,7 +61,7 @@ namespace teetime
       }
       else
       {
-        platform::yield();
+        std::this_thread::yield();
       }
     }
 

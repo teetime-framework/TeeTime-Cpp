@@ -17,15 +17,15 @@ public class CPUTestConfiguration extends Configuration {
 
 	private CollectorSink<Integer> collectorSink;
 
-	public CPUTestConfiguration(final int numThreads, final long numValues, final int value) {
+	public CPUTestConfiguration(final int numThreads, final List<HashCode> hashes) {
 		
-		IntHashProducerStage producer = new IntHashProducerStage(numValues, value);
+		IntHashProducerStage producer = new IntHashProducerStage(hashes);
 		collectorSink = new CollectorSink<Integer>();
 		
 		producer.declareActive();	
 		
 		
-		int capacity = 2048;
+		int capacity = 4096;
 
 		Distributor<HashCode> distributor = new Distributor<HashCode>(new NonBlockingRoundRobinStrategy());
 		

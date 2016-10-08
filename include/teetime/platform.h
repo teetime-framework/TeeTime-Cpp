@@ -51,8 +51,6 @@ namespace platform
     return false;
   }
 
-  void yield();
-
   void setThreadAffinityMask(unsigned mask);
 
   void* aligned_malloc(size_t size, size_t align);

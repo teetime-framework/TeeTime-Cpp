@@ -1,67 +1,90 @@
 package teetime;
 
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 
 import teetime.framework.Execution;
 import teetime.measurement.TimeMeasurement;
-import teetime.measurement.TimeMeasurementCSVWriter;
-import teetime.stage.taskfarm.monitoring.PipeMonitoringService;
-import teetime.stage.taskfarm.monitoring.SingleTaskFarmMonitoringService;
-import teetime.stage.taskfarm.monitoring.extraction.AbstractMonitoringDataExporter;
-import teetime.stage.taskfarm.monitoring.extraction.StackedTimePullThroughput2D;
-import teetime.stage.taskfarm.monitoring.extraction.StackedTimePushThroughput2D;
-import teetime.stage.taskfarm.monitoring.extraction.StackedTimeSizeWithCapacity2D;
-import teetime.stage.taskfarm.monitoring.extraction.TimeBoundary2D;
-import teetime.stage.taskfarm.monitoring.extraction.TimeBoundaryMSPullThroughput3D;
-import teetime.stage.taskfarm.monitoring.extraction.TimeBoundaryMSPushThroughput3D;
-import teetime.stage.taskfarm.monitoring.extraction.TimeBoundaryStages3D;
 
 public class CPUTestExecution {
-
-	private static TimeMeasurementCSVWriter measurementWriter;
 
 	public static void main(String[] args) throws IOException {
 		CommandLineArguments arguments = parseArguments(args);
 		System.out.println("-- Starting CPU test case --");
-		System.out.println("Configuration: warmup=" + arguments.getWarmupExecutions() + ", real=" + arguments.getRealExecutions() + ", pass="
-				+ arguments.getPass() + ", directory=" + arguments.getWorkingDirectory() + ", num=" + arguments.getNumOfElements() + ", value="
-				+ arguments.getValueOfElements() + ", threads=" + arguments.getNumOfThreads());
+		System.out.println("Configuration: warmup=" + arguments.warmupExecutions + ", real=" + arguments.realExecutions 
+				+ ", directory=" + arguments.workingDirectory + ", num=" + arguments.numOfElements + ", value="
+				+ arguments.valueOfElements + ", threads=" + arguments.numOfThreads);
 
-		CPUTestExecution.measurementWriter = new TimeMeasurementCSVWriter(null, null, 10);
-
-		startEvaluation(arguments);
-
-		CPUTestExecution.measurementWriter.extractToFile(arguments.getWorkingDirectory() + "/timeofruns.dat");
-
-		System.out.println("Test case "
-				+ CPUTestExecution.class.getSimpleName()
-				+ " has finished.");
+		Double d = startEvaluation(arguments, arguments.numOfThreads);
+		
+		if(arguments.datafile != null && !arguments.datafile.isEmpty()) {
+			System.out.println("append result to " + arguments.datafile + "...");
+			
+			FileWriter fw = new FileWriter(arguments.datafile, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter out = new PrintWriter(bw);
+			try
+			{
+				out.print(Double.toString(d) + " ");
+				if(arguments.numOfThreads == 34)
+				{
+					out.println();
+				}
+			}
+			finally
+			{
+				out.close();
+			}
+		};
 	}
 
-	private static void startEvaluation(CommandLineArguments arguments) throws IOException {
-		for (int i = 0; i < arguments.getWarmupExecutions(); i++) {
+	private static Double startEvaluation(CommandLineArguments arguments, int numThreads) throws IOException {
+		
+		List<HashCode> hashes = new ArrayList<HashCode>();
+		for(long i=0; i<arguments.numOfElements; ++i) {
+			final Hasher hasher = Hashing.md5().newHasher();
+			hasher.putInt(arguments.valueOfElements);
+			hashes.add(hasher.hash());
+		}		
+		
+		for (int i = 0; i < arguments.warmupExecutions; i++) {
+			for(int j=0; j<10; ++j)
+				gc();			
 			System.out.println("Warmup #" + i + " started");
-			execute(arguments);
-		}
-
-		for (int i = 0; i < arguments.getRealExecutions(); i++) {
-			System.out.println("collectin garbage...");
-			gc();
-			System.out.println("Run #" + i + " started");
-			execute(arguments);
+			execute(hashes, numThreads);
 		}
 		
-		System.out.println("avg time: " + CPUTestExecution.measurementWriter.avgTime());
+		List<Long> measurements = new ArrayList<Long>();
+		for (int i = 0; i < arguments.realExecutions; i++) {
+			for(int j=0; j<10; ++j)
+				gc();
+			System.out.print("Run #" + i + " started... ");
+			Long ms = execute(hashes, numThreads);
+			System.out.println("DONE, time: " + ms + "ms");
+			measurements.add(ms);
+		}
+		
+		double d = 0;
+		for(Long l : measurements) {
+			d += l;
+		}
+		return d/measurements.size();
 	}
 
-	private static CPUTestConfiguration execute(CommandLineArguments arguments) {
-		CPUTestConfiguration configuration = new CPUTestConfiguration(arguments.getNumOfThreads(),
-				arguments.getNumOfElements(), arguments.getValueOfElements());
+	private static Long execute(final List<HashCode> hashes, int numThreads) {
+		CPUTestConfiguration configuration = new CPUTestConfiguration(numThreads,
+				hashes);
 		
 		Execution<CPUTestConfiguration> execution = new Execution<CPUTestConfiguration>(configuration);
 
@@ -69,10 +92,8 @@ public class CPUTestExecution {
 		timeMeasurement.startMeasurement();
 		execution.executeBlocking();		
 		timeMeasurement.endMeasurement();
-		System.out.println("executeBlocking done, time: " + timeMeasurement.getMeasuredTimespan());
-		CPUTestExecution.measurementWriter.addTimeMeasurement(timeMeasurement.getMeasuredTimespan());
-
-		return configuration;
+		
+		return timeMeasurement.getMeasuredTimespan();
 	}
 
 	private static CommandLineArguments parseArguments(String[] args) {
@@ -86,7 +107,7 @@ public class CPUTestExecution {
 			System.exit(0);
 		}
 
-		if (arguments.isHelp()) {
+		if (arguments.help) {
 			commander.usage();
 			System.exit(0);
 		}
@@ -96,7 +117,7 @@ public class CPUTestExecution {
 	
 	public static void gc() {
 	     Object obj = new Object();
-	     WeakReference ref = new WeakReference<Object>(obj);
+	     WeakReference<Object> ref = new WeakReference<Object>(obj);
 	     obj = null;
 	     while(ref.get() != null) {
 	       System.gc();

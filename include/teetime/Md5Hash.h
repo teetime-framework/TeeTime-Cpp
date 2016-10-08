@@ -41,8 +41,10 @@ namespace teetime
     static Md5Hash parseHexString(const char s[32]);
 
   private:
-    uint8 value[16];
+    alignas(int) uint8 value[16];
   };
+
+  static_assert(sizeof(Md5Hash) == 16, "Md5Hash should be exactly 16 bytes big");
 
   inline Md5Hash::Md5Hash()
   {

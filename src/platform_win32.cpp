@@ -167,12 +167,6 @@ namespace platform
     return listDirectoryContent(directory, entries, recursive, false, true);
   }
 
-
-  void yield()
-  {
-    SwitchToThread();
-  }
-
   void setThreadAffinityMask(unsigned mask)
   {
     SetThreadAffinityMask(GetCurrentThread(), mask);

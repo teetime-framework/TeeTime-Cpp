@@ -37,7 +37,7 @@ namespace teetime
     TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
     if (input.owner()->getRunnable())
     {
-      output.m_pipe.reset(new SynchedPipe<T, SpscValueQueue>(capacity));
+      output.m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(capacity));
     }
     else
     {
@@ -57,7 +57,7 @@ namespace teetime
     TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
     if (input.owner()->getRunnable())
     {
-      output.m_pipe.reset(new SynchedPipe<T, SpscValueQueue>(1024));
+      output.m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(1024));
     }
     else
     {
