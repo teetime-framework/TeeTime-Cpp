@@ -17,6 +17,7 @@ import teetime.measurement.TimeMeasurement;
 public class IOTestExecution {
 
 	public static void main(String[] args) throws IOException {
+		System.out.println("Test");
 		CommandLineArguments arguments = parseArguments(args);
 		System.out.println("-- Starting IO test case --");
 		System.out.println("Configuration: warmup=" + arguments.warmupExecutions + ", real=" + arguments.realExecutions 
