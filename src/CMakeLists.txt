@@ -58,6 +58,8 @@ SET(HEADERS
   ${INCDIR}/pipes/SynchedPipe.h  
   ${INCDIR}/pipes/ProducerConsumerQueue.h  
   ${INCDIR}/pipes/SpscQueue.h  
+  ${INCDIR}/pipes/SpscValueQueue.h  
+  ${INCDIR}/pipes/SpscPointerQueue.h  
 )
 
 SET(SOURCES

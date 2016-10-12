@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define NO_VOLATILE_POINTERS
+
 #include <teetime/common.h>
 #include <teetime/platform.h>
 #include <teetime/logging.h>
@@ -442,6 +444,7 @@ int main(int argc, char** argv)
   size_t numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_value<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_value<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_value<SpscUnalignedValueQueue>);
   //run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark_value<SpscStorageValueQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
@@ -455,6 +458,7 @@ int main(int argc, char** argv)
   size_t numMatrices = 1000000;
   run(iterations, numMatrices, capacity, "SpscValueQueue", benchmark_value2<SpscValueQueue>);
   run(iterations, numMatrices, capacity, "v2::SpscValueQueue", benchmark_value2<v2::SpscValueQueue>);
+  run(iterations, numMatrices, capacity, "v3::SpscValueQueue", benchmark_value2<v3::SpscValueQueue>);
   run(iterations, numMatrices, capacity, "SpscUnalignedValueQueue", benchmark_value2<SpscUnalignedValueQueue>);
   //run(iterations, numMatrices, capacity, "SpscStorageValueQueue", benchmark_value2<SpscStorageValueQueue>);
   run(iterations, numMatrices, capacity, "Folly", benchmark_value2<folly::ProducerConsumerQueue>);
@@ -467,9 +471,12 @@ int main(int argc, char** argv)
   numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark2<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark2<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark2<SpscUnalignedValueQueue>); 
-//  run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark2<SpscStorageValueQueue>); 
   run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v2::SpscPointerQueue", benchmark2<v2::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v3::SpscPointerQueue", benchmark2<v3::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v4::SpscPointerQueue", benchmark2<v4::SpscPointerQueue>);
   run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);
   run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
   run(iterations, numValues, capacity, "FastFlowQueue", benchmark2<FastFlowQueue>);
@@ -482,9 +489,17 @@ int main(int argc, char** argv)
   uint64 ffQueue = foo<FastFlowQueue>();
   uint64 spscValueQueue = foo<SpscValueQueue>();
   uint64 spscValueQueue2 = foo<v2::SpscValueQueue>();
+  uint64 spscValueQueue3 = foo<v3::SpscValueQueue>();
   uint64 spscPointerQueue = foo<SpscPointerQueue>();
+  uint64 spscPointerQueue2 = foo<v2::SpscPointerQueue>();
+  uint64 spscPointerQueue3 = foo<v3::SpscPointerQueue>();
+  uint64 spscPointerQueue4 = foo<v4::SpscPointerQueue>();
   std::cout << " ff: " << ffQueue * 0.001 << std::endl;
   std::cout << " spscValueQueue: " << spscValueQueue * 0.001 << std::endl;
   std::cout << " v2::spscValueQueue: " << spscValueQueue2 * 0.001 << std::endl;
+  std::cout << " v3::spscValueQueue: " << spscValueQueue3 * 0.001 << std::endl;
   std::cout << " spscPointerQueue: " << spscPointerQueue * 0.001 << std::endl;
+  std::cout << " v2::spscPointerQueue: " << spscPointerQueue2 * 0.001 << std::endl;
+  std::cout << " v3::spscPointerQueue: " << spscPointerQueue3 * 0.001 << std::endl;
+  std::cout << " v4::spscPointerQueue: " << spscPointerQueue4 * 0.001 << std::endl;
 }
