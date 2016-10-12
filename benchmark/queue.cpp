@@ -391,6 +391,46 @@ void run(size_t iterations, size_t numValues, size_t capacity, const char* name,
   std::cout << name << ": " << (double)sum / iterations * 0.001 << "ms" << std::endl;
 }
 
+
+template<template<typename> class TQueue>
+uint64 foo()
+{
+  TQueue<void*> queue(4096);
+
+  auto start = teetime::platform::microSeconds();
+
+
+
+  for (int i = 1; i < 1000; ++i) {
+    int valueProduced = 0;
+    int valueConsumed = 0;
+
+    while (true) {
+      if (!queue.write((void*)i))
+        break;
+
+      valueProduced++;
+    }
+
+    while (true) {
+      void* p = nullptr;
+      if (!queue.read(p))
+        break;
+
+      if(p == (void*)i)
+        valueConsumed++;
+    }
+
+    if (valueProduced != valueConsumed)
+    {
+      std::cout << "ERROR" << std::endl;
+    }
+  }
+
+  auto end = teetime::platform::microSeconds();
+  return end - start;
+}
+
 int main(int argc, char** argv)
 {
   setLogCallback(::teetime::simpleLogging);
@@ -436,4 +476,13 @@ int main(int argc, char** argv)
 #ifdef TEETIME_HAS_BOOST
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
 #endif
+
+
+  std::cout << "\n\npointer based (void*) single threaded:" << std::endl;
+  uint64 ffQueue = foo<FastFlowQueue>();
+  uint64 spscValueQueue = foo<SpscValueQueue>();
+  uint64 spscPointerQueue = foo<SpscPointerQueue>();
+  std::cout << " ff: " << ffQueue * 0.001 << std::endl;
+  std::cout << " spscValueQueue: " << spscValueQueue * 0.001 << std::endl;
+  std::cout << " spscPointerQueue: " << spscPointerQueue * 0.001 << std::endl;
 }
