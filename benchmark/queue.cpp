@@ -481,8 +481,10 @@ int main(int argc, char** argv)
   std::cout << "\n\npointer based (void*) single threaded:" << std::endl;
   uint64 ffQueue = foo<FastFlowQueue>();
   uint64 spscValueQueue = foo<SpscValueQueue>();
+  uint64 spscValueQueue2 = foo<v2::SpscValueQueue>();
   uint64 spscPointerQueue = foo<SpscPointerQueue>();
   std::cout << " ff: " << ffQueue * 0.001 << std::endl;
   std::cout << " spscValueQueue: " << spscValueQueue * 0.001 << std::endl;
+  std::cout << " v2::spscValueQueue: " << spscValueQueue2 * 0.001 << std::endl;
   std::cout << " spscPointerQueue: " << spscPointerQueue * 0.001 << std::endl;
 }
