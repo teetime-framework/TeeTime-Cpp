@@ -29,6 +29,7 @@ add_executable("makeplot" makeplot.cpp)
 target_link_libraries(makeplot teetime ${CMAKE_THREAD_LIBS_INIT})
 
 add_subdirectory(mipmaps)
+add_subdirectory(queue)
 
 IF(NOT UNIX)
   RETURN()
