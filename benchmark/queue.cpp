@@ -615,6 +615,7 @@ int main(int argc, char** argv)
   std::cout << "value based (std::vector<int>):" << std::endl;
   size_t numValues = 1000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_value<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_value<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_value<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_value<SpscUnalignedValueQueue>);
@@ -629,6 +630,7 @@ int main(int argc, char** argv)
   std::cout << "\n\nvalue based (4x4 float matrix):" << std::endl;
   size_t numMatrices = 1000000;
   run(iterations, numMatrices, capacity, "SpscValueQueue", benchmark_value2<SpscValueQueue>);
+  run(iterations, numMatrices, capacity, "v1::SpscValueQueue", benchmark_value2<v1::SpscValueQueue>);
   run(iterations, numMatrices, capacity, "v2::SpscValueQueue", benchmark_value2<v2::SpscValueQueue>);
   run(iterations, numMatrices, capacity, "v3::SpscValueQueue", benchmark_value2<v3::SpscValueQueue>);
   run(iterations, numMatrices, capacity, "SpscUnalignedValueQueue", benchmark_value2<SpscUnalignedValueQueue>);
@@ -642,6 +644,7 @@ int main(int argc, char** argv)
   std::cout << "\n\npointer based (size_t*), yielding:" << std::endl;
   numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_yield<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_pointers_yield<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_yield<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_yield<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_yield<SpscUnalignedValueQueue>);
@@ -660,6 +663,7 @@ int main(int argc, char** argv)
   std::cout << "\n\npointer based (size_t*), busy:" << std::endl;
   numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_busy<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_pointers_busy<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_busy<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_busy<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_busy<SpscUnalignedValueQueue>);
@@ -678,6 +682,7 @@ int main(int argc, char** argv)
   std::cout << "\n\npointer based (size_t*), pause:" << std::endl;
   numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_pause<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_pointers_pause<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_pause<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_pause<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_pause<SpscUnalignedValueQueue>);
@@ -698,6 +703,7 @@ int main(int argc, char** argv)
   uint64 ffQueue = foo<FastFlowQueue>();
   uint64 ffQueueNoVolatile = foo<FastFlowNoVolatileQueue>();
   uint64 spscValueQueue = foo<SpscValueQueue>();
+  uint64 spscValueQueue1 = foo<v1::SpscValueQueue>();
   uint64 spscValueQueue2 = foo<v2::SpscValueQueue>();
   uint64 spscValueQueue3 = foo<v3::SpscValueQueue>();
   uint64 spscPointerQueue = foo<SpscPointerQueue>();
@@ -707,6 +713,7 @@ int main(int argc, char** argv)
   std::cout << " ff: " << ffQueue * 0.001 << std::endl;
   std::cout << " ff (no volatile): " << ffQueueNoVolatile * 0.001 << std::endl;
   std::cout << " spscValueQueue: " << spscValueQueue * 0.001 << std::endl;
+  std::cout << " v1::spscValueQueue: " << spscValueQueue1 * 0.001 << std::endl;
   std::cout << " v2::spscValueQueue: " << spscValueQueue2 * 0.001 << std::endl;
   std::cout << " v3::spscValueQueue: " << spscValueQueue3 * 0.001 << std::endl;
   std::cout << " spscPointerQueue: " << spscPointerQueue * 0.001 << std::endl;
