@@ -74,6 +74,36 @@ private:
   ff::SWSR_Ptr_Buffer m_buffer;
 };
 
+template<typename T>
+class FastFlowNoVolatileQueue
+{
+  static_assert(std::is_pointer<T>::value, "T must be a pointer type");
+public:
+  explicit FastFlowNoVolatileQueue(size_t capacity)
+    : m_buffer(static_cast<unsigned long>(capacity))
+  {
+    m_buffer.init();
+  }
+
+  bool write(T&& t)
+  {
+    return m_buffer.push(t);
+  }
+
+  bool write(const T& t)
+  {
+    return m_buffer.push(t);
+  }
+
+  bool read(T& t)
+  {
+    return m_buffer.pop(reinterpret_cast<void**>(&t));
+  }
+
+private:
+  ff::SWSR_Ptr_Buffer_NoVolatile m_buffer;
+};
+
 
 #ifdef TEETIME_HAS_BOOST
 #include <boost/lockfree/spsc_queue.hpp>
@@ -480,6 +510,7 @@ int main(int argc, char** argv)
   run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);
   run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
   run(iterations, numValues, capacity, "FastFlowQueue", benchmark2<FastFlowQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue (No Volatile)", benchmark2<FastFlowNoVolatileQueue>);
 #ifdef TEETIME_HAS_BOOST
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
 #endif
@@ -487,6 +518,7 @@ int main(int argc, char** argv)
 
   std::cout << "\n\npointer based (void*) single threaded:" << std::endl;
   uint64 ffQueue = foo<FastFlowQueue>();
+  uint64 ffQueueNoVolatile = foo<FastFlowNoVolatileQueue>();
   uint64 spscValueQueue = foo<SpscValueQueue>();
   uint64 spscValueQueue2 = foo<v2::SpscValueQueue>();
   uint64 spscValueQueue3 = foo<v3::SpscValueQueue>();
@@ -495,6 +527,7 @@ int main(int argc, char** argv)
   uint64 spscPointerQueue3 = foo<v3::SpscPointerQueue>();
   uint64 spscPointerQueue4 = foo<v4::SpscPointerQueue>();
   std::cout << " ff: " << ffQueue * 0.001 << std::endl;
+  std::cout << " ff (no volatile): " << ffQueueNoVolatile * 0.001 << std::endl;
   std::cout << " spscValueQueue: " << spscValueQueue * 0.001 << std::endl;
   std::cout << " v2::spscValueQueue: " << spscValueQueue2 * 0.001 << std::endl;
   std::cout << " v3::spscValueQueue: " << spscValueQueue3 * 0.001 << std::endl;
