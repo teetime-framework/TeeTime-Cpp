@@ -329,7 +329,7 @@ uint64 benchmark_value2(size_t numValues, size_t capacity)
 }
 
 template<template<typename> class TQueue>
-uint64 benchmark2(size_t numValues, size_t capacity)
+uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
 {
   TQueue<size_t*> pipe(capacity);
   std::vector<size_t*> dest;
@@ -347,12 +347,10 @@ uint64 benchmark2(size_t numValues, size_t capacity)
         {
           break;
         }
-#if 1
         else
         {
           std::this_thread::yield();
         }
-#endif
       }
     }
   };
@@ -371,12 +369,10 @@ uint64 benchmark2(size_t numValues, size_t capacity)
           dest.push_back(val);
           break;
         }
-#if 1
         else
         {
           std::this_thread::yield();
         }
-#endif
       }
     }
   };
@@ -404,6 +400,152 @@ uint64 benchmark2(size_t numValues, size_t capacity)
   return (end - start);
 }
 
+
+
+template<template<typename> class TQueue>
+uint64 benchmark_pointers_busy(size_t numValues, size_t capacity)
+{
+  TQueue<size_t*> pipe(capacity);
+  std::vector<size_t*> dest;
+  dest.reserve(numValues);
+
+  auto produce = [&]() {
+    platform::setThreadAffinityMask(1);
+    const size_t local_num = numValues;
+
+    for (size_t i = 1; i < local_num; ++i)
+    {
+      while (true)
+      {
+        if (pipe.write(reinterpret_cast<size_t*>(i)))
+        {
+          break;
+        }
+      }
+    }
+  };
+
+  auto consume = [&]() {
+    platform::setThreadAffinityMask(2);
+    const size_t local_num = numValues;
+
+    for (size_t i = 1; i < local_num; ++i)
+    {
+      size_t* val;
+      while (true)
+      {
+        if (pipe.read(val))
+        {
+          dest.push_back(val);
+          break;
+        }
+      }
+    }
+  };
+
+  auto start = teetime::platform::microSeconds();
+  std::thread consumer(consume);
+  std::thread producer(produce);
+  producer.join();
+  consumer.join();
+  auto end = teetime::platform::microSeconds();
+
+  bool hasError = false;
+
+  for (size_t i = 0; i < dest.size(); ++i)
+  {
+    size_t expected = i + 1;
+
+    if (dest[i] != reinterpret_cast<size_t*>(expected)) {
+      hasError = true;
+      std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
+      break;
+    }
+  }
+
+  return (end - start);
+}
+
+
+template<template<typename> class TQueue>
+uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
+{
+  TQueue<size_t*> pipe(capacity);
+  std::vector<size_t*> dest;
+  dest.reserve(numValues);
+
+  auto produce = [&]() {
+    platform::setThreadAffinityMask(1);
+    const size_t local_num = numValues;
+
+    for (size_t i = 1; i < local_num; ++i)
+    {
+      while (true)
+      {
+        if (pipe.write(reinterpret_cast<size_t*>(i)))
+        {
+          break;
+        }
+        else
+        {
+#ifdef __GNUC___
+          asm volatile("pause\n": : : "memory");
+#else
+          YieldProcessor();
+#endif
+        }
+      }
+    }
+  };
+
+  auto consume = [&]() {
+    platform::setThreadAffinityMask(2);
+    const size_t local_num = numValues;
+
+    for (size_t i = 1; i < local_num; ++i)
+    {
+      size_t* val;
+      while (true)
+      {
+        if (pipe.read(val))
+        {
+          dest.push_back(val);
+          break;
+        }
+        else
+        {
+#ifdef __GNUC___
+          asm volatile("pause\n": : : "memory");
+#else
+          YieldProcessor();
+#endif
+        }
+      }
+    }
+  };
+
+  auto start = teetime::platform::microSeconds();
+  std::thread consumer(consume);
+  std::thread producer(produce);
+  producer.join();
+  consumer.join();
+  auto end = teetime::platform::microSeconds();
+
+  bool hasError = false;
+
+  for (size_t i = 0; i < dest.size(); ++i)
+  {
+    size_t expected = i + 1;
+
+    if (dest[i] != reinterpret_cast<size_t*>(expected)) {
+      hasError = true;
+      std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
+      break;
+    }
+  }
+
+  return (end - start);
+}
 
 
 void run(size_t iterations, size_t numValues, size_t capacity, const char* name, uint64(*benchmark_f)(size_t, size_t))
@@ -497,22 +639,58 @@ int main(int argc, char** argv)
   run(iterations, numMatrices, capacity, "boost::spsc_queue", benchmark_value2<BoostSpscQueue>);
 #endif
 
-  std::cout << "\n\npointer based (size_t*):" << std::endl;
+  std::cout << "\n\npointer based (size_t*), yielding:" << std::endl;
   numValues = 50000000;
-  run(iterations, numValues, capacity, "SpscValueQueue", benchmark2<SpscValueQueue>);
-  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark2<v2::SpscValueQueue>);
-  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark2<v3::SpscValueQueue>);
-  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark2<SpscUnalignedValueQueue>); 
-  run(iterations, numValues, capacity, "SpscPointerQueue", benchmark2<SpscPointerQueue>);
-  run(iterations, numValues, capacity, "v2::SpscPointerQueue", benchmark2<v2::SpscPointerQueue>);
-  run(iterations, numValues, capacity, "v3::SpscPointerQueue", benchmark2<v3::SpscPointerQueue>);
-  run(iterations, numValues, capacity, "v4::SpscPointerQueue", benchmark2<v4::SpscPointerQueue>);
-  run(iterations, numValues, capacity, "Folly", benchmark2<folly::ProducerConsumerQueue>);
-  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark2<folly::AlignedProducerConsumerQueue>);
-  run(iterations, numValues, capacity, "FastFlowQueue", benchmark2<FastFlowQueue>);
-  run(iterations, numValues, capacity, "FastFlowQueue (No Volatile)", benchmark2<FastFlowNoVolatileQueue>);
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_yield<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_yield<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_yield<v3::SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_yield<SpscUnalignedValueQueue>);
+  run(iterations, numValues, capacity, "SpscPointerQueue", benchmark_pointers_yield<SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v2::SpscPointerQueue", benchmark_pointers_yield<v2::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v3::SpscPointerQueue", benchmark_pointers_yield<v3::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v4::SpscPointerQueue", benchmark_pointers_yield<v4::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark_pointers_yield<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_pointers_yield<folly::AlignedProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue", benchmark_pointers_yield<FastFlowQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue (No Volatile)", benchmark_pointers_yield<FastFlowNoVolatileQueue>);
 #ifdef TEETIME_HAS_BOOST
-  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark2<BoostSpscQueue>);
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_yield<BoostSpscQueue>);
+#endif
+
+  std::cout << "\n\npointer based (size_t*), busy:" << std::endl;
+  numValues = 50000000;
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_busy<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_busy<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_busy<v3::SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_busy<SpscUnalignedValueQueue>);
+  run(iterations, numValues, capacity, "SpscPointerQueue", benchmark_pointers_busy<SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v2::SpscPointerQueue", benchmark_pointers_busy<v2::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v3::SpscPointerQueue", benchmark_pointers_busy<v3::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v4::SpscPointerQueue", benchmark_pointers_busy<v4::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark_pointers_busy<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_pointers_busy<folly::AlignedProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue", benchmark_pointers_busy<FastFlowQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue (No Volatile)", benchmark_pointers_busy<FastFlowNoVolatileQueue>);
+#ifdef TEETIME_HAS_BOOST
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_busy<BoostSpscQueue>);
+#endif
+
+  std::cout << "\n\npointer based (size_t*), pause:" << std::endl;
+  numValues = 50000000;
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_pause<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_pause<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointers_pause<v3::SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_pointers_pause<SpscUnalignedValueQueue>);
+  run(iterations, numValues, capacity, "SpscPointerQueue", benchmark_pointers_pause<SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v2::SpscPointerQueue", benchmark_pointers_pause<v2::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v3::SpscPointerQueue", benchmark_pointers_pause<v3::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "v4::SpscPointerQueue", benchmark_pointers_pause<v4::SpscPointerQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark_pointers_pause<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_pointers_pause<folly::AlignedProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue", benchmark_pointers_pause<FastFlowQueue>);
+  run(iterations, numValues, capacity, "FastFlowQueue (No Volatile)", benchmark_pointers_pause<FastFlowNoVolatileQueue>);
+#ifdef TEETIME_HAS_BOOST
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_pause<BoostSpscQueue>);
 #endif
 
 
