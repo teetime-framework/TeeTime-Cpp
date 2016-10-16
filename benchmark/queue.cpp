@@ -27,6 +27,7 @@ TEETIME_WARNING_POP
 #include <teetime/pipes/SpscQueue.h>
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 #include <type_traits>
 
@@ -128,13 +129,15 @@ public:
 
   bool read(T& t)
   {
-    return boost::lockfree::spsc_queue<T>::pop(&t, 1) == 1;
+    return boost::lockfree::spsc_queue<T>::pop(t);
   }
 };
 
 #endif
 
 using namespace teetime;
+
+
 
 template<template<typename> class TQueue>
 uint64 benchmark_value(size_t numValues, size_t capacity)
@@ -152,18 +155,8 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
     source.push_back(intlist(64, 0));
   }
 
-  std::atomic<bool> started(false);
-  std::atomic<int> ready(0);
-
-
   auto produce = [&](){ 
-    platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
-
-    ready.fetch_add(1);
-    while(started.load() == false)
-    {
-    }
 
     for(size_t i=0; i<local_num; ++i)
     {      
@@ -178,14 +171,7 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
   };
 
   auto consume = [&](){
-    platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
-
-    ready.fetch_add(1);
-    while(started.load() == false)
-    {
-    }
-
     for(size_t i=0; i<local_num; ++i)
     {
       intlist tmp;
@@ -205,17 +191,9 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
     }
   }; 
 
-
+  auto start = teetime::platform::microSeconds();
   std::thread consumer(consume);
   std::thread producer(produce);
-
-  while(ready.load() != 2)
-  {
-  }
-  
-  auto start = teetime::platform::microSeconds();
-  started.store(true);
-
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
@@ -228,6 +206,140 @@ uint64 benchmark_value(size_t numValues, size_t capacity)
       break;
     }
   }  
+
+  return (end - start);
+}
+
+
+
+
+
+
+template<template<typename> class TQueue>
+uint64 benchmark_pointer2(size_t numValues, size_t capacity)
+{
+  TQueue<void*> pipe(capacity);
+  std::vector<void*> source;
+  source.reserve(numValues);
+
+  for (size_t i = 0; i < numValues; ++i)
+  {
+    source.push_back((void*)(i+1));
+  }
+
+  size_t dest = 0;
+
+  auto produce = [&]() {
+    const size_t local_num = numValues;
+
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      while (true)
+      {
+        if (pipe.write(std::move(source[i])))
+          break;
+        else
+          std::this_thread::yield();
+      }
+    }
+  };
+
+  auto consume = [&]() {
+    const size_t local_num = numValues;
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      void* tmp;
+      while (true)
+      {
+
+        if (pipe.read(tmp))
+        {
+          dest += (size_t)tmp;
+          break;
+        }
+        else
+        {
+          std::this_thread::yield();
+        }
+      }
+    }
+  };
+
+  auto start = teetime::platform::microSeconds();
+  std::thread consumer(consume);
+  std::thread producer(produce);
+  producer.join();
+  consumer.join();
+  auto end = teetime::platform::microSeconds();
+
+  return (end - start);
+}
+
+
+
+
+template<template<typename> class TQueue>
+uint64 benchmark_map(size_t numValues, size_t capacity)
+{
+  using intmap = std::map<int, int>;
+
+  TQueue<intmap> pipe(capacity);
+  std::vector<intmap> source;
+  std::vector<intmap> dest;
+  dest.reserve(numValues);
+  source.reserve(numValues);
+
+  for (size_t i = 0; i < numValues; ++i)
+  {
+    intmap map;
+    map[(int)i] = i * 2;
+
+    source.push_back(std::move(map));
+  }
+
+  auto produce = [&]() {
+    const size_t local_num = numValues;
+
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      while (true)
+      {
+        if (pipe.write(std::move(source[i])))
+          break;
+        else
+          std::this_thread::yield();
+      }
+    }
+  };
+
+  auto consume = [&]() {
+    const size_t local_num = numValues;
+    for (size_t i = 0; i < local_num; ++i)
+    {
+      intmap tmp;
+      while (true)
+      {
+
+        if (pipe.read(tmp))
+        {
+          dest.push_back(std::move(tmp));
+          break;
+        }
+        else
+        {
+          std::this_thread::yield();
+        }
+      }
+    }
+  };
+
+
+  auto start = teetime::platform::microSeconds();
+  std::thread consumer(consume);
+  std::thread producer(produce);
+  producer.join();
+  consumer.join();
+  auto end = teetime::platform::microSeconds();
 
   return (end - start);
 }
@@ -255,41 +367,22 @@ uint64 benchmark_value2(size_t numValues, size_t capacity)
   std::vector<Mat4> dest;
   dest.reserve(numValues);
 
-  std::atomic<bool> started(false);
-  std::atomic<int> ready(0);
-
   auto produce = [&]() {
-    platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
-
-    ready.fetch_add(1);
-    while (started.load() == false)
-    {
-    }
-
     for (size_t i = 0; i < local_num; ++i)
     {
       while (true)
       {
         if (pipe.write(Mat4()))
           break;
-#if 0
         else
           std::this_thread::yield();
-#endif
       }
     }
   };
 
   auto consume = [&]() {
-    platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
-
-    ready.fetch_add(1);
-    while (started.load() == false)
-    {
-    }
-
     for (size_t i = 0; i < local_num; ++i)
     {
       Mat4 m;
@@ -300,27 +393,18 @@ uint64 benchmark_value2(size_t numValues, size_t capacity)
           dest.push_back(std::move(m));
           break;
         }
-#if 0
         else
         {
           std::this_thread::yield();
         }
-#endif
       }
     }
   };
 
 
+  auto start = teetime::platform::microSeconds();
   std::thread consumer(consume);
   std::thread producer(produce);
-
-  while (ready.load() != 2)
-  {
-  }
-
-  auto start = teetime::platform::microSeconds();
-  started.store(true);
-
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
@@ -336,7 +420,6 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
   dest.reserve(numValues);
 
   auto produce = [&]() {
-    platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i<local_num; ++i)
@@ -356,7 +439,6 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
   };
 
   auto consume = [&]() {
-    platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i<local_num; ++i)
@@ -384,14 +466,11 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
   consumer.join();
   auto end = teetime::platform::microSeconds();
 
-  bool hasError = false;
-
   for (size_t i = 0; i<dest.size(); ++i)
   {
     size_t expected = i + 1;
 
     if (dest[i] != reinterpret_cast<size_t*>(expected)) {
-      hasError = true;
       std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
       break;
     }
@@ -410,7 +489,6 @@ uint64 benchmark_pointers_busy(size_t numValues, size_t capacity)
   dest.reserve(numValues);
 
   auto produce = [&]() {
-    platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i < local_num; ++i)
@@ -426,7 +504,6 @@ uint64 benchmark_pointers_busy(size_t numValues, size_t capacity)
   };
 
   auto consume = [&]() {
-    platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i < local_num; ++i)
@@ -450,14 +527,11 @@ uint64 benchmark_pointers_busy(size_t numValues, size_t capacity)
   consumer.join();
   auto end = teetime::platform::microSeconds();
 
-  bool hasError = false;
-
   for (size_t i = 0; i < dest.size(); ++i)
   {
     size_t expected = i + 1;
 
     if (dest[i] != reinterpret_cast<size_t*>(expected)) {
-      hasError = true;
       std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
       break;
     }
@@ -475,7 +549,6 @@ uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
   dest.reserve(numValues);
 
   auto produce = [&]() {
-    platform::setThreadAffinityMask(1);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i < local_num; ++i)
@@ -499,7 +572,6 @@ uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
   };
 
   auto consume = [&]() {
-    platform::setThreadAffinityMask(2);
     const size_t local_num = numValues;
 
     for (size_t i = 1; i < local_num; ++i)
@@ -531,14 +603,11 @@ uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
   consumer.join();
   auto end = teetime::platform::microSeconds();
 
-  bool hasError = false;
-
   for (size_t i = 0; i < dest.size(); ++i)
   {
     size_t expected = i + 1;
 
     if (dest[i] != reinterpret_cast<size_t*>(expected)) {
-      hasError = true;
       std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
       break;
     }
@@ -554,10 +623,9 @@ void run(size_t iterations, size_t numValues, size_t capacity, const char* name,
 
   for (int i = 0; i < iterations; ++i)
   {
-    //auto ns = benchmark<folly::ProducerConsumerQueue>();
-    TEETIME_INFO() << "starting run " << i << "...";
+    //auto ns = benchmark<folly::ProducerConsumerQueue>();    
     auto ns = benchmark_f(numValues, capacity);
-    TEETIME_INFO() << "    run " << i << " done.";
+    TEETIME_INFO() << "    run " << i << ": " << (ns * 0.001) << "ms";
     //std::cout << i << ": " << ns << std::endl;
     sum += ns;
   }
@@ -609,23 +677,44 @@ int main(int argc, char** argv)
 {
   setLogCallback(::teetime::simpleLogging);
   setLogLevel(getLogLevelFromArgs(argc, argv));
-  size_t iterations = 10;  
+  size_t iterations = 2;
   size_t capacity = 1024;
 
+#if 0
+  for (int i = 0; i < 20; ++i) {
+    size_t numValues = 50000000;
+    run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_pointer2<folly::AlignedProducerConsumerQueue>);
+    run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_pointer2<v3::SpscValueQueue>);
+  }
+
+#else
   std::cout << "value based (std::vector<int>):" << std::endl;
-  size_t numValues = 1000000;
+  size_t numValues = 5000000;
+  run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_value<SpscValueQueue>);
   run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_value<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_value<v2::SpscValueQueue>);
   run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_value<v3::SpscValueQueue>);
   run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_value<SpscUnalignedValueQueue>);
-  //run(iterations, numValues, capacity, "SpscStorageValueQueue", benchmark_value<SpscStorageValueQueue>);
-  run(iterations, numValues, capacity, "Folly", benchmark_value<folly::ProducerConsumerQueue>);
-  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_value<folly::AlignedProducerConsumerQueue>);
 #ifdef TEETIME_HAS_BOOST
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_value<BoostSpscQueue>);
 #endif
 
+#if 0
+  std::cout << "value based (std::map<int,int>):" << std::endl;
+  numValues = 1000000;
+  run(iterations, numValues, capacity, "SpscValueQueue", benchmark_map<SpscValueQueue>);
+  run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_map<v1::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_map<v2::SpscValueQueue>);
+  run(iterations, numValues, capacity, "v3::SpscValueQueue", benchmark_map<v3::SpscValueQueue>);
+  run(iterations, numValues, capacity, "SpscUnalignedValueQueue", benchmark_map<SpscUnalignedValueQueue>);
+  run(iterations, numValues, capacity, "Folly", benchmark_map<folly::ProducerConsumerQueue>);
+  run(iterations, numValues, capacity, "Folly (cache optimized)", benchmark_map<folly::AlignedProducerConsumerQueue>);
+#ifdef TEETIME_HAS_BOOST
+  run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_map<BoostSpscQueue>);
+#endif
+#endif
 
   std::cout << "\n\nvalue based (4x4 float matrix):" << std::endl;
   size_t numMatrices = 1000000;
@@ -642,7 +731,7 @@ int main(int argc, char** argv)
 #endif
 
   std::cout << "\n\npointer based (size_t*), yielding:" << std::endl;
-  numValues = 50000000;
+  numValues = 5000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_yield<SpscValueQueue>);
   run(iterations, numValues, capacity, "v1::SpscValueQueue", benchmark_pointers_yield<v1::SpscValueQueue>);
   run(iterations, numValues, capacity, "v2::SpscValueQueue", benchmark_pointers_yield<v2::SpscValueQueue>);
@@ -660,6 +749,7 @@ int main(int argc, char** argv)
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_yield<BoostSpscQueue>);
 #endif
 
+#if 0
   std::cout << "\n\npointer based (size_t*), busy:" << std::endl;
   numValues = 50000000;
   run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_busy<SpscValueQueue>);
@@ -698,6 +788,7 @@ int main(int argc, char** argv)
   run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_pause<BoostSpscQueue>);
 #endif
 
+#endif
 
   std::cout << "\n\npointer based (void*) single threaded:" << std::endl;
   uint64 ffQueue = foo<FastFlowQueue>();
@@ -720,4 +811,6 @@ int main(int argc, char** argv)
   std::cout << " v2::spscPointerQueue: " << spscPointerQueue2 * 0.001 << std::endl;
   std::cout << " v3::spscPointerQueue: " << spscPointerQueue3 * 0.001 << std::endl;
   std::cout << " v4::spscPointerQueue: " << spscPointerQueue4 * 0.001 << std::endl;
+
+#endif
 }
