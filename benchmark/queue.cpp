@@ -488,8 +488,8 @@ uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
         }
         else
         {
-#ifdef __GNUC___
-          asm volatile("pause\n": : : "memory");
+#ifdef __GNUC__
+          __asm__("pause;");
 #else
           YieldProcessor();
 #endif
@@ -514,8 +514,8 @@ uint64 benchmark_pointers_pause(size_t numValues, size_t capacity)
         }
         else
         {
-#ifdef __GNUC___
-          asm volatile("pause\n": : : "memory");
+#ifdef __GNUC__
+          __asm__("pause;");
 #else
           YieldProcessor();
 #endif
