@@ -41,7 +41,11 @@ static int readFile(const char* filename, std::vector<char>& readBuffer, int siz
 int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size)
 {
   char filename[256];
+#ifdef __linux__
+  sprintf(filename, "/tmp/%s_%d", fileprefix, fileNum);
+#else
   sprintf(filename, "%s_%d", fileprefix, fileNum);
+#endif
 
   writeFile(filename, writeBuffer, size);
   int count = readFile(filename, readBuffer, size);
