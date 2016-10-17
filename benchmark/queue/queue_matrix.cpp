@@ -79,17 +79,17 @@ int main(int argc, char** argv)
 
   int numValues = 10000000;
 
-  QueueType type = getQueueType(argc, argv);
-  switch (type) {
+  Params params = getQueueType(argc, argv, "queue_matrix");
+  switch (params.type) {
   case QueueType::Folly:
-    run(iterations, numValues, capacity, "Folly", benchmark_matrix<folly::ProducerConsumerQueue>);
+    run(iterations, numValues, capacity, "Folly", benchmark_matrix<folly::ProducerConsumerQueue>, params.filename);
     break;
   case QueueType::FollyOpt:
-    run(iterations, numValues, capacity, "FollyOpt", benchmark_matrix<folly::AlignedProducerConsumerQueue>);
+    run(iterations, numValues, capacity, "FollyOpt", benchmark_matrix<folly::AlignedProducerConsumerQueue>, params.filename);
     break;
   case QueueType::Boost:
 #ifdef TEETIME_HAS_BOOST
-    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_matrix<BoostSpscQueue>);
+    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_matrix<BoostSpscQueue>, params.filename);
     break;
 #else
     std::cout << "boost not available" << std::endl;
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;
   case QueueType::TeeTimeValue:
-    run(iterations, numValues, capacity, "SpscValueQueue", benchmark_matrix<SpscValueQueue>);
+    run(iterations, numValues, capacity, "SpscValueQueue", benchmark_matrix<SpscValueQueue>, params.filename);
     break;
   case QueueType::FastFlow:
     std::cout << "values not supported" << std::endl;

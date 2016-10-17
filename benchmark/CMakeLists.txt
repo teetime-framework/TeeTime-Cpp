@@ -8,8 +8,8 @@ if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-add_executable("queue" queue.cpp)
-target_link_libraries(queue teetime ${CMAKE_THREAD_LIBS_INIT})
+#add_executable("queue" queue.cpp)
+#target_link_libraries(queue teetime ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable("pipeline" pipeline.cpp)
 target_link_libraries(pipeline teetime ${CMAKE_THREAD_LIBS_INIT})

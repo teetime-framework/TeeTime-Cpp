@@ -26,6 +26,7 @@ TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
 TEETIME_WARNING_POP
 #include <teetime/pipes/SpscQueue.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <string>
@@ -59,7 +60,26 @@ enum class QueueType {
   NUM
 };
 
-QueueType getQueueType(int argc, char** argv) {
+const char* QueueNames[] = {
+  "None",
+  "Folly",
+  "FollyOpt",
+  "Boost",
+  "TeeTimeValue",
+  "TeeTimePointer",
+  "FastFlow",
+  "FastFlowNoVolatile",
+};
+
+struct Params
+{
+  QueueType type;
+  std::string filename;
+};
+
+Params getQueueType(int argc, char** argv, const char* name) {
+  Params ret;
+  ret.type = QueueType::None;
 
   auto printTypes = []() {
     std::cout << std::endl;
@@ -73,17 +93,19 @@ QueueType getQueueType(int argc, char** argv) {
   };
 
   if (argc < 2) {
-    printTypes();
-    return QueueType::None;
+    printTypes();    
   }
-
-  int i = ::atoi(argv[1]);
-  if (i > 0 && i < static_cast<int>(QueueType::NUM)) {
-    return static_cast<QueueType>(i);
+  else {
+    int i = ::atoi(argv[1]);
+    if (i > 0 && i < static_cast<int>(QueueType::NUM)) {
+      ret.type = static_cast<QueueType>(i);
+      ret.filename = std::string(name) + "_" + std::string(QueueNames[i]) + ".passes";
+      return ret;
+    }
   }
 
   printTypes();
-  return QueueType::None;
+  return ret;
 }
 
 template<typename T>
@@ -315,7 +337,7 @@ uint64 benchmark_map(size_t numValues, size_t capacity)
 
 
 
-void run(size_t iterations, size_t numValues, size_t capacity, const char* name, uint64(*benchmark_f)(size_t, size_t))
+void run(size_t iterations, size_t numValues, size_t capacity, const char* name, uint64(*benchmark_f)(size_t, size_t), const std::string& filename = std::string())
 {
   uint64 sum = 0;
 
@@ -329,6 +351,13 @@ void run(size_t iterations, size_t numValues, size_t capacity, const char* name,
   }
 
   std::cout << name << ": " << (double)sum / iterations * 0.001 << "ms" << std::endl;
+
+  if (filename.size() > 0) {
+    std::ofstream file;
+    file.open(filename, std::ios::binary | std::ios::app);
+    file << (double)sum / iterations * 0.001 << "\n";
+    file.close();
+  }
 }
 
 

@@ -79,33 +79,33 @@ int main(int argc, char** argv)
 
   int numValues = 10000000;
 
-  QueueType type = getQueueType(argc, argv);
-  switch (type) {
+  Params params = getQueueType(argc, argv, "queue_pointer");
+  switch (params.type) {
   case QueueType::Folly:
-    run(iterations, numValues, capacity, "Folly", benchmark_pointers_yield<folly::ProducerConsumerQueue>);
+    run(iterations, numValues, capacity, "Folly", benchmark_pointers_yield<folly::ProducerConsumerQueue>, params.filename);
     break;
   case QueueType::FollyOpt:
-    run(iterations, numValues, capacity, "FollyOpt", benchmark_pointers_yield<folly::AlignedProducerConsumerQueue>);
+    run(iterations, numValues, capacity, "FollyOpt", benchmark_pointers_yield<folly::AlignedProducerConsumerQueue>, params.filename);
     break;
   case QueueType::Boost:
 #ifdef TEETIME_HAS_BOOST
-    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_yield<BoostSpscQueue>);
+    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_pointers_yield<BoostSpscQueue>, params.filename);
     break;
 #else
     std::cout << "boost not available" << std::endl;
     return EXIT_FAILURE;
 #endif    
   case QueueType::TeeTimePointer:
-    run(iterations, numValues, capacity, "SpscPointerQueue", benchmark_pointers_yield<SpscPointerQueue>);
+    run(iterations, numValues, capacity, "SpscPointerQueue", benchmark_pointers_yield<SpscPointerQueue>, params.filename);
     break;
   case QueueType::TeeTimeValue:
-    run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_yield<SpscValueQueue>);
+    run(iterations, numValues, capacity, "SpscValueQueue", benchmark_pointers_yield<SpscValueQueue>, params.filename);
     break;
   case QueueType::FastFlow:
-    run(iterations, numValues, capacity, "FastFlowQueue", benchmark_pointers_yield<FastFlowQueue>);
+    run(iterations, numValues, capacity, "FastFlowQueue", benchmark_pointers_yield<FastFlowQueue>, params.filename);
     break;
   case QueueType::FastFlowNoVolatile:
-    run(iterations, numValues, capacity, "FastFlowNoVolatileQueue", benchmark_pointers_yield<FastFlowNoVolatileQueue>);
+    run(iterations, numValues, capacity, "FastFlowNoVolatileQueue", benchmark_pointers_yield<FastFlowNoVolatileQueue>, params.filename);
     break;
   default:
     std::cout << "unknown or unsupported queue type" << std::endl;

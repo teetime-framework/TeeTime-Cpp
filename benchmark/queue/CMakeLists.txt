@@ -6,3 +6,6 @@ target_link_libraries(queue_matrix teetime ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(queue_pointer queue_pointer.cpp common.h)
 target_link_libraries(queue_pointer teetime ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(stats stats.cpp)
+
