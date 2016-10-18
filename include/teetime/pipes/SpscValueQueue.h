@@ -145,7 +145,7 @@ namespace teetime
       std::atomic<bool> hasValue;
 
     private:
-      char data[sizeof(T)] alignas(T);
+      alignas(T) char data[sizeof(T)];
     };
 
     char _padding0[platform::CacheLineSize];
@@ -324,7 +324,7 @@ namespace teetime
         std::atomic<bool> hasValue;
 
       private:
-        char data[sizeof(T)] alignas(T);
+        alignas(T) char data[sizeof(T)];
       };
 
       char _padding0[platform::CacheLineSize];

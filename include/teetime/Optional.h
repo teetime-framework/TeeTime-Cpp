@@ -115,7 +115,7 @@ namespace teetime
       return reinterpret_cast<const T*>(&m_buffer[0]);
     }    
 
-    char m_buffer[sizeof(T)] alignas(T);    
+    alignas(T) char m_buffer[sizeof(T)];    
     bool m_hasValue;
   };
 }
