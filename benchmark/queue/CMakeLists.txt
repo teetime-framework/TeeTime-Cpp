@@ -10,5 +10,9 @@ target_link_libraries(queue_pointer teetime ${CMAKE_THREAD_LIBS_INIT})
 add_executable(queue_shared queue_shared.cpp common.h)
 target_link_libraries(queue_shared teetime ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(queue_string queue_string.cpp common.h)
+target_link_libraries(queue_string teetime ${CMAKE_THREAD_LIBS_INIT})
+
+
 add_executable(stats stats.cpp)
 

@@ -1,23 +1,25 @@
 #include "common.h"
+#include <string>
 
 
-
-
+const char* getTestString(int i) {
+  static char buffer[256];
+  sprintf(buffer, "Hello world! This is TeeTime, the Pipe & Filter architecture framework: %d", i);
+  return &buffer[0];
+}
 
 template<template<typename> class TQueue>
-uint64 benchmark_vector(size_t numValues, size_t capacity)
+uint64 benchmark(size_t numValues, size_t capacity)
 {
-  using intlist = std::vector<int>;
-
-  TQueue<intlist> pipe(capacity);
-  std::vector<intlist> source;
-  std::vector<intlist> dest;
+  TQueue<std::string> pipe(capacity);
+  std::vector<std::string> source;
+  std::vector<std::string> dest;
   dest.reserve(numValues);
   source.reserve(numValues);
 
   for (size_t i = 0; i < numValues; ++i)
   {
-    source.push_back(intlist(64, 0));
+    source.push_back(std::string(getTestString((int)i)));
   }
 
   auto produce = [&]() {
@@ -37,7 +39,7 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
 
   auto consume = [&]() {
     const size_t local_num = numValues;
-    intlist tmp;
+    std::string tmp;
     for (size_t i = 0; i < local_num; ++i)
     { 
       while (true)
@@ -61,11 +63,10 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
-
-  const intlist s(64, 0);
+  
   for (size_t i = 0; i < dest.size(); ++i)
   {
-    if (dest[i] != s) {
+    if (dest[i] != getTestString((int)i)) {
       std::cout << "ERROR: " << i << ":" << dest[i].size() << std::endl;
       break;
     }
@@ -85,17 +86,17 @@ int main(int argc, char** argv)
 
   int numValues = 10000000;
 
-  Params params = getQueueType(argc, argv, "queue_vector");
+  Params params = getQueueType(argc, argv, "queue_string");
   switch (params.type) {
   case QueueType::Folly:
-    run(iterations, numValues, capacity, "Folly", benchmark_vector<folly::ProducerConsumerQueue>, params.filename);
+    run(iterations, numValues, capacity, "Folly", benchmark<folly::ProducerConsumerQueue>, params.filename);
     break;
   case QueueType::FollyOpt:
-    run(iterations, numValues, capacity, "FollyOpt", benchmark_vector<folly::AlignedProducerConsumerQueue>, params.filename);
+    run(iterations, numValues, capacity, "FollyOpt", benchmark<folly::AlignedProducerConsumerQueue>, params.filename);
     break;
   case QueueType::Boost:
 #ifdef TEETIME_HAS_BOOST
-    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark_vector<BoostSpscQueue>, params.filename);
+    run(iterations, numValues, capacity, "boost::spsc_queue", benchmark<BoostSpscQueue>, params.filename);
     break;
 #else
     std::cout << "boost not available" << std::endl;
@@ -105,7 +106,7 @@ int main(int argc, char** argv)
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;
   case QueueType::TeeTimeValue:
-    run(iterations, numValues, capacity, "SpscValueQueue", benchmark_vector<SpscValueQueue>, params.filename);
+    run(iterations, numValues, capacity, "SpscValueQueue", benchmark<SpscValueQueue>, params.filename);
     break;
   case QueueType::FastFlow:
     std::cout << "values not supported" << std::endl;
