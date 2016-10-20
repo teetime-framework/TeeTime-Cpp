@@ -41,6 +41,7 @@ AbstractStage::AbstractStage(const char* debugName)
 
 AbstractStage::~AbstractStage()
 {
+
 }
 
 void AbstractStage::executeStage()
@@ -86,7 +87,7 @@ void AbstractStage::onSignal(const Signal& s)
   }
   else
   {
-    for (auto p : m_outputPorts)
+    for (const auto& p : m_outputPorts)
     {
       p->sendSignal(s);
     }    
@@ -100,7 +101,7 @@ void AbstractStage::terminate()
   //assert(m_state == StageState::Started);
   m_state = StageState::Terminating;
 
-  for(auto p : m_outputPorts)
+  for(const auto& p : m_outputPorts)
   {
     TEETIME_DEBUG() << debugName() << " : send Terminating signal";
     p->sendSignal(Signal{SignalType::Terminating, this});

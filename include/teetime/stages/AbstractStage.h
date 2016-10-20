@@ -67,8 +67,8 @@ namespace teetime
 
     void terminate();
 
-    const std::vector<AbstractOutputPort*>& getOutputPorts() const;
-    const std::vector<AbstractInputPort*>& getInputPorts() const;
+    const std::vector<unique_ptr<AbstractOutputPort>>& getOutputPorts() const;
+    const std::vector<unique_ptr<AbstractInputPort>>& getInputPorts() const;
 
   private:   
     virtual unique_ptr<Runnable> createRunnable(int cpu) = 0;
@@ -76,8 +76,8 @@ namespace teetime
 
     StageState                       m_state;
     unique_ptr<Runnable>             m_runnable;
-    std::vector<AbstractInputPort*>  m_inputPorts;
-    std::vector<AbstractOutputPort*> m_outputPorts;
+    std::vector<unique_ptr<AbstractInputPort>>  m_inputPorts;
+    std::vector<unique_ptr<AbstractOutputPort>> m_outputPorts;
     std::string                      m_debugName;
   };
 
@@ -90,7 +90,7 @@ namespace teetime
     }
 
     InputPort<T>* port = new InputPort<T>(this);
-    m_inputPorts.push_back(port);
+    m_inputPorts.push_back(unique_ptr<AbstractInputPort>(port));
     return port;
   }
 
@@ -103,20 +103,19 @@ namespace teetime
     }
         
     OutputPort<T>* port = new OutputPort<T>(this);
-    m_outputPorts.push_back(port);
+    m_outputPorts.push_back(unique_ptr<AbstractOutputPort>(port));
     return port;
   }   
 
-  inline const std::vector<AbstractOutputPort*>& AbstractStage::getOutputPorts() const
+  inline const std::vector<unique_ptr<AbstractOutputPort>>& AbstractStage::getOutputPorts() const
   {
     return m_outputPorts;
   }
 
-  inline const std::vector<AbstractInputPort*>& AbstractStage::getInputPorts() const
+  inline const std::vector<unique_ptr<AbstractInputPort>>& AbstractStage::getInputPorts() const
   {
     return m_inputPorts;
   }
-
 
   inline StageState AbstractStage::currentState() const
   {
@@ -147,13 +146,13 @@ namespace teetime
   inline AbstractInputPort* AbstractStage::getInputPort(uint32 index)
   {
     assert(index < m_inputPorts.size());
-    return m_inputPorts[index];
+    return m_inputPorts[index].get();
   }
 
   inline AbstractOutputPort* AbstractStage::getOutputPort(uint32 index)
   {
     assert(index < m_outputPorts.size());
-    return m_outputPorts[index];
+    return m_outputPorts[index].get();
   }
 
   inline const char* AbstractStage::debugName() const
