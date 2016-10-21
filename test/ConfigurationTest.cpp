@@ -34,9 +34,9 @@ namespace
       producer = createStage<IntProducerStage>();
       consumer = createStage<IntConsumerStage>();
 
-      declareActive(producer);
+      declareStageActive(producer);
 
-      connect(producer->getOutputPort(), consumer->getInputPort());
+      connectPorts(producer->getOutputPort(), consumer->getInputPort());
     }
   };
 
@@ -51,10 +51,10 @@ namespace
       producer = createStage<IntProducerStage>();
       consumer = createStage<IntConsumerStage>();
 
-      declareActive(producer);
-      declareActive(consumer);
+      declareStageActive(producer);
+      declareStageActive(consumer);
 
-      connect(producer->getOutputPort(), consumer->getInputPort());
+      connectPorts(producer->getOutputPort(), consumer->getInputPort());
     }
   };
 }
@@ -174,12 +174,12 @@ namespace
       auto decrement = createStage<TestProcessingStage>();
       consumer = createStage<IntConsumerStage>();
 
-      declareActive(producer);
+      declareStageActive(producer);
 
-      connect(producer->getOutputPort(), loop->getInputPort());
-      connect(loop->getOutputPortA(), consumer->getInputPort());
-      connect(loop->getOutputPortB(), decrement->getInputPort());
-      connect(decrement->getOutputPort(), loop->getSecondInputPort());
+      connectPorts(producer->getOutputPort(), loop->getInputPort());
+      connectPorts(loop->getOutputPortA(), consumer->getInputPort());
+      connectPorts(loop->getOutputPortB(), decrement->getInputPort());
+      connectPorts(decrement->getOutputPort(), loop->getSecondInputPort());
     }
   };
 }

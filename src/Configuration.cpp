@@ -34,11 +34,11 @@ void Configuration::createConnections()
   for (auto conn : m_connections)
   {
     auto settings = m_stageSettings[conn.in->owner()];    
-    (*conn.callback)(conn.out, conn.in, conn.capacity, settings.isActive);
+    (*conn.connectCallback)(conn.out, conn.in, conn.capacity, settings.isActive);
   }
 }
 
-void Configuration::declareActive(shared_ptr<AbstractStage> stage, uint64 cpus)
+void Configuration::declareStageActive(shared_ptr<AbstractStage> stage, uint64 cpus)
 {
   m_stages.insert(stage);
   auto& s = m_stageSettings[stage.get()];
@@ -46,14 +46,14 @@ void Configuration::declareActive(shared_ptr<AbstractStage> stage, uint64 cpus)
   s.isActive = true;
 }
 
-void Configuration::declareNonActive(shared_ptr<AbstractStage> stage)
+void Configuration::declareStageNonActive(shared_ptr<AbstractStage> stage)
 {
   m_stages.insert(stage);
   auto& s = m_stageSettings[stage.get()];
   s.isActive = false;
 }
 
-bool Configuration::isConnected(const AbstractInputPort& port) const
+bool Configuration::isPortConnected(const AbstractInputPort& port) const
 {
   for (const auto& c : m_connections)
   {
@@ -64,7 +64,7 @@ bool Configuration::isConnected(const AbstractInputPort& port) const
   return false;
 }
 
-bool Configuration::isConnected(const AbstractOutputPort& port) const
+bool Configuration::isPortConnected(const AbstractOutputPort& port) const
 {
   for (const auto& c : m_connections)
   {
@@ -96,7 +96,7 @@ void Configuration::executeBlocking()
 
         if (settings.cpuAffinity > 0)
         {
-          ::teetime::platform::setThreadAffinityMask(settings.cpuAffinity);
+          ::teetime::platform::setThreadAffinityMask((unsigned)settings.cpuAffinity);
         }
 
         TEETIME_INFO() << "thread created and initialized for stage " << stage->debugName();

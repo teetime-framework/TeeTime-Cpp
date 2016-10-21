@@ -42,9 +42,9 @@ namespace
       auto file2filebuffer = createStage<File2FileBuffer>();
       collector = createStage<CollectorSink<FileBuffer>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), file2filebuffer->getInputPort());
-      connect(file2filebuffer->getOutputPort(), collector->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), file2filebuffer->getInputPort());
+      connectPorts(file2filebuffer->getOutputPort(), collector->getInputPort());
     }
   };
 }

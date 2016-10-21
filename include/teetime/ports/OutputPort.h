@@ -28,14 +28,11 @@ namespace teetime
   template<typename T>  
   class OutputPort;
 
-  template<typename T>
-  void connect2(OutputPort<T>& output, InputPort<T>& input);
-
-  template<typename T>
-  void connect2(OutputPort<T>& output, InputPort<T>& input, size_t capacity);    
-  
-  template<typename T>
-  void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
+  namespace internal
+  {
+    template<typename T>
+    void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
+  }
 
   template<typename T>  
   class OutputPort : public AbstractOutputPort
@@ -67,9 +64,7 @@ namespace teetime
       return m_pipe.get();
     }
 
-    friend void connect2<T>(OutputPort<T>& output, InputPort<T>& input);
-    friend void connect2<T>(OutputPort<T>& output, InputPort<T>& input, size_t capacity);
-    friend void connectPortsCallback<T>(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
+    friend void internal::connectPortsCallback<T>(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
 
     unique_ptr<Pipe<T>> m_pipe;
   };

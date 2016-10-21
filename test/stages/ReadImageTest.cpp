@@ -45,10 +45,10 @@ namespace
       auto readImage = createStage<ReadImage>();
       images = createStage<CollectorSink<Image>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), file2buffer->getInputPort());
-      connect(file2buffer->getOutputPort(), readImage->getInputPort());
-      connect(readImage->getOutputPort(), images->getInputPort());      
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), file2buffer->getInputPort());
+      connectPorts(file2buffer->getOutputPort(), readImage->getInputPort());
+      connectPorts(readImage->getOutputPort(), images->getInputPort());      
     }
   };
 }

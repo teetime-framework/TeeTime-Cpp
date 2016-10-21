@@ -4,6 +4,8 @@ package teetime;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.Benchmark;
@@ -27,7 +29,17 @@ public class Md5Benchmark {
 	@State(Scope.Thread)
 	public static class MyState {
         public HashCode a = MD5BruteforceStage.getMD5(0);
-        public HashCode b = MD5BruteforceStage.getMD5(10);        
+        public HashCode b = MD5BruteforceStage.getMD5(10);   
+        public MessageDigest md;        
+        
+        MyState()
+        {
+    		try {
+    			this.md = MessageDigest.getInstance("MD5");
+    		} catch (NoSuchAlgorithmException e) {
+    			e.printStackTrace();
+    		}
+        }
     }
 	
 	@Benchmark

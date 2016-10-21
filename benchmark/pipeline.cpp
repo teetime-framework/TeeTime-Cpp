@@ -60,21 +60,21 @@ namespace teetime
       producer = createStage<InitialElementProducer<int>>(ints);
       sink = createStage<CollectorSink<int>>();
 
-      declareActive(producer);
+      declareStageActive(producer);
 
       OutputPort<int>* prevOutputPort = &producer->getOutputPort();
       assert(numStages > 0);
       for(int i=0; i<numStages; ++i)
       {
         auto s = createStage<DummyStage>();
-        declareActive(s);
-        connect(*prevOutputPort, s->getInputPort(), 4096);
+        declareStageActive(s);
+        connectPorts(*prevOutputPort, s->getInputPort(), 4096);
         prevOutputPort = &s->getOutputPort();
       }
 
-      declareActive(sink);
+      declareStageActive(sink);
 
-      connect(*prevOutputPort, sink->getInputPort(), 4096);
+      connectPorts(*prevOutputPort, sink->getInputPort(), 4096);
     }
 
     std::vector<int> values() const

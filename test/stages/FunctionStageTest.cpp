@@ -42,9 +42,9 @@ namespace
       auto function = createStage<FunctionPtrStage<int,double>>(divideBy2, "divideBy2");
       collector = createStage<CollectorSink<double>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), function->getInputPort());
-      connect(function->getOutputPort(), collector->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), function->getInputPort());
+      connectPorts(function->getOutputPort(), collector->getInputPort());
     }
   };
 
@@ -59,9 +59,9 @@ namespace
       auto function = createStage<NewFunctionStage<int, double>>(divideBy2);
       collector = createStage<CollectorSink<double>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), function->getInputPort());
-      connect(function->getOutputPort(), collector->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), function->getInputPort());
+      connectPorts(function->getOutputPort(), collector->getInputPort());
     }
   };
   
@@ -78,9 +78,9 @@ namespace
 
       collector = createStage<CollectorSink<double>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), function->getInputPort());
-      connect(function->getOutputPort(), collector->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), function->getInputPort());
+      connectPorts(function->getOutputPort(), collector->getInputPort());
     }
   };
 

@@ -53,6 +53,9 @@ namespace teetime
     uint32 numOutputPorts() const;
     AbstractInputPort* getInputPort(uint32 index);
     AbstractOutputPort* getOutputPort(uint32 index);
+
+    const AbstractInputPort* getInputPort(uint32 index) const;
+    const AbstractOutputPort* getOutputPort(uint32 index) const;
     const char* debugName() const;
 
   protected:   
@@ -148,6 +151,18 @@ namespace teetime
   }
 
   inline AbstractOutputPort* AbstractStage::getOutputPort(uint32 index)
+  {
+    assert(index < m_outputPorts.size());
+    return m_outputPorts[index].get();
+  }
+
+  inline const AbstractInputPort* AbstractStage::getInputPort(uint32 index) const
+  {
+    assert(index < m_inputPorts.size());
+    return m_inputPorts[index].get();
+  }
+
+  inline const AbstractOutputPort* AbstractStage::getOutputPort(uint32 index) const
   {
     assert(index < m_outputPorts.size());
     return m_outputPorts[index].get();

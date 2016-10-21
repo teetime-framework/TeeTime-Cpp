@@ -154,18 +154,18 @@ namespace {
       auto merger = createStage<MergerStage<std::string>>();
       auto sink = createStage<CollectorSink<std::string>>();
       
-      declareActive(producer, cpus.next());
-      declareActive(merger, cpus.next());
+      declareStageActive(producer, cpus.next());
+      declareStageActive(merger, cpus.next());
       
-      connect(producer->getOutputPort(), dist->getInputPort());
-      connect(merger->getOutputPort(), sink->getInputPort());
+      connectPorts(producer->getOutputPort(), dist->getInputPort());
+      connectPorts(merger->getOutputPort(), sink->getInputPort());
 
       for (int i = 0; i < threads; ++i)
       {
         auto mipmap = createStage<MipMap>();
-        declareActive(mipmap);
-        connect(dist->getNewOutputPort(), mipmap->getInputPort());
-        connect(mipmap->getOutputPort(), merger->getNewInputPort());
+        declareStageActive(mipmap);
+        connectPorts(dist->getNewOutputPort(), mipmap->getInputPort());
+        connectPorts(mipmap->getOutputPort(), merger->getNewInputPort());
       }
     }
   };

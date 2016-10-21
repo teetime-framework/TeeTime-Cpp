@@ -40,17 +40,17 @@ namespace
       consumer = createStage<IntConsumerStage>();
 
       //make stages active
-      declareActive(producer);
+      declareStageActive(producer);
 
       //connect stages
-      connect(producer->getOutputPort(), distributor->getInputPort()); 
+      connectPorts(producer->getOutputPort(), distributor->getInputPort()); 
 
       for(unsigned i=0; i<numOutputPorts; ++i) 
       {
-        connect(distributor->getNewOutputPort(), merger->getNewInputPort());      
+        connectPorts(distributor->getNewOutputPort(), merger->getNewInputPort());      
       }         
 
-      connect(merger->getOutputPort(), consumer->getInputPort());      
+      connectPorts(merger->getOutputPort(), consumer->getInputPort());      
     }
   };
 }

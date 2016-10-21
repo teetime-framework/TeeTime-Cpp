@@ -38,9 +38,9 @@ namespace
       auto delay = createStage<DelayStage<int>>(milliseconds);
       consumer = createStage<IntConsumerStage>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), delay->getInputPort());
-      connect(delay->getOutputPort(), consumer->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), delay->getInputPort());
+      connectPorts(delay->getOutputPort(), consumer->getInputPort());
     }
   };
 }
@@ -72,25 +72,25 @@ namespace
     {
       producer = createStage<IntProducerStage>();
       auto distributor = createStage<DistributorStage<int>>();
-      declareActive(producer);
+      declareStageActive(producer);
 
       auto merger = createStage<MergerStage<int>>();      
       consumer = createStage<IntConsumerStage>();
-      declareActive(merger);
+      declareStageActive(merger);
 
-      connect(producer->getOutputPort(), distributor->getInputPort());
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());
       for(int i=0; i<3; ++i)
       {        
         std::string delayStageName = "DelayStage" + std::to_string(i);
 
         auto delay = createStage<DelayStage<int>>(milliseconds, delayStageName.c_str());
-        declareActive(delay);
+        declareStageActive(delay);
 
-        connect(distributor->getNewOutputPort(), delay->getInputPort());
-        connect(delay->getOutputPort(), merger->getNewInputPort());
+        connectPorts(distributor->getNewOutputPort(), delay->getInputPort());
+        connectPorts(delay->getOutputPort(), merger->getNewInputPort());
       }      
       
-      connect(merger->getOutputPort(), consumer->getInputPort());
+      connectPorts(merger->getOutputPort(), consumer->getInputPort());
     }
   };
 }
@@ -112,3 +112,4 @@ TEST(DelayStageTest, parallel)
   EXPECT_TRUE(time >= 1000);
   EXPECT_TRUE(time < (1000 + tolerance));
 }
+

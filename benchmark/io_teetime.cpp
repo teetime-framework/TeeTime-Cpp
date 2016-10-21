@@ -110,8 +110,8 @@ namespace {
       auto merger = createStage<MergerStage<int>>();
       auto sink = createStage<CollectorSink<int>>();
 
-      declareActive(producer, cpus.next());
-      declareActive(merger, cpus.next());
+      declareStageActive(producer, cpus.next());
+      declareStageActive(merger, cpus.next());
 
       for (int i = 0; i < threads; ++i)
       {
@@ -119,14 +119,14 @@ namespace {
         sprintf(prefix, "writer%d_", i);
         auto writerReader = createStage<WriterReader>(prefix);        
 
-        declareActive(writerReader, cpus.next());
+        declareStageActive(writerReader, cpus.next());
 
-        connect(dist->getNewOutputPort(), writerReader->getInputPort());
-        connect(writerReader->getOutputPort(), merger->getNewInputPort());
+        connectPorts(dist->getNewOutputPort(), writerReader->getInputPort());
+        connectPorts(writerReader->getOutputPort(), merger->getNewInputPort());
       }
 
-      connect(producer->getOutputPort(), dist->getInputPort());
-      connect(merger->getOutputPort(), sink->getInputPort());
+      connectPorts(producer->getOutputPort(), dist->getInputPort());
+      connectPorts(merger->getOutputPort(), sink->getInputPort());
     }
   };
 }

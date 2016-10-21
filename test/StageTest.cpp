@@ -63,7 +63,7 @@ TEST( AbstractConsumerStageTest, simpleExecute )
   TestProducerStage producer;
   TestConsumerStage consumer;   
   
-  connect(producer.getOutputPort(), consumer.getInputPort());
+  connectPorts(producer.getOutputPort(), consumer.getInputPort());
 
   producer.executeStage();
 

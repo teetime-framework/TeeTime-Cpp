@@ -16,9 +16,10 @@
 #pragma once
 #include "stages/AbstractStage.h"
 #include "pipes/SpscValueQueue.h"
+#include "pipes/SynchedPipe.h"
+#include "pipes/UnsynchedPipe.h"
 #include <map>
 #include <set>
-
 namespace teetime
 {
   template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
@@ -32,6 +33,43 @@ namespace teetime
 
   template<typename TIn, typename TOut>
   class NewFunctionStage;
+
+namespace internal
+{
+  using CreatePipeCallback = void*(size_t capacity, bool synched);
+  using ConnectCallback = void(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
+
+  template<typename TQueue>
+  void* createPipeCallback(size_t capacity, bool synched)
+  {
+    if (synched)
+    {
+      return new SynchedPipe<T, TQueue>((uint32)capacity)
+    }
+    else
+    {
+      return new UnsynchedPipe<T>(typed_in->owner())
+    }
+  }
+
+  template<typename T>
+  void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched)
+  {
+    auto typed_out = unsafe_dynamic_cast<OutputPort<T>>(out);
+    auto typed_in = unsafe_dynamic_cast<InputPort<T>>(in);
+
+    if (synched)
+    {
+      typed_out->m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>((uint32)capacity));
+    }
+    else
+    {
+      typed_out->m_pipe.reset(new UnsynchedPipe<T>(typed_in->owner()));
+    }
+
+    typed_in->m_pipe = typed_out->m_pipe.get();
+  }
+}
 
   class Configuration
   {
@@ -64,15 +102,21 @@ namespace teetime
       return createStage<FunctionObjectStage<TIn, TOut>>(f, name);
     }
 
+    template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
+    shared_ptr<FunctionStage<TIn, TOut, TFunc>> createStageFromFunction(const char* name = "function")
+    {
+      return createStage<FunctionStage<TIn, TOut, TFunc>>(name);
+    }
 
-    template<typename T>
-    void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity = 1024)
+
+    template<typename T, template<typename> class TQueue = SpscValueQueue>
+    void connectPorts(OutputPort<T>& output, InputPort<T>& input, size_t capacity = 1024)
     { 
-      if (isConnected(output)) {
+      if (isPortConnected(output)) {
         throw std::logic_error("output port is already connected");
       }
 
-      if (isConnected(input)) {
+      if (isPortConnected(input)) {
         throw std::logic_error("input port is already connected");
       }
 
@@ -81,7 +125,7 @@ namespace teetime
       ca.in = &input;
       ca.out = &output;
       ca.capacity = capacity;
-      ca.callback = &connectPortsCallback<T>;
+      ca.connectCallback = &internal::connectPortsCallback<T>;
       m_connections.push_back(ca);
 
       //make sure, both stages are known to the configuration
@@ -89,11 +133,11 @@ namespace teetime
       m_stages.insert(input.owner()->shared_from_this());
     }
 
-    void declareActive(shared_ptr<AbstractStage> stage, uint64 cpus = 0);
-    void declareNonActive(shared_ptr<AbstractStage> stage);
+    void declareStageActive(shared_ptr<AbstractStage> stage, uint64 cpus = 0);
+    void declareStageNonActive(shared_ptr<AbstractStage> stage);
     
-    bool isConnected(const AbstractInputPort& port) const;
-    bool isConnected(const AbstractOutputPort& port) const;
+    bool isPortConnected(const AbstractInputPort& port) const;
+    bool isPortConnected(const AbstractOutputPort& port) const;
 
   private:  
     void createConnections();
@@ -108,14 +152,14 @@ namespace teetime
       uint64 cpuAffinity;
     };
 
-    using ConnectCallback = void(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
 
     struct connection
     {
       AbstractOutputPort* out;
       AbstractInputPort* in;
       size_t capacity;
-      ConnectCallback* callback;
+      internal::CreatePipeCallback* createPipeCallback;
+      internal::ConnectCallback* connectCallback;
     };
     
     std::vector<connection> m_connections;

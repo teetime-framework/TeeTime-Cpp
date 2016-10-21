@@ -20,68 +20,7 @@
 #include "../pipes/UnsynchedPipe.h"
 #include "../pipes/SynchedPipe.h"
 
-#ifndef TEETIME_DEFAULT_QUEUE
- //#define TEETIME_DEFAULT_QUEUE folly::ProducerConsumerQueue
- //#define TEETIME_DEFAULT_QUEUE folly::AlignedProducerConsumerQueue
-#define TEETIME_DEFAULT_QUEUE teetime::SpscValueQueue
-#endif
-
 namespace teetime
 {
-  template<typename T>
-  void connect2(OutputPort<T>& output, InputPort<T>& input, size_t capacity)
-  {
-    assert(output.owner());
-    assert(input.owner());
 
-    TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
-    if (input.owner()->getRunnable())
-    {
-      output.m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(capacity));
-    }
-    else
-    {
-      output.m_pipe.reset(new UnsynchedPipe<T>(input.owner()));
-    }
-
-    input.m_pipe = output.m_pipe.get();
-  }
-
-  template<typename T>
-  void connect2(OutputPort<T>& output, InputPort<T>& input)
-  {
- 
-    assert(output.owner());
-    assert(input.owner());
-
-    TEETIME_DEBUG() << "connecting '" << output.owner()->debugName() << "' to '" << input.owner()->debugName() << "'";
-    if (input.owner()->getRunnable())
-    {
-      output.m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(1024));
-    }
-    else
-    {
-      output.m_pipe.reset(new UnsynchedPipe<T>(input.owner()));
-    }
-
-    input.m_pipe = output.m_pipe.get();  
-  }
-
-  template<typename T>
-  void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched)
-  {
-    auto typed_out = unsafe_dynamic_cast<OutputPort<T>>(out);
-    auto typed_in = unsafe_dynamic_cast<InputPort<T>>(in);
-
-    if (synched)
-    {
-      typed_out->m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(capacity));
-    }
-    else
-    {
-      typed_out->m_pipe.reset(new UnsynchedPipe<T>(typed_in->owner()));
-    }
-
-    typed_in->m_pipe = typed_out->m_pipe.get();
-  }
 }

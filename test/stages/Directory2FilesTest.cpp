@@ -36,9 +36,9 @@ namespace
       auto dir2files = createStage<Directory2Files>();
       collector = createStage<CollectorSink<File>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), dir2files->getInputPort());
-      connect(dir2files->getOutputPort(), collector->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), dir2files->getInputPort());
+      connectPorts(dir2files->getOutputPort(), collector->getInputPort());
     }
   };
 

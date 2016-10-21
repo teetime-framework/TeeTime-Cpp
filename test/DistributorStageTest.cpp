@@ -33,10 +33,10 @@ namespace
     explicit DistributorTestConfig(unsigned numOutputPorts, bool multithreaded)
     {
       producer = createStage<IntProducerStage>();
-      declareActive(producer);
+      declareStageActive(producer);
 
       auto distributor = createStage<DistributorStage<int, RoundRobinStrategy<int>>>();
-      connect(producer->getOutputPort(), distributor->getInputPort());      
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());      
 
       for(unsigned i=0; i<numOutputPorts; ++i) 
       {
@@ -44,10 +44,10 @@ namespace
 
         if(multithreaded)
         {
-          declareActive(consumer[i]);
+          declareStageActive(consumer[i]);
         }
         
-        connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
+        connectPorts(distributor->getNewOutputPort(), consumer[i]->getInputPort());
       }      
     }
   };
@@ -108,10 +108,10 @@ namespace
     explicit CopyTestConfig(unsigned numOutputPorts, bool multithreaded)
     {
       producer = createStage<IntProducerStage>();
-      declareActive(producer);
+      declareStageActive(producer);
 
       auto distributor = createStage<DistributorStage<int, CopyStrategy<int>>>();
-      connect(producer->getOutputPort(), distributor->getInputPort());
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());
 
       for (unsigned i = 0; i < numOutputPorts; ++i)
       {
@@ -119,10 +119,10 @@ namespace
 
         if (multithreaded)
         {
-          declareActive(consumer[i]);
+          declareStageActive(consumer[i]);
         }
 
-        connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
+        connectPorts(distributor->getNewOutputPort(), consumer[i]->getInputPort());
       }
     }
   };

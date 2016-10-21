@@ -41,15 +41,15 @@ namespace
       noext = createStage<CollectorSink<File>>();
       other = createStage<CollectorSink<File>>();
 
-      declareActive(producer);
-      connect(producer->getOutputPort(), fileExtSwitch->getInputPort());
-      connect(fileExtSwitch->getOutputPort("txt"), txt->getInputPort());
-      connect(fileExtSwitch->getOutputPort("tga"), tga->getInputPort());
-      connect(fileExtSwitch->getOutputPort(""), noext->getInputPort());
+      declareStageActive(producer);
+      connectPorts(producer->getOutputPort(), fileExtSwitch->getInputPort());
+      connectPorts(fileExtSwitch->getOutputPort("txt"), txt->getInputPort());
+      connectPorts(fileExtSwitch->getOutputPort("tga"), tga->getInputPort());
+      connectPorts(fileExtSwitch->getOutputPort(""), noext->getInputPort());
 
       if (useDefault)
       {
-        connect(fileExtSwitch->getDefaultOutputPort(), other->getInputPort());
+        connectPorts(fileExtSwitch->getDefaultOutputPort(), other->getInputPort());
       }
     }
   };

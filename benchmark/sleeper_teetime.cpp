@@ -69,10 +69,10 @@ namespace {
       auto merger = createStage<MergerStage<int>>();
       auto sink = createStage<CollectorSink<int>>();
 
-      declareActive(producer, 0);
-      declareActive(merger, 0);
+      declareStageActive(producer, 0);
+      declareStageActive(merger, 0);
 
-      connect(producer->getOutputPort(), dist->getInputPort());
+      connectPorts(producer->getOutputPort(), dist->getInputPort());
       for (int i = 0; i < threads; ++i)
       {
         char name[128];
@@ -80,18 +80,18 @@ namespace {
 
         auto delay = createStage<DelayStage<int>>(10000, name);
         //auto logger = createStage<Foo>(name);
-        declareActive(delay, 0);
+        declareStageActive(delay, 0);
 
-        connect(dist->getNewOutputPort(), delay->getInputPort());
-        connect(delay->getOutputPort(), merger->getNewInputPort());
-        //connect(delay->getOutputPort(), logger->getInputPort());
-        //connect(logger->getOutputPort(), merger->getNewInputPort());
+        connectPorts(dist->getNewOutputPort(), delay->getInputPort());
+        connectPorts(delay->getOutputPort(), merger->getNewInputPort());
+        //connectPorts(delay->getOutputPort(), logger->getInputPort());
+        //connectPorts(logger->getOutputPort(), merger->getNewInputPort());
       }
 /*
       auto mergerLogger = createStage<Foo>("merger");
-      connect(merger->getOutputPort(), mergerLogger->getInputPort());
+      connectPorts(merger->getOutputPort(), mergerLogger->getInputPort());
       */
-      connect(merger->getOutputPort(), sink->getInputPort());
+      connectPorts(merger->getOutputPort(), sink->getInputPort());
     }
   };
 
