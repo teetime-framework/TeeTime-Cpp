@@ -29,7 +29,7 @@ Configuration::~Configuration()
 void Configuration::executeBlocking()
 {
   std::vector<std::thread> threads;
-
+#if 1
   for(const auto& s : m_stages)
   {
     if(auto runnable = s->getRunnable())
@@ -45,10 +45,23 @@ void Configuration::executeBlocking()
     {
       TEETIME_DEBUG() << "stage '" << s->debugName() << "' is non-active";
     }
-  }      
+  }
+#else
+  for (const auto& s : m_activeStages)
+  {
+    auto runnable = s->getRunnable();
+    assert(runnable);
 
+    TEETIME_DEBUG() << "stage '" << s->debugName() << "' is active";
+    std::thread t([=]() {
+      runnable->run();
+    });
+
+    threads.push_back(std::move(t));
+  }
+#endif
   for(auto& t : threads)
   {
     t.join();
-  }      
+  }
 }

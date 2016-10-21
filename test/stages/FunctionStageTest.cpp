@@ -56,7 +56,7 @@ namespace
     explicit FunctionPtrStageTest2Config()
     {
       auto producer = createStage<InitialElementProducer<int>>(std::vector<int>{1, 2, 3});
-      auto function = createStageFromFunctionPointer(divideBy2);
+      auto function = createStage<NewFunctionStage<int, double>>(divideBy2);
       collector = createStage<CollectorSink<double>>();
 
       producer->declareActive();

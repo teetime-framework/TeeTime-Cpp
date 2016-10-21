@@ -18,12 +18,90 @@
 namespace teetime
 { 
   template<typename T>
+  class RoundRobinStrategy
+  {
+  public:
+    RoundRobinStrategy()
+      : m_next(0)
+    {}
+
+    RoundRobinStrategy(const RoundRobinStrategy&) = default;
+    ~RoundRobinStrategy() = default;
+    RoundRobinStrategy& operator=(const RoundRobinStrategy&) = default;
+
+    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
+    {
+      const size_t numOutputPorts = ports.size();
+
+      const size_t index = (m_next == numOutputPorts) ? 0 : m_next;
+      assert(index < numOutputPorts);
+
+      auto abstractPort = ports[index].get();
+      assert(abstractPort);
+
+      auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
+      assert(typedPort);
+
+      m_next = index + 1;
+
+      typedPort->send(std::move(value));
+    }
+    
+  private:
+    size_t m_next;
+  };
+
+  template<typename T>
+  class CopyStrategy
+  {
+  public:
+    CopyStrategy()
+    {}
+
+    CopyStrategy(const CopyStrategy&) = default;
+    ~CopyStrategy() = default;
+    CopyStrategy& operator=(const CopyStrategy&) = default;
+
+    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value)
+    {
+      assert(ports.size() > 0);
+
+      const size_t numOutputPorts = ports.size();
+
+      //skip very first port
+      for (size_t i = 1; i < numOutputPorts; ++i)
+      {
+        assert(ports[i]);
+
+        //don't std::move! we want a copy here
+        send(ports[index], T(value));
+      }
+
+      //save one copy, by moving the value to the first port (which we initially skipped)
+      send(ports[0], std::move(value));
+    }
+
+  private:
+    void send(const unique_ptr<AbstractOutputPort>& abstractPort, T&& value)
+    {
+      assert(abstractPort);
+
+      auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
+      assert(typedPort);
+
+      typedPort->send(std::move(value));
+    }
+  };
+
+
+
+  template<typename T, typename TStrategy = RoundRobinStrategy<T>>
   class DistributorStage final : public AbstractConsumerStage<T>
   {
   public:
-    DistributorStage(const char* debugName = "DistributorStage")
+    explicit DistributorStage(const char* debugName = "DistributorStage", TStrategy strategy = TStrategy())
     : AbstractConsumerStage<T>(debugName)
-    , m_next(0)
+    , m_strategy(strategy)
     {}
 
     OutputPort<T>& getNewOutputPort() 
@@ -36,31 +114,9 @@ namespace teetime
   private:
     virtual void execute(T&& value) override
     {
-      const uint32 numOutputPorts = AbstractStage::numOutputPorts();
-
-      while (true)
-      {
-        uint32 portIndex = m_next;
-        m_next = portIndex + 1;
-        if (m_next == numOutputPorts)
-        {
-          m_next = 0;
-        }
-
-        //TEETIME_TRACE() << "distributing value '" << value << "' to port " << m_next;
-        auto abstractPort = AbstractStage::getOutputPort(portIndex);
-        assert(abstractPort);
-
-        auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
-        assert(typedPort);
-
-        if (typedPort->trySend(std::move(value)))
-        {
-          break;
-        }
-      }
+      m_strategy(AbstractStage::getOutputPorts(), std::move(value));      
     }    
 
-    uint32 m_next;
+    TStrategy m_strategy;
   };
 }

@@ -15,6 +15,7 @@
 */
 #pragma once
 #include <teetime/stages/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractFilterStage.h>
 #include <functional>
 
 namespace teetime
@@ -126,5 +127,26 @@ namespace teetime
 
     std::function<TOut(TIn)> m_function;
     OutputPort<TOut>* m_outputPort;
+  };
+
+
+
+
+  template<typename TIn, typename TOut = TIn>
+  class NewFunctionStage final : public AbstractFilterStage<TIn, TOut>
+  {
+  public:
+    template<typename Callable>
+    NewFunctionStage(Callable&& c)
+      : m_function(c)
+    {}
+
+  private:
+    virtual void execute(TIn&& value) override
+    {
+      getOutputPort().send(m_function(std::move(value)));
+    }
+
+    std::function<TOut(TIn)> m_function;
   };
 }

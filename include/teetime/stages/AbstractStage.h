@@ -72,13 +72,17 @@ namespace teetime
 
   private:   
     virtual unique_ptr<Runnable> createRunnable(int cpu) = 0;
+
     virtual void execute() = 0;
 
-    StageState                       m_state;
-    unique_ptr<Runnable>             m_runnable;
-    std::vector<unique_ptr<AbstractInputPort>>  m_inputPorts;
-    std::vector<unique_ptr<AbstractOutputPort>> m_outputPorts;
-    std::string                      m_debugName;
+    template<typename T>
+    using pointers = std::vector<unique_ptr<T>>;
+
+    StageState                   m_state;
+    unique_ptr<Runnable>         m_runnable;
+    pointers<AbstractInputPort>  m_inputPorts;
+    pointers<AbstractOutputPort> m_outputPorts;
+    std::string                  m_debugName;
   };
 
   template<typename T>

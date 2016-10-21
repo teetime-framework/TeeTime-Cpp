@@ -15,6 +15,7 @@
  */
 #pragma once
 #include "stages/AbstractStage.h"
+#include <set>
 
 namespace teetime
 {
@@ -26,6 +27,18 @@ namespace teetime
 
   template<typename TIn, typename TOut>
   class FunctionObjectStage;
+
+  template<typename TIn, typename TOut>
+  class NewFunctionStage;
+
+
+  class Execution
+  {
+  public:
+
+  private:
+
+  };
 
   class Configuration
   {
@@ -51,9 +64,9 @@ namespace teetime
     }
 
     template<typename TIn, typename TOut>
-    shared_ptr<FunctionPtrStage<TIn, TOut>> createStageFromFunctionPointer(TOut(*f)(TIn), const char* name = "function_pointer")
+    shared_ptr<NewFunctionStage<TIn, TOut>> createStageFromFunctionPointer(TOut(*f)(TIn), const char* name = "function_pointer")
     {
-      return createStage<FunctionPtrStage<TIn, TOut>>(f, name);
+      return createStage<NewFunctionStage<TIn, TOut>>(f, name);
     }
 
     template<typename TIn, typename TOut>
@@ -62,7 +75,41 @@ namespace teetime
       return createStage<FunctionObjectStage<TIn, TOut>>(f, name);
     }
 
+#if 0
+    template<typename T>
+    void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity)
+    {
+
+    }
+
+    template<typename T>
+    void connect(OutputPort<T>& output, InputPort<T>& input)
+    {
+
+    }
+#endif
+
+    void declareActive(shared_ptr<AbstractStage> stage, int cpus)
+    {
+      stage->declareActive(cpus);
+
+      m_nonActiveStages.erase(stage);
+      m_activeStages.insert(stage);
+    }
+
+    void declareNonActive(shared_ptr<AbstractStage> stage)
+    {
+      stage->declareNonActive();
+
+      m_activeStages.erase(stage);
+      m_nonActiveStages.insert(stage);
+      
+    }
+
   private:    
     std::vector<shared_ptr<AbstractStage>> m_stages;
+
+    std::set<shared_ptr<AbstractStage>> m_activeStages;
+    std::set<shared_ptr<AbstractStage>> m_nonActiveStages;
   };
 }
