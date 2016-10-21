@@ -27,15 +27,14 @@ Runnable::Runnable()
 {}
 
 
-AbstractStageRunnable::AbstractStageRunnable(AbstractStage* stage, int cpu)
+AbstractStageRunnable::AbstractStageRunnable(AbstractStage* stage)
  : m_stage(stage)
- , m_cpu(cpu)
 {
   assert(m_stage);
 }
 
-ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage, int cpu)
- : AbstractStageRunnable(stage, cpu)
+ProducerStageRunnable::ProducerStageRunnable(AbstractStage* stage)
+ : AbstractStageRunnable(stage)
 {
 
 }
@@ -61,19 +60,14 @@ void ProducerStageRunnable::run()
   TEETIME_TRACE() << "stage '" << m_stage->debugName() << "' was terminated after " << (platform::microSeconds() - start) * 0.001 << "ms (" << (platform::microSeconds() - creationTime) * 0.001 << "ms)";
 }
 
-ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage, int cpu)
- : AbstractStageRunnable(stage, cpu)
+ConsumerStageRunnable::ConsumerStageRunnable(AbstractStage* stage)
+ : AbstractStageRunnable(stage)
 {
 }
 
 void ConsumerStageRunnable::run()
 {
   TEETIME_INFO() << "ConsumerStageRunnable::run(): " << m_stage->debugName();
-
-  if (m_cpu >= 0)
-  {
-    platform::setThreadAffinityMask(1 << m_cpu);
-  }
 
   const uint32 numInputPorts = m_stage->numInputPorts();
   for(uint32 i=0; i<numInputPorts; ++i)

@@ -45,7 +45,7 @@ namespace
       auto readImage = createStage<ReadImage>();
       images = createStage<CollectorSink<Image>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), file2buffer->getInputPort());
       connect(file2buffer->getOutputPort(), readImage->getInputPort());
       connect(readImage->getOutputPort(), images->getInputPort());      

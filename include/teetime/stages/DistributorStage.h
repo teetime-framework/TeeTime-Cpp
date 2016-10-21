@@ -74,7 +74,7 @@ namespace teetime
         assert(ports[i]);
 
         //don't std::move! we want a copy here
-        send(ports[index], T(value));
+        send(ports[i], std::move(T(value)));
       }
 
       //save one copy, by moving the value to the first port (which we initially skipped)
@@ -86,7 +86,7 @@ namespace teetime
     {
       assert(abstractPort);
 
-      auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
+      auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort.get());
       assert(typedPort);
 
       typedPort->send(std::move(value));

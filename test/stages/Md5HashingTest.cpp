@@ -48,7 +48,7 @@ namespace
       auto md5 = createStage<Md5Hashing>();
       hashes = createStage<CollectorSink<Md5Hash>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), md5->getInputPort());
       connect(md5->getOutputPort(), hashes->getInputPort());
     }
@@ -113,7 +113,7 @@ namespace
       auto md5 = createStage<ReverseIntMd5Hashing>();
       ints = createStage<CollectorSink<int>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), md5->getInputPort());
       connect(md5->getOutputPort(), ints->getInputPort());
     }

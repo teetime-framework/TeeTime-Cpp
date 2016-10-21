@@ -40,11 +40,11 @@ namespace teetime
     virtual void execute(T&& value) override
     {
       assert(m_outputPort);
-      TEETIME_TRACE() << this->debugName() << ": delaying " << value;
+      TEETIME_INFO() << this->debugName() << ": delaying " << value;
       std::this_thread::sleep_for(std::chrono::milliseconds(m_milliseconds));
       
       m_outputPort->send(std::move(value));
-      TEETIME_TRACE() << this->debugName() << ": delaying done";
+      TEETIME_INFO() << this->debugName() << ": delaying done";
     }    
 
     OutputPort<T>* m_outputPort;

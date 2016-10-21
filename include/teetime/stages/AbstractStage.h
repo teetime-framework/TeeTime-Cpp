@@ -34,21 +34,18 @@ namespace teetime
     Terminated
   };
 
-  class AbstractStage
+  class AbstractStage : public std::enable_shared_from_this<AbstractStage>
   {
   public:
     explicit AbstractStage(const char* debugName = nullptr);
     virtual ~AbstractStage();
 
-    void executeStage();
+    virtual unique_ptr<Runnable> createRunnable() = 0;
 
-    Runnable* getRunnable() const;
+    void executeStage();
 
     StageState currentState() const;
     void setState(StageState state);
-
-    void declareActive(int cpu = -1);
-    void declareNonActive();
 
     void onSignal(const Signal& signal);
 
@@ -63,23 +60,20 @@ namespace teetime
     InputPort<T>* addNewInputPort();
 
     template<typename T>
-    OutputPort<T>* addNewOutputPort();
-
-    void terminate();
+    OutputPort<T>* addNewOutputPort();   
 
     const std::vector<unique_ptr<AbstractOutputPort>>& getOutputPorts() const;
     const std::vector<unique_ptr<AbstractInputPort>>& getInputPorts() const;
 
-  private:   
-    virtual unique_ptr<Runnable> createRunnable(int cpu) = 0;
+    void terminate();
 
+  private:   
     virtual void execute() = 0;
 
     template<typename T>
     using pointers = std::vector<unique_ptr<T>>;
 
     StageState                   m_state;
-    unique_ptr<Runnable>         m_runnable;
     pointers<AbstractInputPort>  m_inputPorts;
     pointers<AbstractOutputPort> m_outputPorts;
     std::string                  m_debugName;

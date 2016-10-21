@@ -56,7 +56,7 @@ namespace
     }
   };
 }
-
+#if 0
 
 TEST( AbstractConsumerStageTest, simpleExecute )
 {
@@ -73,3 +73,4 @@ TEST( AbstractConsumerStageTest, simpleExecute )
   EXPECT_EQ(2, consumer.valuesProcessed[2]);
 }
 
+#endif

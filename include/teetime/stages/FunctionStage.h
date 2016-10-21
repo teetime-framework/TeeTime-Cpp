@@ -74,32 +74,6 @@ namespace teetime
   };
 
 
-  template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
-  class FunctionStage final : public AbstractConsumerStage<TIn>
-  {
-  public:
-    explicit FunctionStage(const char* debugName = "Function")
-      : AbstractConsumerStage<TIn>(debugName)
-    {
-      m_outputPort = AbstractStage::addNewOutputPort<TOut>();
-    }
-
-    OutputPort<TOut>& getOutputPort()
-    {
-      assert(m_outputPort);
-      return *m_outputPort;
-    }
-
-  private:
-    virtual void execute(TIn&& in) override
-    { 
-      assert(m_outputPort);
-      m_outputPort->send(TFunc(std::move(in)));
-    }
-
-    OutputPort<TOut>* m_outputPort;
-  };
-
   template<typename TIn, typename TOut>
   class FunctionObjectStage final : public AbstractConsumerStage<TIn>
   {

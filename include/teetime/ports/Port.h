@@ -29,7 +29,7 @@
 namespace teetime
 {
   template<typename T>
-  void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity)
+  void connect2(OutputPort<T>& output, InputPort<T>& input, size_t capacity)
   {
     assert(output.owner());
     assert(input.owner());
@@ -48,9 +48,9 @@ namespace teetime
   }
 
   template<typename T>
-  void connect(OutputPort<T>& output, InputPort<T>& input)
+  void connect2(OutputPort<T>& output, InputPort<T>& input)
   {
-#if 1 
+ 
     assert(output.owner());
     assert(input.owner());
 
@@ -64,9 +64,24 @@ namespace teetime
       output.m_pipe.reset(new UnsynchedPipe<T>(input.owner()));
     }
 
-    input.m_pipe = output.m_pipe.get();
-#else
-    ::teetime::connect<T>(output, input, (size_t)1024);
-#endif    
+    input.m_pipe = output.m_pipe.get();  
+  }
+
+  template<typename T>
+  void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched)
+  {
+    auto typed_out = unsafe_dynamic_cast<OutputPort<T>>(out);
+    auto typed_in = unsafe_dynamic_cast<InputPort<T>>(in);
+
+    if (synched)
+    {
+      typed_out->m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>(capacity));
+    }
+    else
+    {
+      typed_out->m_pipe.reset(new UnsynchedPipe<T>(typed_in->owner()));
+    }
+
+    typed_in->m_pipe = typed_out->m_pipe.get();
   }
 }

@@ -15,6 +15,9 @@
  */
 #include <teetime/Configuration.h>
 #include <teetime/Runnable.h>
+#include <teetime/platform.h>
+#include <teetime/ports/InputPort.h>
+#include <teetime/ports/OutputPort.h>
 
 using namespace teetime;
 
@@ -26,40 +29,84 @@ Configuration::~Configuration()
 {
 }
 
+void Configuration::createConnections()
+{
+  for (auto conn : m_connections)
+  {
+    auto settings = m_stageSettings[conn.in->owner()];    
+    (*conn.callback)(conn.out, conn.in, conn.capacity, settings.isActive);
+  }
+}
+
+void Configuration::declareActive(shared_ptr<AbstractStage> stage, uint64 cpus)
+{
+  m_stages.insert(stage);
+  auto& s = m_stageSettings[stage.get()];
+  s.cpuAffinity = cpus;
+  s.isActive = true;
+}
+
+void Configuration::declareNonActive(shared_ptr<AbstractStage> stage)
+{
+  m_stages.insert(stage);
+  auto& s = m_stageSettings[stage.get()];
+  s.isActive = false;
+}
+
+bool Configuration::isConnected(const AbstractInputPort& port) const
+{
+  for (const auto& c : m_connections)
+  {
+    if (c.in == &port)
+      return true;
+  }
+
+  return false;
+}
+
+bool Configuration::isConnected(const AbstractOutputPort& port) const
+{
+  for (const auto& c : m_connections)
+  {
+    if (c.out == &port)
+      return true;
+  }
+
+  return false;
+}
+
 void Configuration::executeBlocking()
 {
+  createConnections();
+
   std::vector<std::thread> threads;
-#if 1
-  for(const auto& s : m_stages)
+
+  for (const auto& s : m_stageSettings)
   {
-    if(auto runnable = s->getRunnable())
+    auto stage = s.first; 
+    auto settings = s.second;
+    assert(stage);
+
+    if (settings.isActive)
     {
-      TEETIME_DEBUG() << "stage '" << s->debugName() << "' is active";
-      std::thread t([=](){
+      TEETIME_DEBUG() << "stage '" << stage->debugName() << "' is active";
+      std::thread t([=]() {
+        auto runnable = stage->createRunnable();
+        assert(runnable);
+
+        if (settings.cpuAffinity > 0)
+        {
+          ::teetime::platform::setThreadAffinityMask(settings.cpuAffinity);
+        }
+
+        TEETIME_INFO() << "thread created and initialized for stage " << stage->debugName();
         runnable->run();
       });
 
       threads.push_back(std::move(t));
     }
-    else
-    {
-      TEETIME_DEBUG() << "stage '" << s->debugName() << "' is non-active";
-    }
   }
-#else
-  for (const auto& s : m_activeStages)
-  {
-    auto runnable = s->getRunnable();
-    assert(runnable);
 
-    TEETIME_DEBUG() << "stage '" << s->debugName() << "' is active";
-    std::thread t([=]() {
-      runnable->run();
-    });
-
-    threads.push_back(std::move(t));
-  }
-#endif
   for(auto& t : threads)
   {
     t.join();

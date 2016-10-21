@@ -69,8 +69,8 @@ namespace {
       auto merger = createStage<MergerStage<int>>();
       auto sink = createStage<CollectorSink<int>>();
 
-      producer->declareActive(0);
-      merger->declareActive(0);
+      declareActive(producer, 0);
+      declareActive(merger, 0);
 
       connect(producer->getOutputPort(), dist->getInputPort());
       for (int i = 0; i < threads; ++i)
@@ -80,7 +80,7 @@ namespace {
 
         auto delay = createStage<DelayStage<int>>(10000, name);
         //auto logger = createStage<Foo>(name);
-        delay->declareActive(0);
+        declareActive(delay, 0);
 
         connect(dist->getNewOutputPort(), delay->getInputPort());
         connect(delay->getOutputPort(), merger->getNewInputPort());

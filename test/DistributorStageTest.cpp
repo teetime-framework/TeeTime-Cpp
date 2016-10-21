@@ -33,9 +33,9 @@ namespace
     explicit DistributorTestConfig(unsigned numOutputPorts, bool multithreaded)
     {
       producer = createStage<IntProducerStage>();
-      producer->declareActive();
+      declareActive(producer);
 
-      auto distributor = createStage<DistributorStage<int>>();
+      auto distributor = createStage<DistributorStage<int, RoundRobinStrategy<int>>>();
       connect(producer->getOutputPort(), distributor->getInputPort());      
 
       for(unsigned i=0; i<numOutputPorts; ++i) 
@@ -44,7 +44,7 @@ namespace
 
         if(multithreaded)
         {
-          consumer[i]->declareActive();
+          declareActive(consumer[i]);
         }
         
         connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
@@ -91,3 +91,55 @@ TEST(DistributorStageTest, nooutput)
 
   EXPECT_EQ((size_t)0, config.consumer.size());
 }
+
+
+
+
+
+
+namespace
+{
+  class CopyTestConfig : public Configuration
+  {
+  public:
+    shared_ptr<IntProducerStage> producer;
+    std::vector<shared_ptr<IntConsumerStage>> consumer;
+
+    explicit CopyTestConfig(unsigned numOutputPorts, bool multithreaded)
+    {
+      producer = createStage<IntProducerStage>();
+      declareActive(producer);
+
+      auto distributor = createStage<DistributorStage<int, CopyStrategy<int>>>();
+      connect(producer->getOutputPort(), distributor->getInputPort());
+
+      for (unsigned i = 0; i < numOutputPorts; ++i)
+      {
+        consumer.push_back(createStage<IntConsumerStage>());
+
+        if (multithreaded)
+        {
+          declareActive(consumer[i]);
+        }
+
+        connect(distributor->getNewOutputPort(), consumer[i]->getInputPort());
+      }
+    }
+  };
+}
+
+TEST(DistributorCopyTest, singlethreaded)
+{
+  CopyTestConfig config(4, false);
+  config.producer->numValues = 4;
+  config.producer->startValue = 0;
+
+  config.executeBlocking();
+
+  ASSERT_EQ((size_t)4, config.consumer.size());
+  EXPECT_EQ((size_t)4, config.consumer[0]->valuesConsumed.size());
+  EXPECT_EQ((size_t)4, config.consumer[1]->valuesConsumed.size());
+  EXPECT_EQ((size_t)4, config.consumer[2]->valuesConsumed.size());
+  EXPECT_EQ((size_t)4, config.consumer[3]->valuesConsumed.size());
+}
+

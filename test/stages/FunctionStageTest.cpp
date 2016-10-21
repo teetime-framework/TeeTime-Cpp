@@ -42,7 +42,7 @@ namespace
       auto function = createStage<FunctionPtrStage<int,double>>(divideBy2, "divideBy2");
       collector = createStage<CollectorSink<double>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), function->getInputPort());
       connect(function->getOutputPort(), collector->getInputPort());
     }
@@ -59,48 +59,12 @@ namespace
       auto function = createStage<NewFunctionStage<int, double>>(divideBy2);
       collector = createStage<CollectorSink<double>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), function->getInputPort());
       connect(function->getOutputPort(), collector->getInputPort());
     }
   };
-
-  class FunctionStageTestConfig : public Configuration
-  {
-  public:
-    shared_ptr<CollectorSink<double>> collector;
-
-    explicit FunctionStageTestConfig()
-    {
-      auto producer = createStage<InitialElementProducer<int>>(std::vector<int>{1, 2, 3});
-      auto function = createStage<FunctionStage<int, double, divideBy2>>("divideBy2");
-      collector = createStage<CollectorSink<double>>();
-
-      producer->declareActive();
-      connect(producer->getOutputPort(), function->getInputPort());
-      connect(function->getOutputPort(), collector->getInputPort());
-    }
-  };
-
-
-  class FunctionStageTest2Config : public Configuration
-  {
-  public:
-    shared_ptr<CollectorSink<double>> collector;
-
-    explicit FunctionStageTest2Config()
-    {
-      auto producer = createStage<InitialElementProducer<int>>(std::vector<int>{1, 2, 3});
-      auto function = createStageFromFunction<int, double, divideBy2>();
-      collector = createStage<CollectorSink<double>>();
-
-      producer->declareActive();
-      connect(producer->getOutputPort(), function->getInputPort());
-      connect(function->getOutputPort(), collector->getInputPort());
-    }
-  };
-
-
+  
   class FunctionObjectStageTestConfig : public Configuration
   {
   public:
@@ -114,7 +78,7 @@ namespace
 
       collector = createStage<CollectorSink<double>>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), function->getInputPort());
       connect(function->getOutputPort(), collector->getInputPort());
     }
@@ -150,34 +114,6 @@ TEST(FunctionPtrStageTest, createdFromConfig)
   EXPECT_DOUBLE_EQ(1.5, d[2]);
 }
 
-
-TEST(FunctionStageTest, simple)
-{
-  FunctionStageTestConfig config;
-
-  config.executeBlocking();
-
-  std::vector<double> d = config.collector->takeElements();
-
-  ASSERT_EQ((size_t)3, d.size());
-  EXPECT_DOUBLE_EQ(0.5, d[0]);
-  EXPECT_DOUBLE_EQ(1.0, d[1]);
-  EXPECT_DOUBLE_EQ(1.5, d[2]);
-}
-
-TEST(FunctionStageTest, createdFromConfig)
-{
-  FunctionStageTest2Config config;
-
-  config.executeBlocking();
-
-  std::vector<double> d = config.collector->takeElements();
-
-  ASSERT_EQ((size_t)3, d.size());
-  EXPECT_DOUBLE_EQ(0.5, d[0]);
-  EXPECT_DOUBLE_EQ(1.0, d[1]);
-  EXPECT_DOUBLE_EQ(1.5, d[2]);
-}
 
 TEST(FunctionObjectTest, createdFromConfig)
 {

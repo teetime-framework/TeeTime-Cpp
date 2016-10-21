@@ -105,13 +105,13 @@ public:
     auto merger = createStage<MergerStage<int>>();
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive(cpus.next());
-    merger->declareActive(cpus.next());
+    declareActive(producer, cpus.next());
+    declareActive(merger, cpus.next());
 
     for(int i=0; i<threads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive(cpus.next());
+      declareActive(revhash, cpus.next());
 
       connect(distributor->getNewOutputPort(), revhash->getInputPort());
       connect(revhash->getOutputPort(), merger->getNewInputPort());

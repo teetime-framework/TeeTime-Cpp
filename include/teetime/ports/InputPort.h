@@ -19,6 +19,8 @@
 
 namespace teetime
 {
+  class AbstractOutputPort;
+
   template<typename T>
   class InputPort;
 
@@ -26,10 +28,13 @@ namespace teetime
   class OutputPort;
 
   template<typename T>
-  void connect(OutputPort<T>& output, InputPort<T>& input);
+  void connect2(OutputPort<T>& output, InputPort<T>& input);
 
   template<typename T>
-  void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity);  
+  void connect2(OutputPort<T>& output, InputPort<T>& input, size_t capacity);  
+
+  template<typename T>
+  void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
 
   class AbstractStage;
 
@@ -59,8 +64,10 @@ namespace teetime
     }
 
   private:
-    friend void connect<T>(OutputPort<T>& output, InputPort<T>& input);
-    friend void connect<T>(OutputPort<T>& output, InputPort<T>& input, size_t capacity);
+    friend void connect2<T>(OutputPort<T>& output, InputPort<T>& input);
+    friend void connect2<T>(OutputPort<T>& output, InputPort<T>& input, size_t capacity);
+
+    friend void connectPortsCallback<T>(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
 
     Pipe<T>* m_pipe;
   };

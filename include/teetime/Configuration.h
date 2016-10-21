@@ -15,6 +15,8 @@
  */
 #pragma once
 #include "stages/AbstractStage.h"
+#include "pipes/SpscValueQueue.h"
+#include <map>
 #include <set>
 
 namespace teetime
@@ -31,85 +33,94 @@ namespace teetime
   template<typename TIn, typename TOut>
   class NewFunctionStage;
 
-
-  class Execution
-  {
-  public:
-
-  private:
-
-  };
-
   class Configuration
   {
   public:
     Configuration();
     virtual ~Configuration();
 
+    Configuration(const Configuration&) = delete;
+    Configuration& operator=(const Configuration&) = delete;
+
     void executeBlocking();
 
   protected:
     template<typename T, typename ...TArgs>
-    shared_ptr<T> createStage(TArgs... args)
+    static shared_ptr<T> createStage(TArgs... args)
     {
       auto stage = std::make_shared<T>(args...);
-      m_stages.push_back(stage);
       return stage;
     }
 
-    template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
-    shared_ptr<FunctionStage<TIn, TOut, TFunc>> createStageFromFunction(const char* name = "function")
-    {
-      return createStage<FunctionStage<TIn, TOut, TFunc>>(name);
-    }
-
     template<typename TIn, typename TOut>
-    shared_ptr<NewFunctionStage<TIn, TOut>> createStageFromFunctionPointer(TOut(*f)(TIn), const char* name = "function_pointer")
+    static shared_ptr<NewFunctionStage<TIn, TOut>> createStageFromFunctionPointer(TOut(*f)(TIn), const char* name = "function_pointer")
     {
       return createStage<NewFunctionStage<TIn, TOut>>(f, name);
     }
 
     template<typename TIn, typename TOut>
-    shared_ptr<FunctionObjectStage<TIn, TOut>> createStageFromFunctionObject(std::function<TOut(TIn)> f, const char* name = "function_object")
+    static shared_ptr<FunctionObjectStage<TIn, TOut>> createStageFromFunctionObject(std::function<TOut(TIn)> f, const char* name = "function_object")
     {
       return createStage<FunctionObjectStage<TIn, TOut>>(f, name);
     }
 
-#if 0
-    template<typename T>
-    void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity)
-    {
-
-    }
 
     template<typename T>
-    void connect(OutputPort<T>& output, InputPort<T>& input)
-    {
+    void connect(OutputPort<T>& output, InputPort<T>& input, size_t capacity = 1024)
+    { 
+      if (isConnected(output)) {
+        throw std::logic_error("output port is already connected");
+      }
 
+      if (isConnected(input)) {
+        throw std::logic_error("input port is already connected");
+      }
+
+      //insert connection
+      connection ca;
+      ca.in = &input;
+      ca.out = &output;
+      ca.capacity = capacity;
+      ca.callback = &connectPortsCallback<T>;
+      m_connections.push_back(ca);
+
+      //make sure, both stages are known to the configuration
+      m_stages.insert(output.owner()->shared_from_this());
+      m_stages.insert(input.owner()->shared_from_this());
     }
-#endif
 
-    void declareActive(shared_ptr<AbstractStage> stage, int cpus)
+    void declareActive(shared_ptr<AbstractStage> stage, uint64 cpus = 0);
+    void declareNonActive(shared_ptr<AbstractStage> stage);
+    
+    bool isConnected(const AbstractInputPort& port) const;
+    bool isConnected(const AbstractOutputPort& port) const;
+
+  private:  
+    void createConnections();
+
+    struct stageSettings
     {
-      stage->declareActive(cpus);
+      stageSettings()
+        : isActive(false)
+        , cpuAffinity(0)
+      {}
+      bool isActive;
+      uint64 cpuAffinity;
+    };
 
-      m_nonActiveStages.erase(stage);
-      m_activeStages.insert(stage);
-    }
+    using ConnectCallback = void(AbstractOutputPort* out, AbstractInputPort* in, unsigned capacity, bool synched);
 
-    void declareNonActive(shared_ptr<AbstractStage> stage)
+    struct connection
     {
-      stage->declareNonActive();
+      AbstractOutputPort* out;
+      AbstractInputPort* in;
+      size_t capacity;
+      ConnectCallback* callback;
+    };
+    
+    std::vector<connection> m_connections;
 
-      m_activeStages.erase(stage);
-      m_nonActiveStages.insert(stage);
-      
-    }
-
-  private:    
-    std::vector<shared_ptr<AbstractStage>> m_stages;
-
-    std::set<shared_ptr<AbstractStage>> m_activeStages;
-    std::set<shared_ptr<AbstractStage>> m_nonActiveStages;
+    std::set<shared_ptr<AbstractStage>> m_stages;
+    std::map<AbstractStage*, stageSettings> m_stageSettings;    
   };
 }

@@ -38,7 +38,7 @@ namespace
       auto delay = createStage<DelayStage<int>>(milliseconds);
       consumer = createStage<IntConsumerStage>();
 
-      producer->declareActive();
+      declareActive(producer);
       connect(producer->getOutputPort(), delay->getInputPort());
       connect(delay->getOutputPort(), consumer->getInputPort());
     }
@@ -71,12 +71,12 @@ namespace
     explicit ParallelDelayStageTestConfig(uint32 milliseconds)
     {
       producer = createStage<IntProducerStage>();
-      producer->declareActive();
-      consumer = createStage<IntConsumerStage>();
-
       auto distributor = createStage<DistributorStage<int>>();
+      declareActive(producer);
+
       auto merger = createStage<MergerStage<int>>();      
-      merger->declareActive();
+      consumer = createStage<IntConsumerStage>();
+      declareActive(merger);
 
       connect(producer->getOutputPort(), distributor->getInputPort());
       for(int i=0; i<3; ++i)
@@ -84,8 +84,7 @@ namespace
         std::string delayStageName = "DelayStage" + std::to_string(i);
 
         auto delay = createStage<DelayStage<int>>(milliseconds, delayStageName.c_str());
-        delay->declareActive();
-
+        declareActive(delay);
 
         connect(distributor->getNewOutputPort(), delay->getInputPort());
         connect(delay->getOutputPort(), merger->getNewInputPort());

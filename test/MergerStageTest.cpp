@@ -40,7 +40,7 @@ namespace
       consumer = createStage<IntConsumerStage>();
 
       //make stages active
-      producer->declareActive();
+      declareActive(producer);
 
       //connect stages
       connect(producer->getOutputPort(), distributor->getInputPort()); 

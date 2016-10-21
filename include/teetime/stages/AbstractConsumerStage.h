@@ -65,9 +65,9 @@ namespace teetime
       }
     }
 
-    virtual unique_ptr<Runnable> createRunnable(int cpu) override final
+    virtual unique_ptr<Runnable> createRunnable() override final
     {
-      return unique_ptr<Runnable>(new ConsumerStageRunnable(this, cpu));
+      return unique_ptr<Runnable>(new ConsumerStageRunnable(this));
     }
   };
 }

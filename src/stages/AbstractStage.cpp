@@ -60,21 +60,6 @@ void AbstractStage::executeStage()
   }
 }
 
-Runnable* AbstractStage::getRunnable() const
-{
-  return m_runnable.get();
-}
-
-void AbstractStage::declareActive(int cpu)
-{   
-  m_runnable = createRunnable(cpu); 
-}
-
-void AbstractStage::declareNonActive()
-{
-  m_runnable.reset();
-}
-
 void AbstractStage::onSignal(const Signal& s)
 {
   if (s.sender == this)
