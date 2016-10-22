@@ -35,7 +35,7 @@ namespace
       producer = createStage<IntProducerStage>();
       declareStageActive(producer);
 
-      auto distributor = createStage<DistributorStage<int, RoundRobinStrategy<int>>>();
+      auto distributor = createStage<DistributorStage<int, RoundRobinDistribution<int>>>();
       connectPorts(producer->getOutputPort(), distributor->getInputPort());      
 
       for(unsigned i=0; i<numOutputPorts; ++i) 
@@ -110,7 +110,7 @@ namespace
       producer = createStage<IntProducerStage>();
       declareStageActive(producer);
 
-      auto distributor = createStage<DistributorStage<int, CopyStrategy<int>>>();
+      auto distributor = createStage<DistributorStage<int, CopyDistribution<int>>>();
       connectPorts(producer->getOutputPort(), distributor->getInputPort());
 
       for (unsigned i = 0; i < numOutputPorts; ++i)

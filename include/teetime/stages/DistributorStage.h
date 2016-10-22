@@ -18,20 +18,21 @@
 namespace teetime
 { 
   template<typename T>
-  class RoundRobinStrategy
+  class RoundRobinDistribution
   {
   public:
-    RoundRobinStrategy()
+    RoundRobinDistribution()
       : m_next(0)
     {}
 
-    RoundRobinStrategy(const RoundRobinStrategy&) = default;
-    ~RoundRobinStrategy() = default;
-    RoundRobinStrategy& operator=(const RoundRobinStrategy&) = default;
+    RoundRobinDistribution(const RoundRobinDistribution&) = default;
+    ~RoundRobinDistribution() = default;
+    RoundRobinDistribution& operator=(const RoundRobinDistribution&) = default;
 
     void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
     {
       const size_t numOutputPorts = ports.size();
+      assert(numOutputPorts > 0);
 
       const size_t index = (m_next == numOutputPorts) ? 0 : m_next;
       assert(index < numOutputPorts);
@@ -52,15 +53,15 @@ namespace teetime
   };
 
   template<typename T>
-  class CopyStrategy
+  class CopyDistribution
   {
   public:
-    CopyStrategy()
+    CopyDistribution()
     {}
 
-    CopyStrategy(const CopyStrategy&) = default;
-    ~CopyStrategy() = default;
-    CopyStrategy& operator=(const CopyStrategy&) = default;
+    CopyDistribution(const CopyDistribution&) = default;
+    ~CopyDistribution() = default;
+    CopyDistribution& operator=(const CopyDistribution&) = default;
 
     void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value)
     {
@@ -95,13 +96,13 @@ namespace teetime
 
 
 
-  template<typename T, typename TStrategy = RoundRobinStrategy<T>>
+  template<typename T, typename TDistributionPolicy = RoundRobinDistribution<T>>
   class DistributorStage final : public AbstractConsumerStage<T>
   {
   public:
-    explicit DistributorStage(const char* debugName = "DistributorStage", TStrategy strategy = TStrategy())
+    explicit DistributorStage(const char* debugName = "DistributorStage", TDistributionPolicy distribution = TDistributionPolicy())
     : AbstractConsumerStage<T>(debugName)
-    , m_strategy(strategy)
+    , m_policy(distribution)
     {}
 
     OutputPort<T>& getNewOutputPort() 
@@ -114,9 +115,9 @@ namespace teetime
   private:
     virtual void execute(T&& value) override
     {
-      m_strategy(AbstractStage::getOutputPorts(), std::move(value));      
+      m_policy(AbstractStage::getOutputPorts(), std::move(value));
     }    
 
-    TStrategy m_strategy;
+    TDistributionPolicy m_policy;
   };
 }
