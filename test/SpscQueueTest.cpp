@@ -99,7 +99,7 @@ TEST_P(SpscValueQueueTest2, concurrent)
 {
   using intlist = std::vector<int>;
 
-  static const size_t numValues = 10000000;
+  static const size_t numValues = 1000000;
   SpscValueQueue<intlist> queue(GetParam());
   
   std::vector<intlist> dst;
