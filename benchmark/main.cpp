@@ -38,11 +38,11 @@ public:
     auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();    
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive();
+    declareStageActive(producer);
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), revhash->getInputPort());
-    connect(revhash->getOutputPort(), sink->getInputPort());      
+    connectPorts(producer->getOutputPort(), hash->getInputPort());
+    connectPorts(hash->getOutputPort(), revhash->getInputPort());
+    connectPorts(revhash->getOutputPort(), sink->getInputPort());      
   }
 };
 
@@ -56,14 +56,14 @@ public:
     auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();    
     auto sink = createStage<CollectorSink<int>>();
 
-    producer->declareActive();
-    hash->declareActive();
-    revhash->declareActive();
-    sink->declareActive();
+    declareStageActive(producer);
+    declareStageActive(hash);
+    declareStageActive(revhash);
+    declareStageActive(sink);
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), revhash->getInputPort());
-    connect(revhash->getOutputPort(), sink->getInputPort());      
+    connectPorts(producer->getOutputPort(), hash->getInputPort());
+    connectPorts(hash->getOutputPort(), revhash->getInputPort());
+    connectPorts(revhash->getOutputPort(), sink->getInputPort());      
   }
 };
 
@@ -78,22 +78,22 @@ public:
     auto dist = createStage<DistributorStage<Md5Hash>>();
     auto merge = createStage<MergerStage<int>>();
 
-    producer->declareActive();        
-    merge->declareActive();
+    declareStageActive(producer);        
+    declareStageActive(merge);
 
     for(int i=0; i<numThreads; ++i)
     {
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
-      revhash->declareActive();
+      declareStageActive(revhash);
 
-      connect(dist->getNewOutputPort(), revhash->getInputPort());      
-      connect(revhash->getOutputPort(), merge->getNewInputPort());      
+      connectPorts(dist->getNewOutputPort(), revhash->getInputPort());      
+      connectPorts(revhash->getOutputPort(), merge->getNewInputPort());      
     }
 
 
-    connect(producer->getOutputPort(), hash->getInputPort());
-    connect(hash->getOutputPort(), dist->getInputPort());
-    connect(merge->getOutputPort(), sink->getInputPort());          
+    connectPorts(producer->getOutputPort(), hash->getInputPort());
+    connectPorts(hash->getOutputPort(), dist->getInputPort());
+    connectPorts(merge->getOutputPort(), sink->getInputPort());          
   }
 };
 

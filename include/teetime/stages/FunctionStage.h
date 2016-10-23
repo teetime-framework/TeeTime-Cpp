@@ -144,7 +144,7 @@ namespace teetime
   private:
     virtual void execute(TIn&& value) override
     {
-      getOutputPort().send(m_function(std::move(value)));
+      AbstractFilterStage<TIn, TOut>::getOutputPort().send(m_function(std::move(value)));
     }
 
     std::function<TOut(TIn)> m_function;

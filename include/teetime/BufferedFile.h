@@ -39,6 +39,7 @@ namespace teetime
     {
       m_path = std::move(f.m_path);
       m_bytes = std::move(f.m_bytes);
+      return *this;
     }
 
     const char* path() const {

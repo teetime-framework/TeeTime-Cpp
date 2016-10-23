@@ -45,7 +45,7 @@ namespace
     explicit Md5HashTestConfig(const std::string& s)
     {
       auto producer = createStage<InitialElementProducer<std::string>>(s);
-      auto md5 = createStage<Md5Hashing>();
+      auto md5 = createStage<Md5Hashing<std::string>>();
       hashes = createStage<CollectorSink<Md5Hash>>();
 
       declareStageActive(producer);

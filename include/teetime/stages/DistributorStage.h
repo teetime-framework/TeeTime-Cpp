@@ -108,7 +108,6 @@ namespace teetime
     OutputPort<T>& getNewOutputPort() 
     {
       OutputPort<T>* p = AbstractStage::addNewOutputPort<T>();
-
       return *p;
     }
 

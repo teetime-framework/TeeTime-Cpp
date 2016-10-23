@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <teetime/stages/Md5Hashing.h>
-
-#ifndef MD5_FUNCTIONAL_STAGE
- 
-#include <teetime/ports/OutputPort.h>
 #include <teetime/Md5Hash.h>
-#include <memory.h>
+#include <vector>
 
-using namespace teetime;
-
-Md5Hashing::Md5Hashing(const char* debugName)
-  : AbstractConsumerStage(debugName)
+namespace teetime
 {
-  m_outputPort = AbstractConsumerStage::addNewOutputPort<Md5Hash>();
-}
+  Md5Hash md5hash(int i)
+  {
+    return Md5Hash::generate(&i, sizeof(i));
+  }
 
-OutputPort<Md5Hash>& Md5Hashing::getOutputPort()
-{
-  assert(m_outputPort);
-  return *m_outputPort;
-}
+  Md5Hash md5hash(float f)
+  {
+    return Md5Hash::generate(&f, sizeof(f));
+  }
 
-void Md5Hashing::execute(std::string&& value)
-{
-  assert(m_outputPort);
-  m_outputPort->send(Md5Hash::generate(value));
-}
+  Md5Hash md5hash(const char* s)
+  {
+    return Md5Hash::generate(s, strlen(s));
+  }
 
-#endif
+  Md5Hash md5hash(const std::string& s)
+  {
+    return Md5Hash::generate(s);
+  }
+
+  Md5Hash md5hash(const std::vector<char>& bytes)
+  {
+    return Md5Hash::generate(bytes.data(), bytes.size());
+  }
+}

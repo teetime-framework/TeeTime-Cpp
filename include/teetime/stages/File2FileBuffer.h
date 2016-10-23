@@ -13,23 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <teetime/stages/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractFilterStage.h>
 #include <teetime/File.h>
 
 namespace teetime
 {
   class FileBuffer;
 
-  class File2FileBuffer final : public AbstractConsumerStage<File>
+  class File2FileBuffer final : public AbstractFilterStage<File, FileBuffer>
   {
   public:
-
-    explicit File2FileBuffer(const char* debugName = "File2Bytes");
-    OutputPort<FileBuffer>& getOutputPort();
+    explicit File2FileBuffer(const char* debugName = "File2FileBuffer");    
 
   private:
     virtual void execute(File&& value) override;
-
-    OutputPort<FileBuffer>* m_outputPort;
   };
 }

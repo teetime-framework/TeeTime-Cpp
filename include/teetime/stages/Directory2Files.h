@@ -13,22 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <teetime/stages/AbstractConsumerStage.h>
+#include <teetime/stages/AbstractFilterStage.h>
 #include <string>
 
 namespace teetime
 {
   class File;
 
-  class Directory2Files final : public AbstractConsumerStage<std::string>
+  class Directory2Files final : public AbstractFilterStage<std::string, File>
   {
   public:
     explicit Directory2Files(const char* debugName = "Directory2Files");
-    OutputPort<File>& getOutputPort();
 
   private:
     virtual void execute(std::string&& value) override;
-
-    OutputPort<File>* m_outputPort;
   };
 }

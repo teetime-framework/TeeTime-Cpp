@@ -25,16 +25,8 @@
 using namespace teetime;
 
 File2FileBuffer::File2FileBuffer(const char* debugName)
-  : AbstractConsumerStage<File>(debugName)
-  , m_outputPort(nullptr)
+  : AbstractFilterStage<File, FileBuffer>(debugName)
 {
-  m_outputPort = AbstractStage::addNewOutputPort<FileBuffer>();
-}
-
-OutputPort<FileBuffer>& File2FileBuffer::getOutputPort()
-{
-  assert(m_outputPort);
-  return *m_outputPort;
 }
 
 void File2FileBuffer::execute(File&& value)

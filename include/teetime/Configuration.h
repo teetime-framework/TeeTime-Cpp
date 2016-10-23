@@ -20,6 +20,7 @@
 #include "pipes/UnsynchedPipe.h"
 #include <map>
 #include <set>
+#include <type_traits>
 namespace teetime
 {
   template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
@@ -36,21 +37,21 @@ namespace teetime
 
 namespace internal
 {
+  template <typename T>
+  struct function_traits
+    : public function_traits<decltype(&T::operator())>
+  {};
+
+  template <typename ClassType, typename ReturnType, typename Arg>
+  struct function_traits<ReturnType(ClassType::*)(Arg) const>
+  {
+    using result_type = ReturnType;
+    using arg_type = Arg;
+  };
+
+
   using CreatePipeCallback = void*(size_t capacity, bool synched);
   using ConnectCallback = void(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
-
-  template<typename TQueue>
-  void* createPipeCallback(size_t capacity, bool synched)
-  {
-    if (synched)
-    {
-      return new SynchedPipe<T, TQueue>((uint32)capacity)
-    }
-    else
-    {
-      return new UnsynchedPipe<T>(typed_in->owner())
-    }
-  }
 
   template<typename T>
   void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched)
@@ -73,6 +74,9 @@ namespace internal
 
   class Configuration
   {
+
+
+
   public:
     Configuration();
     virtual ~Configuration();
@@ -88,6 +92,17 @@ namespace internal
     {
       auto stage = std::make_shared<T>(args...);
       return stage;
+    }
+
+    //jesus... this is just ugly as hell... but it get's the job done (most of the time)
+    template<typename T>
+    static auto createStageFromLambda(T lambda, const char* debugName = "lambda_stage")
+      ->shared_ptr<FunctionObjectStage<typename teetime::internal::function_traits<T>::arg_type,
+      typename teetime::internal::function_traits<T>::result_type>>
+    {
+      using TOut = typename teetime::internal::function_traits<T>::result_type;
+      using TIn = typename teetime::internal::function_traits<T>::arg_type;
+      return createStageFromFunctionObject<TIn, TOut>(lambda, debugName);
     }
 
     template<typename TIn, typename TOut>
@@ -151,7 +166,6 @@ namespace internal
       bool isActive;
       uint64 cpuAffinity;
     };
-
 
     struct connection
     {

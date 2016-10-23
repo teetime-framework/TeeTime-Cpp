@@ -24,16 +24,8 @@
 using namespace teetime;
 
 Directory2Files::Directory2Files(const char* debugName)
-  : AbstractConsumerStage<std::string>(debugName)
-  , m_outputPort(nullptr)
+  : AbstractFilterStage<std::string, File>(debugName)
 {
-  m_outputPort = AbstractStage::addNewOutputPort<File>();
-}
-
-OutputPort<File>& Directory2Files::getOutputPort()
-{
-  assert(m_outputPort);
-  return *m_outputPort;
 }
 
 void Directory2Files::execute(std::string&& value)

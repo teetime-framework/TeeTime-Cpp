@@ -21,6 +21,8 @@
 #include <teetime/ports/Port.h>
 #include <teetime/File.h>
 #include <teetime/FileBuffer.h>
+#include <type_traits>
+#include <functional>
 
 using namespace teetime;
 
@@ -64,7 +66,7 @@ namespace
       connectPorts(function->getOutputPort(), collector->getInputPort());
     }
   };
-  
+
   class FunctionObjectStageTestConfig : public Configuration
   {
   public:
@@ -73,11 +75,8 @@ namespace
     explicit FunctionObjectStageTestConfig()
     {
       auto producer = createStage<InitialElementProducer<int>>(std::vector<int>{1, 2, 3});
-
-      auto function = createStageFromFunctionObject<int, double>([](int i) { return i + 1; });
-
+      auto function = createStageFromLambda([](int i) {return double(i+1); });
       collector = createStage<CollectorSink<double>>();
-
       declareStageActive(producer);
       connectPorts(producer->getOutputPort(), function->getInputPort());
       connectPorts(function->getOutputPort(), collector->getInputPort());

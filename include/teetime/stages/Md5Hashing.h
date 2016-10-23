@@ -14,41 +14,30 @@
  * limitations under the License.
  */
 #pragma once
-
-#ifndef MD5_FUNCTIONAL_STAGE
-
-#include <teetime/stages/AbstractConsumerStage.h>
-#include <string>
+#include <teetime/stages/AbstractFilterStage.h>
 
 namespace teetime
 {
   class Md5Hash;
 
-  class Md5Hashing final : public AbstractConsumerStage<std::string>
+  Md5Hash md5hash(int i);
+  Md5Hash md5hash(float f);
+  Md5Hash md5hash(const char* s);
+  Md5Hash md5hash(const std::string& s);
+  Md5Hash md5hash(const std::vector<char>& bytes);
+
+  template<typename T>
+  class Md5Hashing final : public AbstractFilterStage<T, Md5Hash>
   {
   public:
-    explicit Md5Hashing(const char* debugName = "Md5Hashing");
-    OutputPort<Md5Hash>& getOutputPort();
+    explicit Md5Hashing(const char* debugName = "Md5Hashing")
+      : AbstractFilterStage<T, Md5Hash>(debugName)
+    {}
 
   private:
-    virtual void execute(std::string&& value) override;
-
-    OutputPort<Md5Hash>* m_outputPort;
+    virtual void execute(T&& value) override
+    {
+      AbstractFilterStage<T, Md5Hash>::getOutputPort().send(md5hash(value));
+    }
   };
 }
-
-#else
-#include <teetime/stages/FunctionStage.h>
-#include <teetime/Md5Hash.h>
-
-namespace teetime
-{
-  inline Md5Hash generateMd5hashFromString(const std::string& s)
-  {
-    return Md5Hash::generate(s);
-  }
-
-  using Md5Hashing = FunctionStage<const std::string&, Md5Hash, generateMd5hashFromString>;
-}
-
-#endif
