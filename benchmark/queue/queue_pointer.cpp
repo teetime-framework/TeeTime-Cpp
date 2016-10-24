@@ -4,7 +4,7 @@
 template<template<typename> class TQueue>
 uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
 {
-  TQueue<void*> pipe(capacity);
+  TQueue<void*> queue(capacity);
   std::vector<void*> dest;
   dest.reserve(numValues);
 
@@ -13,8 +13,8 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
 
     for (size_t i = 0; i < local_num; ++i)
     {
-      auto p = reinterpret_cast<void*>(i+1);
-      while (!pipe.write(p))
+      auto p = reinterpret_cast<void*>(i+1); 
+      while (!queue.write(p))
       {
         std::this_thread::yield();
       }
@@ -27,7 +27,7 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
     void* tmp;
     for (size_t i = 0; i < local_num; ++i)
     {      
-      while (!pipe.read(tmp))
+      while (!queue.read(tmp))
       {
         std::this_thread::yield();
       }
