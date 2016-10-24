@@ -68,7 +68,7 @@ namespace internal
 
     if (synched)
     {
-      typed_out->m_pipe.reset(new SynchedPipe<T, v2::SpscValueQueue>((uint32)capacity));
+      typed_out->m_pipe.reset(new SynchedPipe<T, SpscValueQueue>((uint32)capacity));
     }
     else
     {

@@ -19,9 +19,6 @@
 #include <cstring>
 #include <type_traits>
 
-TEETIME_WARNING_PUSH
-TEETIME_WARNING_DISABLE_PADDING_ALIGNMENT
-
 namespace teetime
 {
   template<typename T>
@@ -34,7 +31,7 @@ namespace teetime
       : m_readIndex(0)
       , m_writeIndex(0)
       , m_array(new Entry[capacity])
-      , m_capacity(static_cast<unsigned>(capacity))
+      , m_capacity(capacity)
     {
       assert(m_capacity >= 2 && "queue capacity must be at least 2");
     }
@@ -45,16 +42,16 @@ namespace teetime
 
     bool write(const T& t)
     {
-      auto& entry = m_array[m_writeIndex];
+      const auto index = m_writeIndex;
+      auto& entry = m_array[index];
 
       if (!entry.value.load(std::memory_order_acquire))
       {
         entry.value.store(t, std::memory_order_release);
 
-        if (++m_writeIndex == m_capacity)
-        {
-          m_writeIndex = 0;
-        }
+        const auto next = index + 1;
+        m_writeIndex = (next == m_capacity) ? 0 : next;
+
         return true;
       }
 
@@ -63,17 +60,16 @@ namespace teetime
 
     bool read(T& value)
     {
-      auto& entry = m_array[m_readIndex];
+      const auto index = m_readIndex;
+      auto& entry = m_array[index];
 
       if (T p = entry.value.load(std::memory_order_acquire))
       {
         value = p;
         entry.value.store(nullptr, std::memory_order_release);
 
-        if (++m_readIndex == m_capacity)
-        {
-          m_readIndex = 0;
-        }
+        const auto next = index + 1;
+        m_readIndex = (next == m_capacity) ? 0 : next;
 
         return true;
       }
@@ -93,275 +89,15 @@ namespace teetime
 
     char _padding0[platform::CacheLineSize];
 
-    unsigned m_readIndex;
+    size_t m_readIndex;
 
     char _padding1[platform::CacheLineSize];
 
-    unsigned m_writeIndex;
+    size_t m_writeIndex;
 
     char _padding2[platform::CacheLineSize];
 
-    unique_ptr<Entry[]> m_array;
-    unsigned m_capacity;
+    const unique_ptr<Entry[]> m_array;
+    const size_t m_capacity;
   };
-
-
-  namespace v2
-  {
-    template<typename T>
-    class SpscPointerQueue
-    {
-      static_assert(std::is_pointer<T>::value, "T must be a pointer type");
-
-    public:
-      explicit SpscPointerQueue(size_t capacity)
-        : m_readIndex(0)
-        , m_writeIndex(0)
-        , m_array(new Entry[capacity])
-        , m_capacity(static_cast<unsigned>(capacity))
-        , m_mask(static_cast<unsigned>(capacity) - 1)
-      {
-        assert(m_capacity >= 2 && "queue capacity must be at least 2");
-      }
-
-      ~SpscPointerQueue()
-      {
-      }
-
-      bool write(const T& t)
-      {
-        unsigned index = m_writeIndex;
-        auto& entry = m_array[index];
-
-        if (!entry.value.load(std::memory_order_acquire))
-        {
-          entry.value.store(t, std::memory_order_release);
-
-          ++index;
-          if (index == m_capacity)
-          {
-            m_writeIndex = 0;
-          }
-          else
-          {
-            m_writeIndex = index;
-          }
-          return true;
-        }
-
-        return false;
-      }
-
-      bool read(T& value)
-      {
-        unsigned index = m_readIndex;
-        auto& entry = m_array[index];
-
-        if (T p = entry.value.load(std::memory_order_acquire))
-        {
-          value = p;
-          entry.value.store(nullptr, std::memory_order_release);
-
-          ++index;
-          if (index == m_capacity)
-          {
-            m_readIndex = 0;
-          }
-          else
-          {
-            m_readIndex = index;
-          }
-
-          return true;
-        }
-
-        return false;
-      }
-
-    private:
-      struct Entry
-      {
-        Entry()
-        {
-          value.store(nullptr);
-        }
-        std::atomic<T> value;
-      };
-
-      char _padding0[platform::CacheLineSize];
-
-      unsigned m_readIndex;
-
-      char _padding1[platform::CacheLineSize];
-
-      unsigned m_writeIndex;
-
-      char _padding2[platform::CacheLineSize];
-
-      const unique_ptr<Entry[]> m_array;
-      const unsigned m_capacity;
-      const unsigned m_mask;
-    };
-  }
-
-  namespace v3
-  {
-    template<typename T>
-    class SpscPointerQueue
-    {
-      static_assert(std::is_pointer<T>::value, "T must be a pointer type");
-
-    public:
-      explicit SpscPointerQueue(size_t capacity)
-        : m_readIndex(0)
-        , m_writeIndex(0)
-        , m_array(new Entry[capacity])
-        , m_capacity(static_cast<unsigned>(capacity))
-        , m_mask(static_cast<unsigned>(capacity)-1)
-      {
-        assert(m_capacity >= 2 && "queue capacity must be at least 2");
-      }
-
-      ~SpscPointerQueue()
-      {
-      }
-
-      bool write(const T& t)
-      {
-        const unsigned index = m_writeIndex;
-        auto& entry = m_array[index];
-
-        if (!entry.value.load(std::memory_order_acquire))
-        {
-          entry.value.store(t, std::memory_order_release);
-          m_writeIndex = (index + 1) & m_mask;
-          return true;
-        }
-
-        return false;
-      }
-
-      bool read(T& value)
-      {
-        const unsigned index = m_readIndex;
-        auto& entry = m_array[index];
-
-        if (T p = entry.value.load(std::memory_order_acquire))
-        {
-          value = p;
-          entry.value.store(nullptr, std::memory_order_release);
-          m_readIndex = (index + 1) & m_mask;
-          return true;
-        }
-
-        return false;
-      }
-
-    private:
-      struct Entry
-      {
-        Entry()
-        {
-          value.store(nullptr);
-        }
-        std::atomic<T> value;
-      };
-
-      char _padding0[platform::CacheLineSize];
-
-      unsigned m_readIndex;
-
-      char _padding1[platform::CacheLineSize];
-
-      unsigned m_writeIndex;
-
-      char _padding2[platform::CacheLineSize];
-
-      const unique_ptr<Entry[]> m_array;
-      const unsigned m_capacity;
-      const unsigned m_mask;
-    };
-  }
-
-
-  namespace v4
-  {
-    template<typename T>
-    class SpscPointerQueue
-    {
-      static_assert(std::is_pointer<T>::value, "T must be a pointer type");
-
-    public:
-      explicit SpscPointerQueue(size_t capacity)
-        : m_readIndex(0)
-        , m_writeIndex(0)
-        , m_array(new Entry[capacity])
-        , m_capacity(static_cast<size_t>(capacity))
-        , m_mask(static_cast<size_t>(capacity) - 1)
-      {
-        assert(m_capacity >= 2 && "queue capacity must be at least 2");
-      }
-
-      ~SpscPointerQueue()
-      {
-      }
-
-      bool write(const T& t)
-      {
-        const size_t index = m_writeIndex;
-        auto& entry = m_array[index];
-
-        if (!entry.value.load(std::memory_order_acquire))
-        {
-          entry.value.store(t, std::memory_order_release);
-          m_writeIndex = (index + 1) & m_mask;
-          return true;
-        }
-
-        return false;
-      }
-
-      bool read(T& value)
-      {
-        const size_t index = m_readIndex;
-        auto& entry = m_array[index];
-
-        if (T p = entry.value.load(std::memory_order_acquire))
-        {
-          value = p;
-          entry.value.store(nullptr, std::memory_order_release);
-          m_readIndex = (index + 1) & m_mask;
-          return true;
-        }
-
-        return false;
-      }
-
-    private:
-      struct Entry
-      {
-        Entry()
-        {
-          value.store(nullptr);
-        }
-        std::atomic<T> value;
-      };
-
-      char _padding0[platform::CacheLineSize];
-
-      size_t m_readIndex;
-
-      char _padding1[platform::CacheLineSize];
-
-      size_t m_writeIndex;
-
-      char _padding2[platform::CacheLineSize];
-
-      const unique_ptr<Entry[]> m_array;
-      const size_t m_capacity;
-      const size_t m_mask;
-    };
-  }
 }
-
-TEETIME_WARNING_POP
