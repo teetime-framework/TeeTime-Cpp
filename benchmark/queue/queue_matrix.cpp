@@ -17,44 +17,36 @@ uint64 benchmark_matrix(size_t numValues, size_t capacity)
       m[15] = 1;
     }
 
-    float m[16];
+    double m[16];
   };
 
-  TQueue<Mat4> pipe(capacity);
+  TQueue<Mat4> queue(capacity);
   std::vector<Mat4> dest;
   dest.reserve(numValues);
 
   auto produce = [&]() {
     const size_t local_num = numValues;
+    Mat4 m;
     for (size_t i = 0; i < local_num; ++i)
     {
-      while (true)
+      while (!queue.write(m))
       {
-        if (pipe.write(Mat4()))
-          break;
-        else
-          std::this_thread::yield();
+        std::this_thread::yield();
       }
     }
   };
 
   auto consume = [&]() {
     const size_t local_num = numValues;
+
+    Mat4 tmp;
     for (size_t i = 0; i < local_num; ++i)
-    {
-      Mat4 m;
-      while (true)
+    {      
+      while (!queue.read(tmp))
       {
-        if (pipe.read(m))
-        {
-          dest.push_back(std::move(m));
-          break;
-        }
-        else
-        {
-          std::this_thread::yield();
-        }
+        std::this_thread::yield();
       }
+      dest.push_back(std::move(tmp));
     }
   };
 

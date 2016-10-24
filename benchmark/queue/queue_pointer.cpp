@@ -4,25 +4,19 @@
 template<template<typename> class TQueue>
 uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
 {
-  TQueue<size_t*> pipe(capacity);
-  std::vector<size_t*> dest;
+  TQueue<void*> pipe(capacity);
+  std::vector<void*> dest;
   dest.reserve(numValues);
 
   auto produce = [&]() {
     const size_t local_num = numValues;
 
-    for (size_t i = 1; i < local_num; ++i)
+    for (size_t i = 0; i < local_num; ++i)
     {
-      while (true)
+      auto p = reinterpret_cast<void*>(i+1);
+      while (!pipe.write(p))
       {
-        if (pipe.write(reinterpret_cast<size_t*>(i)))
-        {
-          break;
-        }
-        else
-        {
-          std::this_thread::yield();
-        }
+        std::this_thread::yield();
       }
     }
   };
@@ -30,21 +24,14 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
   auto consume = [&]() {
     const size_t local_num = numValues;
 
-    for (size_t i = 1; i < local_num; ++i)
-    {
-      size_t* val;
-      while (true)
+    void* tmp;
+    for (size_t i = 0; i < local_num; ++i)
+    {      
+      while (!pipe.read(tmp))
       {
-        if (pipe.read(val))
-        {
-          dest.push_back(val);
-          break;
-        }
-        else
-        {
-          std::this_thread::yield();
-        }
+        std::this_thread::yield();
       }
+      dest.push_back(tmp);
     }
   };
 
@@ -59,7 +46,7 @@ uint64 benchmark_pointers_yield(size_t numValues, size_t capacity)
   {
     size_t expected = i + 1;
 
-    if (dest[i] != reinterpret_cast<size_t*>(expected)) {
+    if (dest[i] != reinterpret_cast<void*>(expected)) {
       std::cout << "ERROR: " << expected << ":" << dest[i] << std::endl;
       break;
     }

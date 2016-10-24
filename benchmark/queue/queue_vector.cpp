@@ -9,7 +9,7 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
 {
   using intlist = std::vector<int>;
 
-  TQueue<intlist> pipe(capacity);
+  TQueue<intlist> queue(capacity);
   std::vector<intlist> source;
   std::vector<intlist> dest;
   dest.reserve(numValues);
@@ -22,36 +22,27 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
 
   auto produce = [&]() {
     const size_t local_num = numValues;
-
+    
     for (size_t i = 0; i < local_num; ++i)
     {
-      while (true)
+      while (!queue.write(std::move(source[i])))
       {
-        if (pipe.write(std::move(source[i])))
-          break;
-        else
-          std::this_thread::yield();
+        std::this_thread::yield();
       }
     }
   };
 
   auto consume = [&]() {
     const size_t local_num = numValues;
+
     intlist tmp;
     for (size_t i = 0; i < local_num; ++i)
     { 
-      while (true)
+      while (!queue.read(tmp))
       {
-        if (pipe.read(tmp))
-        {
-          dest.push_back(std::move(tmp));
-          break;
-        }
-        else
-        {
-          std::this_thread::yield();
-        }
+        std::this_thread::yield();
       }
+      dest.push_back(std::move(tmp));
     }
   };
 
