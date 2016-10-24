@@ -76,13 +76,40 @@ namespace
     {
       auto producer = createStage<InitialElementProducer<int>>(std::vector<int>{1, 2, 3});
       auto function = createStageFromLambda([](int i) {return double(i+1); });
+
+
       collector = createStage<CollectorSink<double>>();
       declareStageActive(producer);
       connectPorts(producer->getOutputPort(), function->getInputPort());
       connectPorts(function->getOutputPort(), collector->getInputPort());
     }
   };
+#if 0
+  double half(int i) {
+    return i * 0.5;
+  }
 
+  struct ToInt {
+    int operator()(const std::string& s) {
+      return atoi(s.c_str());
+    }
+  };
+
+  class FunctionConfig : public Configuration {
+  public:
+    FunctionConfig()
+    {
+      auto toIntStage = createStageFromLambda(ToInt());
+      auto halfStage = createStageFromFunctionPointer(half);      
+      auto doubleStage = createStageFromLambda([](double d) {
+        return d * 2;
+      });
+
+      connectPorts(toIntStage->getOutputPort(), halfStage->getInputPort());
+      connectPorts(halfStage->getOutputPort(), doubleStage->getInputPort());
+    }
+  };
+#endif
 }
 
 TEST(FunctionPtrStageTest, simple)

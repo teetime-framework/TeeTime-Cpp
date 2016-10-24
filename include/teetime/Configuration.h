@@ -49,6 +49,13 @@ namespace internal
     using arg_type = Arg;
   };
 
+  template <typename ClassType, typename ReturnType, typename Arg>
+  struct function_traits<ReturnType(ClassType::*)(Arg)>
+  {
+    using result_type = ReturnType;
+    using arg_type = Arg;
+  };
+
 
   using CreatePipeCallback = void*(size_t capacity, bool synched);
   using ConnectCallback = void(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
@@ -102,7 +109,7 @@ namespace internal
     {
       using TOut = typename teetime::internal::function_traits<T>::result_type;
       using TIn = typename teetime::internal::function_traits<T>::arg_type;
-      return createStageFromFunctionObject<TIn, TOut>(lambda, debugName);
+      return createStage<FunctionObjectStage<TIn, TOut>>(lambda, debugName);
     }
 
     template<typename TIn, typename TOut>
