@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in `seq 1 200`;
+for i in `seq 1 $3`;
 do
-  ./queue_vector $1
+  $1 $2
 done
