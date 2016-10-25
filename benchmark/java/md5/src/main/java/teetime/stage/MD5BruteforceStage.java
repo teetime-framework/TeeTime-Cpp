@@ -16,17 +16,17 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	private final static int FAILURE_OUTPUT = -1;
 		
 	public static byte[] getMD5(MessageDigest md, int value) {
-		md.reset();		
-		md.update((byte)(value >>> 24));
-		md.update((byte)(value >>> 16));
+		md.reset();
+		md.update((byte)value);
 		md.update((byte)(value >>> 8));
-		md.update((byte)value);		
+		md.update((byte)(value >>> 16));
+		md.update((byte)(value >>> 24));				
 		return md.digest();
 	}
 	
 	public static int bruteforce(MessageDigest md, byte[] inputHash) {
 		for (int i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {			
-			if (Arrays.equals(getMD5(md, i), inputHash)) {
+			if (getMD5(md, i).equals(inputHash)) {
 				return i;
 			}
 		}
@@ -64,6 +64,15 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		byte[] b = getMD5(md, value);
 		
+		
+/*		
+		md.reset();
+		md.update((byte)value);
+		md.update((byte)(value >>> 8));
+		md.update((byte)(value >>> 16));
+		md.update((byte)(value >>> 24));		
+		byte[] b = md.digest();
+*/		
 		boolean isEqual = Arrays.equals(a,b);
 		System.out.println("equal? " + isEqual);
 	}
