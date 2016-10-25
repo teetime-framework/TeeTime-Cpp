@@ -63,6 +63,12 @@ public class Md5Benchmark {
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
     public long bruteforceByteArray0(MyState state) {
+		if(state.md == null)
+			System.out.println("md is null");
+		
+		if(state.a_bytes == null)
+			System.out.println("a_bytes is null");		
+		
         return MD5BruteforceStage.bruteforce(state.md, state.a_bytes);
     }	
 	
