@@ -59,9 +59,7 @@ public class CPUTestExecution {
 			hashes.add(MD5BruteforceStage.getMD5(md, arguments.valueOfElements));			
 		}		
 		
-		for (int i = 0; i < arguments.warmupExecutions; i++) {
-			for(int j=0; j<10; ++j)
-				gc();			
+		for (int i = 0; i < arguments.warmupExecutions; i++) {			
 			System.out.println("Warmup #" + i + " started");
 			execute(hashes, numThreads);
 		}
