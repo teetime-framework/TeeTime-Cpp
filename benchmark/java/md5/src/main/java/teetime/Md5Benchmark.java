@@ -26,22 +26,23 @@ import teetime.stage.MD5BruteforceStage;
 
 public class Md5Benchmark {
 	
+	private static MessageDigest createMessageDigest() {
+		try {
+			return MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 	@State(Scope.Thread)
 	public static class MyState {
         public HashCode a = MD5BruteforceStage.getMD5(0);
         public HashCode b = MD5BruteforceStage.getMD5(10);
         public byte[] a_bytes = a.asBytes();
         public byte[] b_bytes = b.asBytes();
-        public MessageDigest md;        
-        
-        MyState()
-        {
-    		try {
-    			this.md = MessageDigest.getInstance("MD5");
-    		} catch (NoSuchAlgorithmException e) {
-    			e.printStackTrace();
-    		}
-        }
+        public MessageDigest md = createMessageDigest();
     }
 	
 	@Benchmark
