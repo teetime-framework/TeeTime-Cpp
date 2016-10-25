@@ -41,8 +41,8 @@ public class Md5Benchmark {
         public HashCode a = MD5BruteforceStage.getMD5(0);
         public HashCode b = MD5BruteforceStage.getMD5(10);
         public MessageDigest md = createMessageDigest();
-        public byte[] a_bytes = MD5BruteforceStage.getMD5(md, 0);
-        public byte[] b_bytes = MD5BruteforceStage.getMD5(md, 10);        
+        public byte[] a_bytes = a.asBytes();
+        public byte[] b_bytes = b.asBytes();
     }
 	
 	@Benchmark

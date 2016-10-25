@@ -72,5 +72,9 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 		check(md, 0);
 		check(md, 1);
 		check(md, 128);
+		
+		byte[] a = getMD5(md, 0);
+		int value = bruteforce(md, a);
+		System.out.println("brute force: " + value);
 	}
 }
