@@ -29,7 +29,9 @@ public class Md5Benchmark {
 	@State(Scope.Thread)
 	public static class MyState {
         public HashCode a = MD5BruteforceStage.getMD5(0);
-        public HashCode b = MD5BruteforceStage.getMD5(10);   
+        public HashCode b = MD5BruteforceStage.getMD5(10);
+        public byte[] a_bytes = a.asBytes();
+        public byte[] b_bytes = b.asBytes();
         public MessageDigest md;        
         
         MyState()
@@ -45,16 +47,30 @@ public class Md5Benchmark {
 	@Benchmark
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public int benchmarkRuntimeOverhead(MyState state) {
+    public int bruteforceHashCode0(MyState state) {
         return MD5BruteforceStage.bruteforce(state.a);
     }
 	
 	@Benchmark
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public long benchmarkRuntimeOverhead2(MyState state) {
+    public long bruteforceHashCode10(MyState state) {
         return MD5BruteforceStage.bruteforce(state.b);
+    }
+	
+	@Benchmark
+	@BenchmarkMode(Mode.AverageTime)
+	@OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public long bruteforceByteArray0(MyState state) {
+        return MD5BruteforceStage.bruteforce(state.md, state.a_bytes);
     }	
+	
+	@Benchmark
+	@BenchmarkMode(Mode.AverageTime)
+	@OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public long bruteforceByteArray10(MyState state) {
+        return MD5BruteforceStage.bruteforce(state.md, state.b_bytes);
+    }		
 	
 	public static void main(String[] args) throws RunnerException {
 		URLClassLoader classLoader = (URLClassLoader) Md5Benchmark.class.getClassLoader();

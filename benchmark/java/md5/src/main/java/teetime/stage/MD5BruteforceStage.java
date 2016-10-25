@@ -14,23 +14,24 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 
 	private final static int MAX_BRUTEFORCE_INPUT = 10000000;
 	private final static int FAILURE_OUTPUT = -1;
-	private MessageDigest md;
-	
-	public MD5BruteforceStage() {
-		try {
-			this.md = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+		
+	public static byte[] getMD5(MessageDigest md, int value) {
+		md.reset();		
+		md.update((byte)(value >>> 24));
+		md.update((byte)(value >>> 16));
+		md.update((byte)(value >>> 8));
+		md.update((byte)value);		
+		return md.digest();
 	}
 	
-	public byte[] getMD5_2(int value) {
-		this.md.reset();		
-		this.md.update((byte)(value >>> 24));
-		this.md.update((byte)(value >>> 16));
-		this.md.update((byte)(value >>> 8));
-		this.md.update((byte)value);		
-		return this.md.digest();
+	public static int bruteforce(MessageDigest md, byte[] inputHash) {
+		for (int i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {			
+			if (getMD5(md, i).equals(inputHash)) {
+				return i;
+			}
+		}
+		
+		return FAILURE_OUTPUT;	
 	}
 	
 	public static int bruteforce(final HashCode inputHash) {
