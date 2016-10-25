@@ -56,24 +56,19 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	}
 	
 	
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		int value = 128;
-		
+	private static void check(int value) throws NoSuchAlgorithmException {
 		byte[] a = getMD5(value).asBytes();
 		
 		MessageDigest md = MessageDigest.getInstance("MD5");
-		byte[] b = getMD5(md, value);
+		byte[] b = getMD5(md, value);	
 		
-		
-/*		
-		md.reset();
-		md.update((byte)value);
-		md.update((byte)(value >>> 8));
-		md.update((byte)(value >>> 16));
-		md.update((byte)(value >>> 24));		
-		byte[] b = md.digest();
-*/		
 		boolean isEqual = Arrays.equals(a,b);
-		System.out.println("equal? " + isEqual);
+		System.out.println(Integer.toString(value ) + "is equal? " + isEqual);		
+	}
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		check(0);
+		check(1);
+		check(128);
 	}
 }
