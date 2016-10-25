@@ -26,7 +26,7 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	
 	public static int bruteforce(MessageDigest md, byte[] inputHash) {
 		for (int i = 0; i <= MAX_BRUTEFORCE_INPUT; i++) {			
-			if (getMD5(md, i).equals(inputHash)) {
+			if (Arrays.equals(getMD5(md, i), inputHash)) {
 				return i;
 			}
 		}
