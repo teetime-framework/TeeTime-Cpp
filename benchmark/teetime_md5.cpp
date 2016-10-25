@@ -113,12 +113,12 @@ public:
       auto revhash = createStageFromFunction<Md5Hash, int, reverseHash>();
       declareStageActive(revhash, cpus.next());
 
-      connectPorts(distributor->getNewOutputPort(), revhash->getInputPort());
-      connectPorts(revhash->getOutputPort(), merger->getNewInputPort());
+      connectPorts(distributor->getNewOutputPort(), revhash->getInputPort(), 4096);
+      connectPorts(revhash->getOutputPort(), merger->getNewInputPort(), 4096);
     }
 
-    connectPorts(producer->getOutputPort(), distributor->getInputPort());
-    connectPorts(merger->getOutputPort(), sink->getInputPort());      
+    connectPorts(producer->getOutputPort(), distributor->getInputPort(), 4096);
+    connectPorts(merger->getOutputPort(), sink->getInputPort(), 4096);      
   }
 };
 
