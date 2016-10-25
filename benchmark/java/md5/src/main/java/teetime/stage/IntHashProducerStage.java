@@ -21,16 +21,16 @@ import com.google.common.hash.HashCode;
 
 import teetime.framework.AbstractProducerStage;
 
-public class IntHashProducerStage extends AbstractProducerStage<HashCode> {
-	private final List<HashCode> hashes;
+public class IntHashProducerStage extends AbstractProducerStage<byte[]> {
+	private final List<byte[]> hashes;
 	
-	public IntHashProducerStage(final List<HashCode> hashes) {
+	public IntHashProducerStage(final List<byte[]> hashes) {
 		this.hashes = hashes;
 	}
 	
 	@Override
 	protected void execute() {		
-		for(HashCode hash : this.hashes) {
+		for(byte[] hash : this.hashes) {
 			this.getOutputPort().send(hash);
 		}
 		

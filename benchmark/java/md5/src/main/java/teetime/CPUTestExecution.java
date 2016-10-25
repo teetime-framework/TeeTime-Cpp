@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +18,11 @@ import com.google.common.hash.Hashing;
 
 import teetime.framework.Execution;
 import teetime.measurement.TimeMeasurement;
+import teetime.stage.MD5BruteforceStage;
 
 public class CPUTestExecution {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
 		CommandLineArguments arguments = parseArguments(args);
 		System.out.println("-- Starting CPU test case --");
 		System.out.println("Configuration: warmup=" + arguments.warmupExecutions + ", real=" + arguments.realExecutions 
@@ -49,13 +52,11 @@ public class CPUTestExecution {
 		};
 	}
 
-	private static Double startEvaluation(CommandLineArguments arguments, int numThreads) throws IOException {
-		
-		List<HashCode> hashes = new ArrayList<HashCode>();
+	private static Double startEvaluation(CommandLineArguments arguments, int numThreads) throws IOException, NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		List<byte[]> hashes = new ArrayList<byte[]>();
 		for(long i=0; i<arguments.numOfElements; ++i) {
-			final Hasher hasher = Hashing.md5().newHasher();
-			hasher.putInt(arguments.valueOfElements);
-			hashes.add(hasher.hash());
+			hashes.add(MD5BruteforceStage.getMD5(md, arguments.valueOfElements));			
 		}		
 		
 		for (int i = 0; i < arguments.warmupExecutions; i++) {
@@ -82,7 +83,7 @@ public class CPUTestExecution {
 		return d/measurements.size();
 	}
 
-	private static Long execute(final List<HashCode> hashes, int numThreads) {
+	private static Long execute(final List<byte[]> hashes, int numThreads) throws NoSuchAlgorithmException {
 		CPUTestConfiguration configuration = new CPUTestConfiguration(numThreads,
 				hashes);
 		

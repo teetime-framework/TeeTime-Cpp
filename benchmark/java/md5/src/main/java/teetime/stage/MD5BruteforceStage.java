@@ -10,10 +10,15 @@ import com.google.common.hash.Hashing;
 
 import teetime.stage.basic.AbstractTransformation;
 
-public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer> {
+public class MD5BruteforceStage extends AbstractTransformation<byte[], Integer> {
 
+	private final MessageDigest messageDigest;
 	private final static int MAX_BRUTEFORCE_INPUT = 10000000;
 	private final static int FAILURE_OUTPUT = -1;
+	
+	public MD5BruteforceStage() throws NoSuchAlgorithmException {
+		messageDigest = MessageDigest.getInstance("MD5");
+	}
 		
 	public static byte[] getMD5(MessageDigest md, int value) {
 		md.reset();
@@ -51,8 +56,8 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	}
 
 	@Override
-	protected void execute(HashCode inputHash) {
-		this.outputPort.send(bruteforce(inputHash));
+	protected void execute(byte[] inputHash) {
+		this.outputPort.send(bruteforce(messageDigest, inputHash));
 	}
 	
 	

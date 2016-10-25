@@ -1,5 +1,6 @@
 package teetime;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import com.google.common.hash.HashCode;
@@ -17,7 +18,7 @@ public class CPUTestConfiguration extends Configuration {
 
 	private CollectorSink<Integer> collectorSink;
 
-	public CPUTestConfiguration(final int numThreads, final List<HashCode> hashes) {
+	public CPUTestConfiguration(final int numThreads, final List<byte[]> hashes) throws NoSuchAlgorithmException {
 		
 		IntHashProducerStage producer = new IntHashProducerStage(hashes);
 		collectorSink = new CollectorSink<Integer>();
@@ -27,7 +28,7 @@ public class CPUTestConfiguration extends Configuration {
 		
 		int capacity = 4096;
 
-		Distributor<HashCode> distributor = new Distributor<HashCode>(new NonBlockingRoundRobinStrategy());
+		Distributor<byte[]> distributor = new Distributor<byte[]>(new NonBlockingRoundRobinStrategy());
 		
 		connectPorts(producer.getOutputPort(), distributor.getInputPort());		
 		
