@@ -68,8 +68,6 @@ public class CPUTestExecution {
 		
 		List<Long> measurements = new ArrayList<Long>();
 		for (int i = 0; i < arguments.realExecutions; i++) {
-			for(int j=0; j<10; ++j)
-				gc();
 			System.out.print("Run #" + i + " started... ");
 			Long ms = execute(hashes, numThreads);
 			System.out.println("DONE, time: " + ms + "ms");
