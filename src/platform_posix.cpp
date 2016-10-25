@@ -148,6 +148,9 @@ namespace platform
 
   void setThreadAffinityMask(unsigned mask)
   {
+    if (mask == 0)
+      return;
+
     pthread_t thread = pthread_self();
 
     /* Set affinity mask to include CPUs 0 to 7 */

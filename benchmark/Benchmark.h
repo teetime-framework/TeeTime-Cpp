@@ -57,6 +57,8 @@ namespace teetime
     unsigned next()
     {
       int cpu = m_affinity[m_next++ % m_affinity.size()];
+      if (cpu < 0)
+        return 0;
 
       if (cpu >= static_cast<int>(std::thread::hardware_concurrency()) || cpu > 31)
         return 0;
