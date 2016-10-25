@@ -56,10 +56,10 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	}
 	
 	
-	private static void check(int value) throws NoSuchAlgorithmException {
+	private static void check(MessageDigest md, int value) throws NoSuchAlgorithmException {
 		byte[] a = getMD5(value).asBytes();
 		
-		MessageDigest md = MessageDigest.getInstance("MD5");
+		
 		byte[] b = getMD5(md, value);	
 		
 		boolean isEqual = Arrays.equals(a,b);
@@ -67,8 +67,10 @@ public class MD5BruteforceStage extends AbstractTransformation<HashCode, Integer
 	}
 	
 	public static void main(String[] args) throws NoSuchAlgorithmException {
-		check(0);
-		check(1);
-		check(128);
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		
+		check(md, 0);
+		check(md, 1);
+		check(md, 128);
 	}
 }
