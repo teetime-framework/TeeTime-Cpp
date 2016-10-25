@@ -38,7 +38,7 @@ void Configuration::createConnections()
   }
 }
 
-void Configuration::declareStageActive(shared_ptr<AbstractStage> stage, uint64 cpus)
+void Configuration::declareStageActive(shared_ptr<AbstractStage> stage, unsigned cpus)
 {
   m_stages.insert(stage);
   auto& s = m_stageSettings[stage.get()];
@@ -96,7 +96,7 @@ void Configuration::executeBlocking()
 
         if (settings.cpuAffinity > 0)
         {
-          ::teetime::platform::setThreadAffinityMask((unsigned)settings.cpuAffinity);
+          ::teetime::platform::setThreadAffinityMask(settings.cpuAffinity);
         }
 
         TEETIME_INFO() << "thread created and initialized for stage " << stage->debugName();

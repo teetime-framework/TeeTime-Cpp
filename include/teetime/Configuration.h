@@ -155,7 +155,7 @@ namespace internal
       m_stages.insert(input.owner()->shared_from_this());
     }
 
-    void declareStageActive(shared_ptr<AbstractStage> stage, uint64 cpus = 0);
+    void declareStageActive(shared_ptr<AbstractStage> stage, unsigned cpus = 0);
     void declareStageNonActive(shared_ptr<AbstractStage> stage);
     
     bool isPortConnected(const AbstractInputPort& port) const;
@@ -171,7 +171,7 @@ namespace internal
         , cpuAffinity(0)
       {}
       bool isActive;
-      uint64 cpuAffinity;
+      unsigned cpuAffinity;
     };
 
     struct connection

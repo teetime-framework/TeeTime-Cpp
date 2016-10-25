@@ -54,14 +54,14 @@ namespace teetime
       , m_next(0)
     {}
 
-    int next()
+    unsigned next()
     {
       int cpu = m_affinity[m_next++ % m_affinity.size()];
 
-      if (cpu >= static_cast<int>(std::thread::hardware_concurrency()))
-        return -1;
+      if (cpu >= static_cast<int>(std::thread::hardware_concurrency()) || cpu > 31)
+        return 0;
 
-      return cpu;
+      return (1 << (unsigned)cpu);
     }
 
   private:    
