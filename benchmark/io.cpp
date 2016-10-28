@@ -10,16 +10,23 @@ void io_fastflow_allocator(const Params& params, int threads);
 
 static void writeFile(const char* filename, const std::vector<char>& writeBuffer, int size)
 {
+#ifdef TEETIME_USE_FSTREAM
   std::ofstream file;
   file.open(filename, std::ios_base::out | std::ios_base::binary);
 
   file.write(writeBuffer.data(), size);
 
   file.close();
+#else
+  FILE* fp = fopen(filename, "w+b");
+  fwrite(writeBuffer.data(), 1, size, fp);
+  fclose(fp);
+#endif
 }
 
 static int readFile(const char* filename, std::vector<char>& readBuffer, int size)
 {
+#ifdef TEETIME_USE_FSTREAM
   std::ifstream file;
   file.open(filename, std::ios_base::in | std::ios_base::binary);
 
@@ -36,6 +43,18 @@ static int readFile(const char* filename, std::vector<char>& readBuffer, int siz
 
   platform::removeFile(filename);
   return static_cast<int>(length);
+#else
+  FILE* fp = fopen(filename, "rb");
+  fseek(fp, 0L, SEEK_END);
+  int length = ftell(fp);
+  assert(length == size);
+  fseek(fp, 0L, SEEK_SET);
+  fread(readBuffer.data(), 1, size, fp);
+  fclose(fp);
+
+  platform::removeFile(filename);
+  return length;
+#endif
 }
 
 int writeAndReadFile(const char* fileprefix, int fileNum, const std::vector<char>& writeBuffer, std::vector<char>& readBuffer, int size)
