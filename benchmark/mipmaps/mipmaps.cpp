@@ -12,22 +12,30 @@ void mipmaps_fastflow_allocator(const Params& params, int threads);
 
 std::string getImageInputDirectory(int num, int size)
 {
+  char dirname[256];
+#ifdef __linux__  
+  sprintf(dirname, "%s/input_images_%d_%d", "/tmp", num, size);
+#else
   char pwd[256];
   platform::getCurrentWorkingDirectory(pwd, sizeof(pwd));
 
-  char dirname[256];
   sprintf(dirname, "%s/input_images_%d_%d", pwd, num, size);
+#endif
 
   return dirname;
 }
 
 std::string getImageOutputDirectory()
 {
+  char dirname[256];
+#ifdef __linux__  
+  sprintf(dirname, "%s/output_images", "/tmp");
+#else
   char pwd[256];
   platform::getCurrentWorkingDirectory(pwd, sizeof(pwd));
 
-  char dirname[256];
   sprintf(dirname, "%s/output_images", pwd);
+#endif
 
   return dirname;
 }
