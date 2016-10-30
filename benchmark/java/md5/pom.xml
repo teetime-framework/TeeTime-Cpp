@@ -57,25 +57,6 @@
 
 	<build>	
 		<plugins>
-			<!--
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.10</version>
-				<configuration>
-					<platforms>
-						<platform>unix</platform>
-					</platforms>
-					<programs>
-						<program>
-							<mainClass>teetime.CPUTestExecution</mainClass>
-							<id>teetime-test-cpu</id>
-						</program>
-					</programs>
-				</configuration>
-			</plugin>
-			-->
-
 			<plugin>
 			  <groupId>org.codehaus.mojo</groupId>
 			  <artifactId>exec-maven-plugin</artifactId>
@@ -88,7 +69,9 @@
 			    </execution>
 			  </executions>
 			  <configuration>
-			    <mainClass>teetime.CPUTestExecution</mainClass>				 
+			    <!-- <mainClass>teetime.stage.MD5BruteforceStage</mainClass> -->
+			    <!-- <mainClass>teetime.Md5Benchmark</mainClass> -->
+			    <mainClass>teetime.CPUTestExecution</mainClass>
 			  </configuration>
 			</plugin>			
 		</plugins>
