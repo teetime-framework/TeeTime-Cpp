@@ -16,8 +16,8 @@ target_link_libraries(pipeline teetime ${CMAKE_THREAD_LIBS_INIT})
 
 include_directories(${CMAKE_SOURCE_DIR}/fastflow/fastflow)
 
-add_executable("teetime_md5" Benchmark.h md5.cpp fastflow_md5.cpp md5_fastflow_allocator.cpp  "teetime_md5.cpp")
-target_link_libraries(teetime_md5 teetime ${CMAKE_THREAD_LIBS_INIT})
+add_executable("md5" Benchmark.h md5.cpp fastflow_md5.cpp md5_fastflow_allocator.cpp md5_teetime.cpp)
+target_link_libraries(md5 teetime ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable("io" Benchmark.h io.cpp io_teetime.cpp io_fastflow.cpp io_fastflow_allocator.cpp)
 target_link_libraries(io teetime ${CMAKE_THREAD_LIBS_INIT})

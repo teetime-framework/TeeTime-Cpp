@@ -47,7 +47,6 @@ SET(HEADERS
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
   ${INCDIR}/ports/OutputPort.h
-  ${INCDIR}/ports/Port.h
   ${INCDIR}/pipes/Pipe.h
   ${INCDIR}/pipes/AbstractPipe.h
   ${INCDIR}/pipes/UnsynchedPipe.h  

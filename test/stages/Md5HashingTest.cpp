@@ -21,7 +21,6 @@
 #include <teetime/stages/Md5Hashing.h>
 #include <teetime/stages/benchmark/ReverseIntMd5Hashing.h>
 #include <teetime/Md5Hash.h>
-#include <teetime/ports/Port.h>
 
 using namespace teetime;
 

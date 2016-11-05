@@ -22,7 +22,6 @@
 #include <teetime/stages/InitialElementProducer.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/Configuration.h>
-#include <teetime/ports/Port.h>
 
 TEETIME_WARNING_PUSH
 TEETIME_WARNING_DISABLE_UNREFERENCED_PARAMETER

@@ -18,7 +18,6 @@
 #include <teetime/stages/InitialElementProducer.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/File2FileBuffer.h>
-#include <teetime/ports/Port.h>
 #include <teetime/File.h>
 #include <teetime/FileBuffer.h>
 

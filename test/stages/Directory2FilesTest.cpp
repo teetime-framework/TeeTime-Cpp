@@ -18,7 +18,6 @@
 #include <teetime/stages/InitialElementProducer.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/Directory2Files.h>
-#include <teetime/ports/Port.h>
 #include <teetime/File.h>
 
 using namespace teetime;

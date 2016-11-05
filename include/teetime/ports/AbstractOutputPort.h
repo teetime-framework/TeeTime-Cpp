@@ -22,6 +22,9 @@ namespace teetime
   struct Signal;
   class AbstractPipe;
 
+  /**
+   * Abstract output port.
+   */
   class AbstractOutputPort : public AbstractPort
   {
   public:

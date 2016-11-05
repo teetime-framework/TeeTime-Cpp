@@ -22,7 +22,6 @@
 #include <teetime/File.h>
 #include <teetime/FileBuffer.h>
 #include <teetime/Image.h>
-#include <teetime/ports/Port.h>
 
 using namespace teetime;
 

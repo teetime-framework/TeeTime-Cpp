@@ -20,6 +20,7 @@
 
 namespace teetime
 {
+  //forward decls.
   class AbstractInputPort;
 
   template<typename T>
@@ -34,6 +35,10 @@ namespace teetime
     void connectPortsCallback(AbstractOutputPort* out, AbstractInputPort* in, size_t capacity, bool synched);
   }
 
+  /**
+   * Output port.
+   * @tparam T type of data elements, that can be sent through this port.
+   */
   template<typename T>  
   class OutputPort : public AbstractOutputPort
   {
@@ -48,13 +53,13 @@ namespace teetime
     OutputPort(const OutputPort&) = delete;
 
     void send(T&& t) {
-      if(m_pipe) {
-        m_pipe->add(std::move(t));
-      }      
+      assert(m_pipe);
+      m_pipe->add(std::move(t));            
     }
 
     bool trySend(T&& t)
     {
+      assert(m_pipe);
       return m_pipe->tryAdd(std::move(t));
     }
 

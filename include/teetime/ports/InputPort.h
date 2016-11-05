@@ -19,6 +19,8 @@
 
 namespace teetime
 {
+  //forward decls
+
   class AbstractOutputPort;
 
   template<typename T>
@@ -35,6 +37,10 @@ namespace teetime
 
   class AbstractStage;
 
+  /**
+   * Input port.
+   * @tparam T type of data elements, that can be received through this port.
+   */
   template<typename T>  
   class InputPort final : public AbstractInputPort
   {

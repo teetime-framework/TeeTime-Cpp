@@ -24,7 +24,6 @@
 #include <teetime/stages/MergerStage.h> 
 #include <teetime/Configuration.h>
 #include <teetime/Image.h>
-#include <teetime/ports/Port.h>
 #include <teetime/logging.h>
 #include <teetime/platform.h>
 #include <teetime/BufferedFile.h>

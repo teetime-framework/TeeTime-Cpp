@@ -5,7 +5,6 @@
 #include <teetime/stages/MergerStage.h>
 #include <teetime/stages/DistributorStage.h>
 #include <teetime/stages/benchmark/ReverseIntMd5Hashing.h>
-#include <teetime/ports/Port.h>
 #include <teetime/pipes/SynchedPipe.h>
 #include <teetime/Configuration.h>
 #include <teetime/Md5Hash.h>

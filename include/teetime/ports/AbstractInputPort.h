@@ -18,6 +18,9 @@
 
 namespace teetime
 {
+  /**
+   * Abstract input port.
+   */
   class AbstractInputPort : public AbstractPort
   {
   public:

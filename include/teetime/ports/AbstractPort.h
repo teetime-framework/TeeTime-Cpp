@@ -20,6 +20,9 @@ namespace teetime
 {
   class AbstractStage;
 
+  /**
+   * Abstract port.
+   */
   class AbstractPort
   {
   public:
