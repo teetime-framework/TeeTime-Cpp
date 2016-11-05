@@ -20,7 +20,9 @@
 
 namespace teetime
 {
-
+  /**
+   * File buffer.
+   */
   class BufferedFile
   {
   public:

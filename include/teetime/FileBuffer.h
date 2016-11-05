@@ -20,10 +20,20 @@
 
 namespace teetime
 {
+  /**
+   * File buffer.
+   */
   class FileBuffer
   {
   public:
+    /**
+     * Original file path.
+     */
     std::string path;
+
+    /**
+     * File content.
+     */
     std::vector<uint8> bytes;
   };
 }

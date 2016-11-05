@@ -20,6 +20,11 @@
 
 namespace teetime
 {
+  /**
+   * Simple queue of values.
+   * Access is threadsafe but blocks.
+   * @tparam T type of values
+   */
   template<typename T>
   class BlockingQueue
   {

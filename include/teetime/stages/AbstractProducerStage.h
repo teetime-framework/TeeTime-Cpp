@@ -45,6 +45,9 @@ namespace teetime
       return unique_ptr<Runnable>(new ProducerStageRunnable(this));
     }
 
+    /**
+     * From AbstractStage
+     */
     virtual void execute() override = 0;
   };
 }

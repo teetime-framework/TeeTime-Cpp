@@ -66,9 +66,11 @@ __pragma(warning(disable: 4949))
 
 namespace teetime
 {
+  // smart pointers
   using std::shared_ptr;
   using std::unique_ptr;
 
+  // sized types
   using uint8 = unsigned char;
   using int8 = signed char;
   using uint32 = unsigned int;
@@ -76,6 +78,8 @@ namespace teetime
   using uint64 = unsigned long long;
   using int64 = signed long long;
 
+  // unsafe dynamic cast. 
+  // Validity of this cast is only checked in debug mode!
   template<typename S, typename T>
   S* unsafe_dynamic_cast(T* t)
   {
@@ -83,6 +87,7 @@ namespace teetime
     return reinterpret_cast<S*>(t);
   }
 
+  // utility function to silence compiler warnings due to unused function parameters
   template<typename T>
   void unused(const T&)
   {

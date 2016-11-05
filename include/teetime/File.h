@@ -18,6 +18,10 @@
 
 namespace teetime
 {
+  /**
+   * File path.
+   * Dear ISO C++ commitee: get your stuff together and release the file system module for C++!
+   */
   class File
   {
   public:

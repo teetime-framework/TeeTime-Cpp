@@ -19,6 +19,7 @@
 
 namespace teetime
 {
+  //forward decls.
   class Runnable;
   class AbstractInputPort;
   class AbstractOutputPort;
@@ -26,6 +27,8 @@ namespace teetime
   template<typename T> class OutputPort;
   struct Signal;
 
+  //Stage state.
+  //TODO(johl): do we really need all those?
   enum class StageState
   {
     Created,
@@ -34,14 +37,19 @@ namespace teetime
     Terminated
   };
 
+  /**
+   * Abstract base class for all stages.
+   */
   class AbstractStage : public std::enable_shared_from_this<AbstractStage>
   {
   public:
     explicit AbstractStage(const char* debugName = nullptr);
     virtual ~AbstractStage();
 
-    virtual unique_ptr<Runnable> createRunnable() = 0;
-
+    /**
+     * Create a runnable to execute this stage in it's own thread.
+     */
+    virtual unique_ptr<Runnable> createRunnable() = 0;    
     void executeStage();
 
     StageState currentState() const;
@@ -59,26 +67,50 @@ namespace teetime
     const char* debugName() const;
 
   protected:   
+    /**
+     * Create a typed input port.
+     * @return (Non-owning) pointer to input port (don't delete this port manually, the AbstractStage takes care of that)
+     */
     template<typename T>
     InputPort<T>* addNewInputPort();
 
+    /**
+     * Create a typed output port.
+     * @return (Non-owning) pointer to input port (don't delete this port manually, the AbstractStage takes care of that)
+     */
     template<typename T>
     OutputPort<T>* addNewOutputPort();   
 
+    /**
+     * Get a reference to the list of (untyped) output ports. You can not modify or copy that list because
+     * all ports are managed by AbstractStage.
+     */
     const std::vector<unique_ptr<AbstractOutputPort>>& getOutputPorts() const;
+
+    /**
+     * Get a reference to the list of (untyped) input ports. You can not modify or copy that list because
+     * all ports are managed by AbstractStage.
+     */    
     const std::vector<unique_ptr<AbstractInputPort>>& getInputPorts() const;
 
     void terminate();
 
-  private:   
+  private:  
+    /**
+     * actually execute the stage.
+     */ 
     virtual void execute() = 0;
 
     template<typename T>
     using pointers = std::vector<unique_ptr<T>>;
 
+    //current state
     StageState                   m_state;
+    //all input ports
     pointers<AbstractInputPort>  m_inputPorts;
+    //all output ports
     pointers<AbstractOutputPort> m_outputPorts;
+    //debug name
     std::string                  m_debugName;
   };
 

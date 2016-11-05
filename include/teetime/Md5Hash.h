@@ -20,6 +20,9 @@
 
 namespace teetime
 { 
+  /**
+   * MD5 hash type.
+   */
   class Md5Hash final
   {
   public:

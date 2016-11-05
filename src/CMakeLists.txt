@@ -19,8 +19,6 @@ SET(HEADERS
   ${INCDIR}/platform.h
   ${INCDIR}/logging.h
   ${INCDIR}/Configuration.h
-  ${INCDIR}/Execution.h  
-  ${INCDIR}/Thread.h
   ${INCDIR}/Signal.h
   ${INCDIR}/Runnable.h
   ${INCDIR}/BlockingQueue.h  
@@ -41,8 +39,6 @@ SET(HEADERS
   ${INCDIR}/stages/File2FileBuffer.h
   ${INCDIR}/stages/ReadImage.h
   ${INCDIR}/stages/ResizeImage.h
-  ${INCDIR}/stages/SaveImage.h
-  ${INCDIR}/stages/WriteFileBuffer.h
   ${INCDIR}/stages/Md5Hashing.h
   ${INCDIR}/stages/FileExtensionSwitch.h  
   ${INCDIR}/stages/FunctionStage.h  
@@ -66,7 +62,6 @@ SET(SOURCES
   logging.cpp    
   Configuration.cpp
   Runnable.cpp
-  Thread.cpp
   Image.cpp  
   Md5Hash.cpp
   BufferedFile.cpp

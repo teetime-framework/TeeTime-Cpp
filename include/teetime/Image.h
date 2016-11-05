@@ -19,6 +19,9 @@
 
 namespace teetime
 {
+  /**
+   * Available image formats.
+   */
   enum class ImageFileFormat  
   {
     Png,
@@ -26,6 +29,9 @@ namespace teetime
     Bmp
   };
 
+  /**
+   * Simple image class.
+   */
   class Image
   {
   public:

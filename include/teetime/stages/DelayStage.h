@@ -18,6 +18,10 @@
 
 namespace teetime
 { 
+  /**
+   * Delay the pipeline execution by sleeping for a certain number of milliseconds.
+   * @tparam T type of data element to delay.
+   */
   template<typename T>
   class DelayStage final : public AbstractConsumerStage<T>
   {

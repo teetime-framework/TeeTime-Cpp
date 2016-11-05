@@ -17,6 +17,18 @@
 
 namespace teetime
 {
+  /**
+   * Optional value. 
+   * Value is initially absent. To set a value use 'set'. 
+   * To get a value use the dereference operator. Objects 
+   * of this type convert implicitly to bool, so they can be used
+   * like pointers: if(optionalValue) { use_value(*optionalValue); }
+   * 
+   * If an optional get dereferenced, but contains no value, behaviour 
+   * is undefined. Don't do this ;)
+   * 
+   * @tparam T type to optionally hold
+   */
   template<typename T>
   class Optional final
   {

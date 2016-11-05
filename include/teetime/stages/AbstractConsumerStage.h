@@ -23,6 +23,10 @@
 
 namespace teetime
 {
+  /**
+   * Abstract consumer stage.
+   * @tparam T type of elements to consume.
+   */
   template<typename T>
   class AbstractConsumerStage : public AbstractStage
   {
@@ -43,8 +47,19 @@ namespace teetime
   private:
     InputPort<T>* m_inputport;
 
+    /**
+     * Process one consumed element.
+     * Implement this in your derived stage.
+     */
     virtual void execute(T&& value) = 0;
 
+    /**
+     * execute stage.
+     * If no input was received and input port is closed,
+     * the stage terminates.
+     * If no input was received but input port is not closed,
+     * the stage yields.
+     */
     virtual void execute() override final
     {
       assert(m_inputport);
