@@ -38,7 +38,10 @@ TEETIME_WARNING_POP
 
 namespace teetime
 {
-  template<typename T, template<typename> class TQueue = folly::ProducerConsumerQueue>
+  /**
+   * data elements are queued up, so the target stage can pull them from there.
+   */
+  template<typename T, template<typename> class TQueue = SpscValueQueue>
   class SynchedPipe final : public Pipe<T>
   {
   public:

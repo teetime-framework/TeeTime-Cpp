@@ -20,6 +20,9 @@
 
 namespace teetime
 {
+  /**
+   * forwards input elements to target stage.
+   */
   template<typename T>
   class UnsynchedPipe : public Pipe<T>
   {

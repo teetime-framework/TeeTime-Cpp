@@ -11,10 +11,16 @@ It provides support for the modeling and the execution of P&F architectures. In 
  * threads can be assigned to stages arbitrarily
  * support for windows and linux 
 
+## Requirements
+ * CMake
+ * VisualStudio 2015 on windows
+ * gcc (>= 4.8) on linux
+ * clang and later versions of gcc and msvc should be fine as well but have not yet been tested
+
 ## How to build
 
- * clone the repository
- * update all git sub modules  
+ * clone the repository from https://github.com/eXistence/TeeTime-Cpp
+ * update all git sub modules 
  * windows:
    * run cmake_vs2015_x64.cmd (for 64bit builds) or cmake_vs2015_x86.cmd for(32bit build)
    * open solution file in build/msvc2015-x64 (or build/msvc2015-x86) with VisualStudio

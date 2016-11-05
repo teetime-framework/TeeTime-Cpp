@@ -166,7 +166,7 @@ struct AlignedProducerConsumerQueue {
   }
 
 private:
-  const uint32_t size_  alignas(64);
+  const uint32_t size_;
   T* const records_;
 
   char padding0[64];

@@ -44,7 +44,7 @@ namespace teetime
     }
 
   private:
-    //make sure closed flag is stored on it's cacheline.
+    //make sure closed flag is stored on it's own cacheline.
     char padding0[64];
     std::atomic<bool> m_closed;
     char padding1[64];
