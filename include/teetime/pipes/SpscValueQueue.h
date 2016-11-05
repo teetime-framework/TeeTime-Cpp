@@ -30,7 +30,7 @@ namespace internal
   template<typename T>
   struct trivial_copy
   {
-    static const bool value = __has_trivial_copy(T);
+    static const bool value = __has_trivial_copy(T) && __has_trivial_destructor(T);
   };
 #else
   template<typename T>
@@ -38,6 +38,10 @@ namespace internal
 #endif
   template<bool trivial>
   struct helper;
+
+  static_assert(trivial_copy<int>::value, "");
+  static_assert(!trivial_copy<shared_ptr<int>>::value, "");
+  static_assert(!trivial_copy<unique_ptr<int>>::value, "");
 
   template<>
   struct helper<false>
