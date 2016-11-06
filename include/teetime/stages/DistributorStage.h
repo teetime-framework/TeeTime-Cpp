@@ -18,16 +18,16 @@
 namespace teetime
 { 
   template<typename T>
-  class RoundRobinDistribution
+  class BlockingRoundRobinDistribution
   {
   public:
-    RoundRobinDistribution()
+    BlockingRoundRobinDistribution()
       : m_next(0)
     {}
 
-    RoundRobinDistribution(const RoundRobinDistribution&) = default;
-    ~RoundRobinDistribution() = default;
-    RoundRobinDistribution& operator=(const RoundRobinDistribution&) = default;
+    BlockingRoundRobinDistribution(const BlockingRoundRobinDistribution&) = default;
+    ~BlockingRoundRobinDistribution() = default;
+    BlockingRoundRobinDistribution& operator=(const BlockingRoundRobinDistribution&) = default;
 
     void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
     {
@@ -96,7 +96,7 @@ namespace teetime
 
 
 
-  template<typename T, typename TDistributionPolicy = RoundRobinDistribution<T>>
+  template<typename T, typename TDistributionPolicy = BlockingRoundRobinDistribution<T>>
   class DistributorStage final : public AbstractConsumerStage<T>
   {
   public:

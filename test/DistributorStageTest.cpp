@@ -35,7 +35,7 @@ namespace
       producer = createStage<IntProducerStage>();
       declareStageActive(producer);
 
-      auto distributor = createStage<DistributorStage<int, RoundRobinDistribution<int>>>();
+      auto distributor = createStage<DistributorStage<int, BlockingRoundRobinDistribution<int>>>();
       connectPorts(producer->getOutputPort(), distributor->getInputPort());      
 
       for(unsigned i=0; i<numOutputPorts; ++i) 
