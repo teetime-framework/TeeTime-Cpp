@@ -53,6 +53,51 @@ namespace teetime
   };
 
   template<typename T>
+  class RoundRobinDistribution
+  {
+  public:
+    RoundRobinDistribution()
+      : m_next(0)
+    {}
+
+    RoundRobinDistribution(const RoundRobinDistribution&) = default;
+    ~RoundRobinDistribution() = default;
+    RoundRobinDistribution& operator=(const RoundRobinDistribution&) = default;
+
+    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
+    {
+      const size_t numOutputPorts = ports.size();
+      assert(numOutputPorts > 0);
+
+      size_t next = m_next;
+
+      while(true)
+      {
+        const size_t index = (next == numOutputPorts) ? 0 : next;
+        assert(index < numOutputPorts);
+
+        auto abstractPort = ports[index].get();
+        assert(abstractPort);
+
+        next = index + 1;
+
+        auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
+        assert(typedPort);        
+
+        if(typedPort->trySend(std::move(value)))
+        {
+          break;
+        }
+      }
+
+      m_next = next;
+    }
+    
+  private:
+    size_t m_next;
+  };  
+
+  template<typename T>
   class CopyDistribution
   {
   public:
