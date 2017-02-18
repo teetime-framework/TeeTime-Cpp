@@ -35,7 +35,6 @@ ENDIF()
 
 include_directories(include)
 
-add_subdirectory(3rdParty)
 add_subdirectory(src)
 
 add_subdirectory(fastflow)
