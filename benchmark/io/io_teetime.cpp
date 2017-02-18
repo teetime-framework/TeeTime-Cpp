@@ -30,7 +30,7 @@
 #include <string>
 #include <random>
 #include <fstream>
-#include "Benchmark.h"
+#include "../Benchmark.h"
 
 using namespace teetime;
 
