@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-
+add_definitions(-DHAS_CXX11_VARIADIC_TEMPLATES)
 include_directories(fastflow)
 include_directories(../include)
 
