@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.0.0)
 project (TeeTime)
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -32,8 +32,6 @@ ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /O2 /DNDEBUG /D_SECURE_SCL=0 /Zi")
   SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 ENDIF()
-
-include_directories(include)
 
 add_subdirectory(src)
 

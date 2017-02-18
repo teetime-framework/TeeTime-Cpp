@@ -90,3 +90,5 @@ IF(MSVC)
 ENDIF()  
 
 add_library("teetime" ${HEADERS} ${SOURCES})
+
+target_include_directories(teetime PUBLIC ../include)
