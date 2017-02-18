@@ -1,7 +1,7 @@
 find_package (Threads)
 
 set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/../boost_1_61_0)
-find_package(Boost 1.61.0)
+find_package(Boost 1.50.0)
 if(Boost_FOUND)
   message(Boost found!)
   add_definitions(-DTEETIME_HAS_BOOST)
