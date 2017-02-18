@@ -34,9 +34,6 @@ ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 ENDIF()
 
 add_subdirectory(src)
-
-add_subdirectory(fastflow)
-
 add_subdirectory(test)
 add_subdirectory(benchmark)
 

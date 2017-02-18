@@ -11,22 +11,11 @@ endif()
 #add_executable("queue" queue.cpp)
 #target_link_libraries(queue teetime ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable("pipeline" pipeline.cpp)
-target_link_libraries(pipeline teetime ${CMAKE_THREAD_LIBS_INIT})
-
-include_directories(${CMAKE_SOURCE_DIR}/fastflow/fastflow)
-
-add_executable("md5" Benchmark.h md5.cpp fastflow_md5.cpp md5_fastflow_allocator.cpp md5_teetime.cpp)
+add_executable("md5" Benchmark.h md5.cpp md5_teetime.cpp)
 target_link_libraries(md5 teetime ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable("io" Benchmark.h io.cpp io_teetime.cpp io_fastflow.cpp io_fastflow_allocator.cpp)
+add_executable("io" Benchmark.h io.cpp io_teetime.cpp)
 target_link_libraries(io teetime ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable("sleeper" sleeper.cpp sleeper_teetime.cpp)
-target_link_libraries(sleeper teetime ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable("makeplot" makeplot.cpp)
-target_link_libraries(makeplot teetime ${CMAKE_THREAD_LIBS_INIT})
 
 add_subdirectory(mipmaps)
 add_subdirectory(queue)

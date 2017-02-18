@@ -48,7 +48,7 @@ inline static int posix_memalign(void **memptr, size_t alignment, size_t size)
 
 #define NOMINMAX
 
-#include <ff/platforms/pthread_minport_windows.h>
+#include "pthread_minport_windows.h"
 #define INLINE __forceinline
 #define NOINLINE __declspec(noinline)
 //#define CACHE_LINE_SIZE 64

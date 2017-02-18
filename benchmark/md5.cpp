@@ -5,8 +5,6 @@ using namespace teetime;
 void benchmark_teetime(const Params&, int threads);
 void benchmark_teetime_prefer_same_cpu(const Params&, int threads);
 void benchmark_teetime_avoid_same_core(const Params&, int threads);
-void benchmark_fastflow(const Params&, int threads);
-void benchmark_fastflow_allocator(const Params&, int threads);
 
 int main(int argc, char** argv)
 {
@@ -75,18 +73,9 @@ int main(int argc, char** argv)
   benchmark.setValueRange(value, value);
   benchmark.setThreadRange(minthreads, maxthreads);
 
-  if (!args.contains("noteetime"))
-  {
-    benchmark.addConfiguration(&benchmark_teetime, "teetime (no affinity)");
-    benchmark.addConfiguration(&benchmark_teetime_avoid_same_core, "teetime (avoid same core)");
-    benchmark.addConfiguration(&benchmark_teetime_prefer_same_cpu, "teetime (prefer same cpu)");
-  }
-
-  if(!args.contains("nofastflow"))
-    benchmark.addConfiguration(&benchmark_fastflow, "fastflow (multi alloc)");
-
-  if(!args.contains("nofastflow_alloc"))
-    benchmark.addConfiguration(&benchmark_fastflow_allocator, "fastflow (single alloc)");
+  benchmark.addConfiguration(&benchmark_teetime, "teetime (no affinity)");
+  benchmark.addConfiguration(&benchmark_teetime_avoid_same_core, "teetime (avoid same core)");
+  benchmark.addConfiguration(&benchmark_teetime_prefer_same_cpu, "teetime (prefer same cpu)");
 
   benchmark.runAll();
   benchmark.print();

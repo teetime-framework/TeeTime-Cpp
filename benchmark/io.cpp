@@ -5,8 +5,6 @@ using namespace teetime;
 void io_teetime_noAffinity(const Params& params, int threads);
 void io_teetime_preferSameCpu(const Params& params, int threads);
 void io_teetime_avoidSameCore(const Params& params, int threads);
-void io_fastflow(const Params& params, int threads);
-void io_fastflow_allocator(const Params& params, int threads);
 
 static void writeFile(const char* filename, const std::vector<char>& writeBuffer, int size)
 {
@@ -128,20 +126,9 @@ int main(int argc, char** argv)
   benchmark.setValueRange(value, value);
   benchmark.setThreadRange(minthreads, maxthreads);
 
-  if(!args.contains("noteetime"))
-    benchmark.addConfiguration(io_teetime_noAffinity, "teetime (no affinity)");
-
-  if(!args.contains("noteetime_sameCPU"))
-    benchmark.addConfiguration(io_teetime_preferSameCpu, "teetime (prefer same CPU)");
-
-  if(!args.contains("noteetime_sameCore"))
-    benchmark.addConfiguration(io_teetime_avoidSameCore, "teetime (avoid same core)");
-
-  if(!args.contains("nofastflow"))
-    benchmark.addConfiguration(io_fastflow, "fastflow (multi alloc)");
-
-  if(!args.contains("nofastflow_alloc"))
-    benchmark.addConfiguration(io_fastflow_allocator, "fastflow (single alloc)");
+  benchmark.addConfiguration(io_teetime_noAffinity, "teetime (no affinity)");
+  benchmark.addConfiguration(io_teetime_preferSameCpu, "teetime (prefer same CPU)");
+  benchmark.addConfiguration(io_teetime_avoidSameCore, "teetime (avoid same core)");
 
   benchmark.runAll();
   benchmark.print();
