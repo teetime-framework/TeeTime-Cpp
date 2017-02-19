@@ -120,11 +120,11 @@ namespace internal
     //jesus! this is just ugly as hell... but it get's the job done (most of the time)
     template<typename T>
     static auto createStageFromLambda(T lambda, const char* debugName = "lambda_stage")
-      ->shared_ptr<FunctionObjectStage<typename teetime::internal::function_traits<T>::arg_type,
+      ->shared_ptr<FunctionObjectStage<typename std::remove_reference<typename teetime::internal::function_traits<T>::arg_type>::type,
       typename teetime::internal::function_traits<T>::result_type>>
     {
       using TOut = typename teetime::internal::function_traits<T>::result_type;
-      using TIn = typename teetime::internal::function_traits<T>::arg_type;
+      using TIn = typename std::remove_reference<typename teetime::internal::function_traits<T>::arg_type>::type;
       return createStage<FunctionObjectStage<TIn, TOut>>(lambda, debugName);
     }
 
