@@ -15,7 +15,7 @@ It provides support for the modeling and the execution of P&F architectures.
  * support for windows and linux
  * lightweight library (no dependencies, easy to integrate)
 
-###Known limitation:	
+###Known limitations:	
 TeeTime for C++ is currently beeing developed and tested on x86 and x64 platforms only (windows and linux). Compared to the Java version, TeeTime for C++ is limited in some ways:
  * no support for loops
  * no support for adaptive taskfarms
