@@ -91,4 +91,7 @@ ENDIF()
 
 add_library("teetime" ${HEADERS} ${SOURCES})
 
+find_package (Threads)
+
 target_include_directories(teetime PUBLIC ../include)
+target_link_libraries(teetime ${CMAKE_THREAD_LIBS_INIT})
