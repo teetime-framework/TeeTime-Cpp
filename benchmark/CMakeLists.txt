@@ -2,7 +2,6 @@ find_package (Threads)
 
 find_package(Boost 1.54.0)
 if(Boost_FOUND)
-  message(Boost found!)
   add_definitions(-DTEETIME_HAS_BOOST)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
