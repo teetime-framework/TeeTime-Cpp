@@ -37,7 +37,7 @@ There are several reasons for that:
 
 ### How to build
 
- * clone the repository from https://github.com/eXistence/TeeTime-Cpp recursively
+ * clone the repository from `https://github.com/teetime-framework/TeeTime-Cpp.git` recursively
  * Windows:
    * run `cmake_vs2015_x64.cmd` (for 64bit builds) or `cmake_vs2015_x86.cmd` for (for 32bit builds)
    * open generated `TeeTime.sln` solution file in `build/msvc2015-x64` (or `build/msvc2015-x86`) with VisualStudio
@@ -54,7 +54,7 @@ This way you don't have to deal with different binary versions of the library fo
 TeeTime has no external dependencies <sup>1</sup>, so all you need is TeeTime itself. You can download TeeTime as a zip file from github or integrate it as git submodule into your project.
 
 If you are using [CMake](https://cmake.org) that is particularly easy. All you have to do is add the `TeeTime-Cpp/src` directory to your build tree and make your application depend on ''teetime''. 
-CMake will automatically add the include directory and link your application statically with TeeTime. There is a [TeeTime-Cpp-Examples](https://github.com/eXistence/TeeTime-Cpp-Examples) project that integrates TeeTime as a git submodule and demonstrates this approach.
+CMake will automatically add the include directory and link your application statically with TeeTime. There is a [TeeTime-Cpp-Examples](https://github.com/teetime-framework/TeeTime-Cpp-Examples) project that integrates TeeTime as a git submodule and demonstrates this approach.
 
    
 [1] TeeTime uses [googletest](https://github.com/google/googletest) and [google benchmark](https://github.com/google/benchmark) (for unit testing and micro benchmarks), but those are only needed for the development of TeeTime itself. They are not required to use TeeTime.
