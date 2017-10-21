@@ -21,6 +21,8 @@
 #include <map>
 #include <set>
 #include <type_traits>
+#include <functional>
+
 namespace teetime
 {
   //forward declarations:
