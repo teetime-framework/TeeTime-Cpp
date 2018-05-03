@@ -21,7 +21,7 @@
 #include <teetime/stages/FunctionStage.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/DistributorStage.h>
-#include <teetime/stages/MergerStage.h> 
+#include <teetime/stages/MergerStage.h>
 #include <teetime/Configuration.h>
 #include <teetime/Image.h>
 #include <teetime/logging.h>
@@ -121,13 +121,13 @@ namespace {
       if (!task.sourceImage)
         return;
 
-      size_t width = task.sourceImage->getWidth() / (1 << task.level);
-      size_t height = task.sourceImage->getHeight() / (1 << task.level);
+      size_t width = task.sourceImage->getWidth() / (size_t(1) << task.level);
+      size_t height = task.sourceImage->getHeight() / (size_t(1) << task.level);
       width = std::max<size_t>(width, 1);
       height = std::max<size_t>(height, 1);
 
       auto image = task.sourceImage->resize(width, height);
-     
+
       char filename[256];
       sprintf(filename, "%s/%d_%s", m_outputdir.c_str(), static_cast<int>(task.level), task.filename.c_str());
       image.saveToPngFile(filename);
@@ -152,10 +152,10 @@ namespace {
       auto dist = createStage<DistributorStage<MipMapTask>>();
       auto merger = createStage<MergerStage<std::string>>();
       auto sink = createStage<CollectorSink<std::string>>();
-      
+
       declareStageActive(producer, cpus.next());
       declareStageActive(merger, cpus.next());
-      
+
       connectPorts(producer->getOutputPort(), dist->getInputPort());
       connectPorts(merger->getOutputPort(), sink->getInputPort());
 

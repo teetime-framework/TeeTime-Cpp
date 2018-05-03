@@ -110,7 +110,7 @@ public:
 
   bool write(const T& t)
   {
-    return write(T(t));
+    return write(std::move(T(t)));
   }
 
   bool read(T& value)
@@ -146,7 +146,7 @@ public:
 
   void popFront()
   {
-    const unsigned int index = m_readIndex;
+    const auto index = m_readIndex;
     auto& entry = m_array[index];
 
     assert(entry.hasValue.load(std::memory_order_acquire));
@@ -162,7 +162,7 @@ public:
   {
     const auto read = m_readIndex;
     const auto write = m_writeIndex;
-    
+
     if (read > write) {
       return (m_capacity - read) + write;
     }
@@ -205,7 +205,7 @@ private:
   const unique_ptr<Entry[]> m_array;
   const size_t m_capacity;
 };
-  
+
 
 }
 
