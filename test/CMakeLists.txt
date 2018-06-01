@@ -14,10 +14,8 @@
 
 add_subdirectory(googletest/googletest)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set_property(TARGET "gtest" PROPERTY FOLDER googletest)
-  set_property(TARGET "gtest_main" PROPERTY FOLDER googletest)
-endif()
+set_property(TARGET "gtest" PROPERTY FOLDER googletest)
+set_property(TARGET "gtest_main" PROPERTY FOLDER googletest)
 
 include_directories(googletest/googletest/include)
 
