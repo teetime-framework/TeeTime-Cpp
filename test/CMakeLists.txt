@@ -17,31 +17,39 @@ add_subdirectory(googletest/googletest)
 set_property(TARGET "gtest" PROPERTY FOLDER googletest)
 set_property(TARGET "gtest_main" PROPERTY FOLDER googletest)
 
+
+function(add_unit_test filename)
+  get_filename_component(testname "${filename}" NAME_WE)
+  get_filename_component(testdir "${filename}" DIRECTORY)
+  add_executable(${testname} ${filename} main.cpp)
+  target_link_libraries(${testname} gtest teetime)
+  add_test(${testname} ${testname})
+  set_property(TARGET ${testname} PROPERTY FOLDER "tests/${testdir}")
+
+  add_custom_target(run_${testname} ALL ${testname})
+  set_property(TARGET run_${testname} PROPERTY FOLDER "run-tests/${testdir}")
+endfunction(add_unit_test)
+
 include_directories(googletest/googletest/include)
-
-SET(SOURCES
-  stages/IntProducerStage.h
-  stages/IntConsumerStage.h
-  stages/Directory2FilesTest.cpp
-  stages/File2FileBufferTest.cpp
-  stages/FileExtensionSwitchTest.cpp
-  stages/ReadImageTest.cpp
-  stages/Md5HashingTest.cpp
-  stages/FunctionStageTest.cpp
-  ConfigurationTest.cpp
-  DistributorStageTest.cpp
-  DelayStageTest.cpp
-  MergerStageTest.cpp
-  StageTest.cpp
-  SynchedPipeTest.cpp
-  UnsynchedPipeTest.cpp
-  LogTest.cpp
-  SpscQueueTest.cpp
-  main.cpp
-)
-
 add_definitions(-DTEETIME_LOCAL_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-add_executable("teetime_test" ${SOURCES})
-target_link_libraries(teetime_test gtest teetime)
 
-add_custom_target(run_test ALL teetime_test)
+add_unit_test(stages/Directory2FilesTest.cpp)
+add_unit_test(stages/File2FileBufferTest.cpp)
+add_unit_test(stages/FileExtensionSwitchTest.cpp)
+add_unit_test(stages/ReadImageTest.cpp)
+add_unit_test(stages/Md5HashingTest.cpp)
+add_unit_test(stages/FunctionStageTest.cpp)
+add_unit_test(ConfigurationTest.cpp)
+add_unit_test(DistributorStageTest.cpp)
+add_unit_test(DelayStageTest.cpp)
+add_unit_test(MergerStageTest.cpp)
+add_unit_test(StageTest.cpp)
+add_unit_test(SynchedPipeTest.cpp)
+add_unit_test(UnsynchedPipeTest.cpp)
+add_unit_test(LogTest.cpp)
+add_unit_test(SpscQueueTest.cpp)
+
+enable_testing()
+
+
+
