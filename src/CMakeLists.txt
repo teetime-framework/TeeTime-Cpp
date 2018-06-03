@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+find_package (Threads)
+
 SET(INCDIR "../include/teetime")
 
 SET(HEADERS
@@ -21,11 +23,11 @@ SET(HEADERS
   ${INCDIR}/Configuration.h
   ${INCDIR}/Signal.h
   ${INCDIR}/Runnable.h
-  ${INCDIR}/BlockingQueue.h  
-  ${INCDIR}/File.h    
-  ${INCDIR}/BufferedFile.h  
-  ${INCDIR}/Image.h   
-  ${INCDIR}/Md5Hash.h   
+  ${INCDIR}/BlockingQueue.h
+  ${INCDIR}/File.h
+  ${INCDIR}/BufferedFile.h
+  ${INCDIR}/Image.h
+  ${INCDIR}/Md5Hash.h
   ${INCDIR}/stages/AbstractStage.h
   ${INCDIR}/stages/AbstractConsumerStage.h
   ${INCDIR}/stages/AbstractFilterStage.h
@@ -40,33 +42,33 @@ SET(HEADERS
   ${INCDIR}/stages/ReadImage.h
   ${INCDIR}/stages/ResizeImage.h
   ${INCDIR}/stages/Md5Hashing.h
-  ${INCDIR}/stages/FileExtensionSwitch.h  
-  ${INCDIR}/stages/FunctionStage.h  
-  ${INCDIR}/stages/RandomIntProducer.h  
+  ${INCDIR}/stages/FileExtensionSwitch.h
+  ${INCDIR}/stages/FunctionStage.h
+  ${INCDIR}/stages/RandomIntProducer.h
   ${INCDIR}/ports/AbstractOutputPort.h
   ${INCDIR}/ports/AbstractInputPort.h
   ${INCDIR}/ports/InputPort.h
   ${INCDIR}/ports/OutputPort.h
   ${INCDIR}/pipes/Pipe.h
   ${INCDIR}/pipes/AbstractPipe.h
-  ${INCDIR}/pipes/UnsynchedPipe.h  
-  ${INCDIR}/pipes/SynchedPipe.h  
-  ${INCDIR}/pipes/ProducerConsumerQueue.h  
-  ${INCDIR}/pipes/SpscQueue.h  
-  ${INCDIR}/pipes/SpscValueQueue.h  
-  ${INCDIR}/pipes/SpscPointerQueue.h  
+  ${INCDIR}/pipes/UnsynchedPipe.h
+  ${INCDIR}/pipes/SynchedPipe.h
+  ${INCDIR}/pipes/ProducerConsumerQueue.h
+  ${INCDIR}/pipes/SpscQueue.h
+  ${INCDIR}/pipes/SpscValueQueue.h
+  ${INCDIR}/pipes/SpscPointerQueue.h
 )
 
 SET(SOURCES
-  logging.cpp    
+  logging.cpp
   Configuration.cpp
   Runnable.cpp
-  Image.cpp  
+  Image.cpp
   Md5Hash.cpp
   BufferedFile.cpp
   platform_posix.cpp
   platform_win32.cpp
-  ports/AbstractOutputPort.cpp  
+  ports/AbstractOutputPort.cpp
   stages/RandomIntProducer.cpp
   stages/Directory2Files.cpp
   stages/File2FileBuffer.cpp
@@ -76,7 +78,7 @@ SET(SOURCES
   stages/ResizeImage.cpp
   stages/SaveImage.cpp
   stages/WriteFileBuffer.cpp
-  stages/AbstractStage.cpp  
+  stages/AbstractStage.cpp
 )
 
 IF(MSVC)
@@ -87,11 +89,9 @@ IF(MSVC)
   source_group(public\\stages .*/include/.*/stages/.*)
   source_group(public\\ports .*/include/.*/ports/.*)
   source_group(public\\pipes .*/include/.*/pipes/.*)
-ENDIF()  
+ENDIF()
 
-add_library("teetime" ${HEADERS} ${SOURCES})
-
-find_package (Threads)
-
+add_library(teetime ${HEADERS} ${SOURCES})
 target_include_directories(teetime PUBLIC ../include)
 target_link_libraries(teetime ${CMAKE_THREAD_LIBS_INIT})
+set_compile_options(teetime)

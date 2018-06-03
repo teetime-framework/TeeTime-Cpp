@@ -17,20 +17,24 @@ add_subdirectory(googletest/googletest)
 set_property(TARGET "gtest" PROPERTY FOLDER googletest)
 set_property(TARGET "gtest_main" PROPERTY FOLDER googletest)
 
+add_library(test_main main.cpp)
+target_link_libraries(test_main gtest teetime)
+set_property(TARGET test_main PROPERTY FOLDER tests)
+set_compile_options(test_main)
 
 function(add_unit_test filename)
   get_filename_component(testname "${filename}" NAME_WE)
   get_filename_component(testdir "${filename}" DIRECTORY)
-  add_executable(${testname} ${filename} main.cpp)
-  target_link_libraries(${testname} gtest teetime)
+  add_executable(${testname} ${filename})
+  target_link_libraries(${testname} test_main)
   add_test(${testname} ${testname})
   set_property(TARGET ${testname} PROPERTY FOLDER "tests/${testdir}")
+  set_compile_options(${testname})
 
   add_custom_target(run_${testname} ALL ${testname})
   set_property(TARGET run_${testname} PROPERTY FOLDER "run-tests/${testdir}")
 endfunction(add_unit_test)
 
-include_directories(googletest/googletest/include)
 add_definitions(-DTEETIME_LOCAL_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_unit_test(stages/Directory2FilesTest.cpp)
