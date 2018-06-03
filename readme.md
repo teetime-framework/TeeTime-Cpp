@@ -9,13 +9,13 @@ It provides support for the modeling and the execution of P&F architectures.
  * a type-safe way to develop and connect stages
  * arbitrary pipeline branches
  * threads can be assigned to stages arbitrarily
- * only a minimal overhead in multi-threaded scenarios 
+ * only a minimal overhead in multi-threaded scenarios
  * several ready-to-use stages for common tasks
- * create lightweight stages from functions and lambdas 
+ * create lightweight stages from functions and lambdas
  * support for windows and linux
  * lightweight library (no dependencies, easy to integrate)
 
-### Known limitations:	
+### Known limitations:
 TeeTime for C++ is currently beeing developed and tested on x86 and x64 platforms only (windows and linux). Compared to the Java version, TeeTime for C++ is limited in some ways:
  * no support for loops
  * no support for adaptive taskfarms
@@ -32,7 +32,7 @@ There are several reasons for that:
 ### Requirements
 
  * CMake 2.8.0
- * VisualStudio 2015 (Windows) or GCC 4.8 (Linux) 
+ * VisualStudio 2015 (Windows) or GCC 4.8 (Linux)
  * clang and later versions of GCC and VisualStudio should be fine as well but have not yet been tested
 
 ### How to build
@@ -45,16 +45,16 @@ There are several reasons for that:
    * run `cmake_linux.sh <compiler> <buildtype>`
      * compiler can be ''gcc'' or ''clang''
      * buildtype can be ''release'' or ''debug''
-   * run make in `build/<compiler>/<buildtype>` 
- 
+   * run make in `build/<compiler>/<buildtype>`
+
 ## Install
 
-TeeTime for C++ is not distributed as a precompiled binary. If you want to use TeeTime in your project it is highly recommended to build everything from source and integrate TeeTime directly into your build. 
+TeeTime for C++ is not distributed as a precompiled binary. If you want to use TeeTime in your project it is highly recommended to build everything from source and integrate TeeTime directly into your build.
 This way you don't have to deal with different binary versions of the library for different compilers, platforms or configurations.
 TeeTime has no external dependencies <sup>1</sup>, so all you need is TeeTime itself. You can download TeeTime as a zip file from github or integrate it as git submodule into your project.
 
-If you are using [CMake](https://cmake.org) that is particularly easy. All you have to do is add the `TeeTime-Cpp/src` directory to your build tree and make your application depend on ''teetime''. 
+If you are using [CMake](https://cmake.org) that is particularly easy. All you have to do is add the `TeeTime-Cpp/src` directory to your build tree and make your application depend on ''teetime''.
 CMake will automatically add the include directory and link your application statically with TeeTime. There is a [TeeTime-Cpp-Examples](https://github.com/teetime-framework/TeeTime-Cpp-Examples) project that integrates TeeTime as a git submodule and demonstrates this approach.
 
-   
+
 [1] TeeTime uses [googletest](https://github.com/google/googletest) and [google benchmark](https://github.com/google/benchmark) (for unit testing and micro benchmarks), but those are only needed for the development of TeeTime itself. They are not required to use TeeTime.

@@ -44,7 +44,7 @@ namespace
     std::vector<int> valuesProcessed;
 
     TestConsumerStage()
-    {      
+    {
     }
 
   private:
@@ -60,8 +60,8 @@ namespace
 TEST( AbstractConsumerStageTest, simpleExecute )
 {
   TestProducerStage producer;
-  TestConsumerStage consumer;   
-  
+  TestConsumerStage consumer;
+
   connectPorts(producer.getOutputPort(), consumer.getInputPort());
 
   producer.executeStage();

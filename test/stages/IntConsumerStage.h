@@ -27,7 +27,7 @@ namespace test {
 
     IntConsumerStage()
     : AbstractConsumerStage<int>("IntConsumerStage")
-    {      
+    {
     }
 
   private:

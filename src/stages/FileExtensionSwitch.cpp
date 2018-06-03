@@ -29,7 +29,7 @@ OutputPort<File>& FileExtensionSwitch::getOutputPort(const std::string& extensio
 {
   auto& port = m_outputPorts[extension];
 
-  if (!port) 
+  if (!port)
   {
     port = AbstractConsumerStage::addNewOutputPort<File>();
   }

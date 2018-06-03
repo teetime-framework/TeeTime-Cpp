@@ -42,7 +42,7 @@ namespace teetime
     {
       assert(m_inputport);
       return *m_inputport;
-    }   
+    }
 
   private:
     InputPort<T>* m_inputport;
@@ -66,7 +66,7 @@ namespace teetime
 
       //TEETIME_DEBUG() << "'execute' stage";
       auto v = m_inputport->receive();
-      if(v) 
+      if(v)
       {
         execute(std::move(*v));
       }

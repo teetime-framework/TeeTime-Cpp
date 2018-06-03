@@ -23,7 +23,7 @@
 using namespace teetime;
 using namespace teetime::test;
 
-namespace 
+namespace
 {
   class MergerTestConfig : public Configuration
   {
@@ -34,23 +34,23 @@ namespace
     explicit MergerTestConfig(unsigned numOutputPorts)
     {
       //create stages
-      producer = createStage<IntProducerStage>();      
+      producer = createStage<IntProducerStage>();
       auto distributor = createStage<DistributorStage<int>>();
-      auto merger = createStage<MergerStage<int>>();      
+      auto merger = createStage<MergerStage<int>>();
       consumer = createStage<IntConsumerStage>();
 
       //make stages active
       declareStageActive(producer);
 
       //connect stages
-      connectPorts(producer->getOutputPort(), distributor->getInputPort()); 
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());
 
-      for(unsigned i=0; i<numOutputPorts; ++i) 
+      for(unsigned i=0; i<numOutputPorts; ++i)
       {
-        connectPorts(distributor->getNewOutputPort(), merger->getNewInputPort());      
-      }         
+        connectPorts(distributor->getNewOutputPort(), merger->getNewInputPort());
+      }
 
-      connectPorts(merger->getOutputPort(), consumer->getInputPort());      
+      connectPorts(merger->getOutputPort(), consumer->getInputPort());
     }
   };
 }
@@ -59,7 +59,7 @@ TEST(MergerStageTest, singleInput)
 {
   MergerTestConfig config(1);
   config.producer->numValues = 10;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
   config.executeBlocking();
 
@@ -70,7 +70,7 @@ TEST(MergerStageTest, multipleInput)
 {
   MergerTestConfig config(10);
   config.producer->numValues = 10;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
   config.executeBlocking();
 

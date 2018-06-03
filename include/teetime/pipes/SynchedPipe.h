@@ -77,7 +77,7 @@ namespace teetime
     }
 
     virtual void addSignal(const Signal& signal) override
-    {    
+    {
       if(signal.type == SignalType::Terminating)
       {
         this->close();
@@ -88,7 +88,7 @@ namespace teetime
     }
 
     virtual void waitForStartSignal() override
-    {      
+    {
       auto s = m_signals.take();
       if(s.type != SignalType::Start)
       {
@@ -99,7 +99,7 @@ namespace teetime
     unsigned size() const
     {
       return static_cast<unsigned>(m_queue.sizeGuess());
-    }      
+    }
 
     virtual bool isEmpty() const override
     {

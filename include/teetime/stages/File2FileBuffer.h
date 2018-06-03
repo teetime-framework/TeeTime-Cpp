@@ -23,7 +23,7 @@ namespace teetime
   class File2FileBuffer final : public AbstractFilterStage<File, FileBuffer>
   {
   public:
-    explicit File2FileBuffer(const char* debugName = "File2FileBuffer");    
+    explicit File2FileBuffer(const char* debugName = "File2FileBuffer");
 
   private:
     virtual void execute(File&& value) override;

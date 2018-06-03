@@ -38,7 +38,7 @@ namespace teetime
   private:
     virtual void execute() override
     {
-      for (auto& e : m_elements) 
+      for (auto& e : m_elements)
       {
         AbstractProducerStage<T>::getOutputPort().send(std::move(e));
       }

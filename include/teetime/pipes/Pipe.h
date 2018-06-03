@@ -19,7 +19,7 @@
 namespace teetime
 {
   template<typename T> class Optional;
-  
+
   /**
    * Pipe interface
    * @tparam T type of elements to be passed though this pipe.
@@ -27,7 +27,7 @@ namespace teetime
   template<typename T>
   class Pipe : public AbstractPipe
   {
-  public:    
+  public:
     virtual ~Pipe() = default;
 
     /**

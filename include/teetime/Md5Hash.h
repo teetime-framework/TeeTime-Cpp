@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #pragma once
 #include <teetime/common.h>
 #include <cstring>
 
 namespace teetime
-{ 
+{
   /**
    * MD5 hash type.
    */
@@ -36,7 +36,7 @@ namespace teetime
     bool operator==(const Md5Hash& other) const;
     bool operator!=(const Md5Hash& other) const;
 
-    std::string toHexString() const;    
+    std::string toHexString() const;
 
     static Md5Hash generate(const void* data, size_t dataSize);
     static Md5Hash generate(const std::string& s);
@@ -57,7 +57,7 @@ namespace teetime
   inline Md5Hash::Md5Hash(const uint8 bytes[16])
   {
     std::memcpy(&value[0], &bytes[0], 16);
-  }  
+  }
 
   inline bool Md5Hash::operator==(const Md5Hash& other) const
   {
@@ -67,5 +67,5 @@ namespace teetime
   inline bool Md5Hash::operator!=(const Md5Hash& other) const
   {
     return !(*this == other);
-  }  
+  }
 }

@@ -39,7 +39,7 @@ namespace teetime
     {
       {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_queue.push_back(t);        
+        m_queue.push_back(t);
       }
 
       m_cond.notify_one();
@@ -59,7 +59,7 @@ namespace teetime
       return ret;
     }
 
-    size_t size() const 
+    size_t size() const
     {
       return m_queue.size();
     }

@@ -94,7 +94,7 @@ Params getQueueType(int argc, char** argv, const char* name) {
   };
 
   if (argc < 2) {
-    printTypes();    
+    printTypes();
   }
   else {
     int i = ::atoi(argv[1]);
@@ -344,7 +344,7 @@ void run(size_t iterations, size_t numValues, size_t capacity, const char* name,
 
   for (int i = 0; i < iterations; ++i)
   {
-    //auto ns = benchmark<folly::ProducerConsumerQueue>();    
+    //auto ns = benchmark<folly::ProducerConsumerQueue>();
     auto ns = benchmark_f(numValues, capacity);
     TEETIME_INFO() << "    run " << i << ": " << (ns * 0.001) << "ms";
     //std::cout << i << ": " << ns << std::endl;

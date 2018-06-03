@@ -26,7 +26,7 @@ using namespace teetime;
 AbstractStage::AbstractStage(const char* debugName)
   : m_state(StageState::Created)
 {
-  if(debugName) 
+  if(debugName)
   {
     m_debugName = debugName;
   }
@@ -52,7 +52,7 @@ void AbstractStage::executeStage()
   }
   catch( const std::exception& e )
   {
-    TEETIME_ERROR() << "stage '" << this->debugName() << "' execution failed: " << e.what();    
+    TEETIME_ERROR() << "stage '" << this->debugName() << "' execution failed: " << e.what();
   }
   catch( ... )
   {
@@ -65,7 +65,7 @@ void AbstractStage::onSignal(const Signal& s)
   if (s.sender == this)
     return;
 
-  if(s.type == SignalType::Terminating) 
+  if(s.type == SignalType::Terminating)
   {
     TEETIME_DEBUG() << debugName() << ": Terminating signal received";
     terminate();
@@ -75,7 +75,7 @@ void AbstractStage::onSignal(const Signal& s)
     for (const auto& p : m_outputPorts)
     {
       p->sendSignal(s);
-    }    
+    }
   }
 }
 

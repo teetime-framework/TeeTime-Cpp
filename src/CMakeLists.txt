@@ -75,9 +75,6 @@ SET(SOURCES
   stages/FileExtensionSwitch.cpp
   stages/Md5Hashing.cpp
   stages/ReadImage.cpp
-  stages/ResizeImage.cpp
-  stages/SaveImage.cpp
-  stages/WriteFileBuffer.cpp
   stages/AbstractStage.cpp
 )
 

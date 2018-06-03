@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include <teetime/Md5Hash.h> 
-#include <string.h> 
+#include <teetime/Md5Hash.h>
+#include <string.h>
 #include <climits>
 
-namespace 
-{ 
+namespace
+{
 /*
  * This is an OpenSSL-compatible implementation of the RSA Data Security, Inc.
  * MD5 Message-Digest Algorithm (RFC 1321).
@@ -47,19 +47,19 @@ namespace
 
   /* Any 32-bit or wider unsigned integer data type will do */
   typedef unsigned int MD5_u32plus;
-   
+
   typedef struct {
     MD5_u32plus lo, hi;
     MD5_u32plus a, b, c, d;
     unsigned char buffer[64];
     MD5_u32plus block[16];
   } MD5_CTX;
-   
+
   void MD5_Init(MD5_CTX *ctx);
   void MD5_Update(MD5_CTX *ctx, const void *data, unsigned long size);
-  void MD5_Final(unsigned char *result, MD5_CTX *ctx);    
+  void MD5_Final(unsigned char *result, MD5_CTX *ctx);
 
-  
+
 /*
  * This is an OpenSSL-compatible implementation of the RSA Data Security, Inc.
  * MD5 Message-Digest Algorithm (RFC 1321).
@@ -109,7 +109,7 @@ namespace
   #define H(x, y, z)      (((x) ^ (y)) ^ (z))
   #define H2(x, y, z)     ((x) ^ ((y) ^ (z)))
   #define I(x, y, z)      ((y) ^ ((x) | ~(z)))
-   
+
   /*
    * The MD5 transformation for all four rounds.
    */
@@ -117,7 +117,7 @@ namespace
     (a) += f((b), (c), (d)) + (x) + (t); \
     (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s)))); \
     (a) += (b);
-   
+
   /*
    * SET reads 4 input bytes in little-endian byte order and stores them in a
    * properly aligned word in host byte order.
@@ -148,7 +148,7 @@ namespace
   #define GET(n) \
     (ctx->block[(n)])
   #endif
-   
+
   /*
    * This processes one or more 64-byte data blocks, but does NOT update the bit
    * counters.  There are no alignment requirements.
@@ -158,20 +158,20 @@ namespace
     const unsigned char *ptr;
     MD5_u32plus a, b, c, d;
     MD5_u32plus saved_a, saved_b, saved_c, saved_d;
-   
+
     ptr = (const unsigned char *)data;
-   
+
     a = ctx->a;
     b = ctx->b;
     c = ctx->c;
     d = ctx->d;
-   
+
     do {
       saved_a = a;
       saved_b = b;
       saved_c = c;
       saved_d = d;
-   
+
   /* Round 1 */
       STEP(F, a, b, c, d, SET(0), 0xd76aa478, 7)
       STEP(F, d, a, b, c, SET(1), 0xe8c7b756, 12)
@@ -189,7 +189,7 @@ namespace
       STEP(F, d, a, b, c, SET(13), 0xfd987193, 12)
       STEP(F, c, d, a, b, SET(14), 0xa679438e, 17)
       STEP(F, b, c, d, a, SET(15), 0x49b40821, 22)
-   
+
   /* Round 2 */
       STEP(G, a, b, c, d, GET(1), 0xf61e2562, 5)
       STEP(G, d, a, b, c, GET(6), 0xc040b340, 9)
@@ -207,7 +207,7 @@ namespace
       STEP(G, d, a, b, c, GET(2), 0xfcefa3f8, 9)
       STEP(G, c, d, a, b, GET(7), 0x676f02d9, 14)
       STEP(G, b, c, d, a, GET(12), 0x8d2a4c8a, 20)
-   
+
   /* Round 3 */
       STEP(H, a, b, c, d, GET(5), 0xfffa3942, 4)
       STEP(H2, d, a, b, c, GET(8), 0x8771f681, 11)
@@ -225,7 +225,7 @@ namespace
       STEP(H2, d, a, b, c, GET(12), 0xe6db99e5, 11)
       STEP(H, c, d, a, b, GET(15), 0x1fa27cf8, 16)
       STEP(H2, b, c, d, a, GET(2), 0xc4ac5665, 23)
-   
+
   /* Round 4 */
       STEP(I, a, b, c, d, GET(0), 0xf4292244, 6)
       STEP(I, d, a, b, c, GET(7), 0x432aff97, 10)
@@ -243,106 +243,106 @@ namespace
       STEP(I, d, a, b, c, GET(11), 0xbd3af235, 10)
       STEP(I, c, d, a, b, GET(2), 0x2ad7d2bb, 15)
       STEP(I, b, c, d, a, GET(9), 0xeb86d391, 21)
-   
+
       a += saved_a;
       b += saved_b;
       c += saved_c;
       d += saved_d;
-   
+
       ptr += 64;
     } while (size -= 64);
-   
+
     ctx->a = a;
     ctx->b = b;
     ctx->c = c;
     ctx->d = d;
-   
+
     return ptr;
   }
-   
+
   void MD5_Init(MD5_CTX *ctx)
   {
     ctx->a = 0x67452301;
     ctx->b = 0xefcdab89;
     ctx->c = 0x98badcfe;
     ctx->d = 0x10325476;
-   
+
     ctx->lo = 0;
     ctx->hi = 0;
   }
-   
+
   void MD5_Update(MD5_CTX *ctx, const void *data, unsigned long size)
   {
     MD5_u32plus saved_lo;
     unsigned long used, available;
-   
+
     saved_lo = ctx->lo;
     if ((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
       ctx->hi++;
     ctx->hi += size >> 29;
-   
+
     used = saved_lo & 0x3f;
-   
+
     if (used) {
       available = 64 - used;
-   
+
       if (size < available) {
         memcpy(&ctx->buffer[used], data, size);
         return;
       }
-   
+
       memcpy(&ctx->buffer[used], data, available);
       data = (const unsigned char *)data + available;
       size -= available;
       body(ctx, ctx->buffer, 64);
     }
-   
+
     if (size >= 64) {
       data = body(ctx, data, size & ~(unsigned long)0x3f);
       size &= 0x3f;
     }
-   
+
     memcpy(ctx->buffer, data, size);
   }
-   
+
   #define OUT(dst, src) \
     (dst)[0] = (unsigned char)(src); \
     (dst)[1] = (unsigned char)((src) >> 8); \
     (dst)[2] = (unsigned char)((src) >> 16); \
     (dst)[3] = (unsigned char)((src) >> 24);
-   
+
   void MD5_Final(unsigned char *result, MD5_CTX *ctx)
   {
     unsigned long used, available;
-   
+
     used = ctx->lo & 0x3f;
-   
+
     ctx->buffer[used++] = 0x80;
-   
+
     available = 64 - used;
-   
+
     if (available < 8) {
       memset(&ctx->buffer[used], 0, available);
       body(ctx, ctx->buffer, 64);
       used = 0;
       available = 64;
     }
-   
+
     memset(&ctx->buffer[used], 0, available - 8);
-   
+
     ctx->lo <<= 3;
     OUT(&ctx->buffer[56], ctx->lo)
     OUT(&ctx->buffer[60], ctx->hi)
-   
+
     body(ctx, ctx->buffer, 64);
-   
+
     OUT(&result[0], ctx->a)
     OUT(&result[4], ctx->b)
     OUT(&result[8], ctx->c)
     OUT(&result[12], ctx->d)
-   
+
     memset(ctx, 0, sizeof(*ctx));
-  } 
+  }
 } //end of anonymous namespace
 
 using namespace teetime;
@@ -372,7 +372,7 @@ Md5Hash Md5Hash::generate(const void* data, size_t dataSize)
   MD5_Init(&ctx);
   MD5_Update(&ctx, data, static_cast<unsigned long>(dataSize));
   MD5_Final(&buffer[0], &ctx);
-  
+
   return Md5Hash(buffer);
 }
 
@@ -383,7 +383,7 @@ Md5Hash Md5Hash::generate(const std::string& s)
 
 Md5Hash Md5Hash::parseHexString(const std::string& s)
 {
-  if(s.size() < 32) 
+  if(s.size() < 32)
   {
     return Md5Hash();
   }
@@ -399,10 +399,10 @@ Md5Hash Md5Hash::parseHexString(const char s[32])
   buffer[2] = '\0';
 
   for(int i=0; i<16; ++i)
-  {    
+  {
     buffer[0] = static_cast<char>(tolower(s[i * 2 + 0]));
     buffer[1] = static_cast<char>(tolower(s[i * 2 + 1]));
-    
+
     unsigned value;
     sscanf(buffer, "%02x", &value);
     hash.value[i] = static_cast<uint8>(value);

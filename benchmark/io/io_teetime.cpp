@@ -21,7 +21,7 @@
 #include <teetime/stages/FunctionStage.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/DistributorStage.h>
-#include <teetime/stages/MergerStage.h> 
+#include <teetime/stages/MergerStage.h>
 #include <teetime/Configuration.h>
 #include <teetime/Md5Hash.h>
 #include <teetime/logging.h>
@@ -79,7 +79,7 @@ namespace {
       m_writeBuffer.resize(1024 * 1024 * 100, 'X');
       m_readBuffer.resize(1024 * 1024 * 100, '\0');
     }
-  
+
   private:
     virtual void execute(int&& value) override
     {
@@ -116,7 +116,7 @@ namespace {
       {
         char prefix[256];
         sprintf(prefix, "writer%d_", i);
-        auto writerReader = createStage<WriterReader>(prefix);        
+        auto writerReader = createStage<WriterReader>(prefix);
 
         declareStageActive(writerReader, cpus.next());
 

@@ -59,7 +59,7 @@ uint64 benchmark(size_t numValues, size_t capacity)
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
- 
+
   return (end - start);
 }
 
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 #else
     std::cout << "boost not available" << std::endl;
     return EXIT_FAILURE;
-#endif    
+#endif
   case QueueType::TeeTimePointer:
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;

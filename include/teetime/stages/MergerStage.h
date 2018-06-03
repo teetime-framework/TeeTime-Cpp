@@ -33,13 +33,13 @@ namespace teetime
       assert(m_outputPort);
     }
 
-    OutputPort<T>& getOutputPort() 
+    OutputPort<T>& getOutputPort()
     {
       assert(m_outputPort);
       return *m_outputPort;
     }
 
-    InputPort<T>& getNewInputPort() 
+    InputPort<T>& getNewInputPort()
     {
       InputPort<T>* p = this->addNewInputPort<T>();
       assert(p);
@@ -61,7 +61,7 @@ namespace teetime
         auto typedPort = unsafe_dynamic_cast<InputPort<T>>(abstractPort);
 
         auto v = typedPort->receive();
-        if(v) 
+        if(v)
         {
           m_outputPort->send(std::move(*v));
         }
@@ -69,7 +69,7 @@ namespace teetime
         {
           closedPorts += 1;
         }
-      }      
+      }
 
       if(closedPorts == numInputPorts)
       {

@@ -99,7 +99,7 @@ namespace
     FunctionConfig()
     {
       auto toIntStage = createStageFromLambda(ToInt());
-      auto halfStage = createStageFromFunctionPointer(half);      
+      auto halfStage = createStageFromFunctionPointer(half);
       auto doubleStage = createStageFromLambda([](double d) {
         return d * 2;
       });

@@ -49,7 +49,7 @@ namespace teetime
     /**
      * Create a runnable to execute this stage in it's own thread.
      */
-    virtual unique_ptr<Runnable> createRunnable() = 0;    
+    virtual unique_ptr<Runnable> createRunnable() = 0;
     void executeStage();
 
     StageState currentState() const;
@@ -66,7 +66,7 @@ namespace teetime
     const AbstractOutputPort* getOutputPort(uint32 index) const;
     const char* debugName() const;
 
-  protected:   
+  protected:
     /**
      * Create a typed input port.
      * @return (Non-owning) pointer to input port (don't delete this port manually, the AbstractStage takes care of that)
@@ -79,7 +79,7 @@ namespace teetime
      * @return (Non-owning) pointer to input port (don't delete this port manually, the AbstractStage takes care of that)
      */
     template<typename T>
-    OutputPort<T>* addNewOutputPort();   
+    OutputPort<T>* addNewOutputPort();
 
     /**
      * Get a reference to the list of (untyped) output ports. You can not modify or copy that list because
@@ -90,15 +90,15 @@ namespace teetime
     /**
      * Get a reference to the list of (untyped) input ports. You can not modify or copy that list because
      * all ports are managed by AbstractStage.
-     */    
+     */
     const std::vector<unique_ptr<AbstractInputPort>>& getInputPorts() const;
 
     void terminate();
 
-  private:  
+  private:
     /**
      * actually execute the stage.
-     */ 
+     */
     virtual void execute() = 0;
 
     template<typename T>
@@ -134,11 +134,11 @@ namespace teetime
     {
       throw std::logic_error("cannot create new ports after stage has been started");
     }
-        
+
     OutputPort<T>* port = new OutputPort<T>(this);
     m_outputPorts.push_back(unique_ptr<AbstractOutputPort>(port));
     return port;
-  }   
+  }
 
   inline const std::vector<unique_ptr<AbstractOutputPort>>& AbstractStage::getOutputPorts() const
   {

@@ -16,7 +16,7 @@
 #include <teetime/stages/AbstractConsumerStage.h>
 
 namespace teetime
-{ 
+{
   template<typename T>
   class BlockingRoundRobinDistribution
   {
@@ -29,7 +29,7 @@ namespace teetime
     ~BlockingRoundRobinDistribution() = default;
     BlockingRoundRobinDistribution& operator=(const BlockingRoundRobinDistribution&) = default;
 
-    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
+    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value)
     {
       const size_t numOutputPorts = ports.size();
       assert(numOutputPorts > 0);
@@ -47,7 +47,7 @@ namespace teetime
 
       typedPort->send(std::move(value));
     }
-    
+
   private:
     size_t m_next;
   };
@@ -64,7 +64,7 @@ namespace teetime
     ~RoundRobinDistribution() = default;
     RoundRobinDistribution& operator=(const RoundRobinDistribution&) = default;
 
-    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value) 
+    void operator()(const std::vector<unique_ptr<AbstractOutputPort>>& ports, T&& value)
     {
       const size_t numOutputPorts = ports.size();
       assert(numOutputPorts > 0);
@@ -82,7 +82,7 @@ namespace teetime
         next = index + 1;
 
         auto typedPort = unsafe_dynamic_cast<OutputPort<T>>(abstractPort);
-        assert(typedPort);        
+        assert(typedPort);
 
         if(typedPort->trySend(std::move(value)))
         {
@@ -92,10 +92,10 @@ namespace teetime
 
       m_next = next;
     }
-    
+
   private:
     size_t m_next;
-  };  
+  };
 
   template<typename T>
   class CopyDistribution
@@ -150,7 +150,7 @@ namespace teetime
     , m_policy(distribution)
     {}
 
-    OutputPort<T>& getNewOutputPort() 
+    OutputPort<T>& getNewOutputPort()
     {
       OutputPort<T>* p = AbstractStage::addNewOutputPort<T>();
       return *p;
@@ -160,7 +160,7 @@ namespace teetime
     virtual void execute(T&& value) override
     {
       m_policy(AbstractStage::getOutputPorts(), std::move(value));
-    }    
+    }
 
     TDistributionPolicy m_policy;
   };

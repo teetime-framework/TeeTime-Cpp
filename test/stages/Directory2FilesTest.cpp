@@ -56,7 +56,7 @@ TEST(Directory2FilesTest, simple)
   std::vector<File> files = config.collector->takeElements();
 
   ASSERT_EQ((size_t)6 ,files.size());
-  EXPECT_EQ(getFilePath("dir1/dir2/file5.txt"), files[0].path);  
+  EXPECT_EQ(getFilePath("dir1/dir2/file5.txt"), files[0].path);
   EXPECT_EQ(getFilePath("dir1/file3.txt"), files[1].path);
   EXPECT_EQ(getFilePath("dir1/file4.txt"), files[2].path);
   EXPECT_EQ(getFilePath("dir3/file6.txt"), files[3].path);

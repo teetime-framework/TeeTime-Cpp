@@ -22,7 +22,7 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
 
   auto produce = [&]() {
     const size_t local_num = numValues;
-    
+
     for (size_t i = 0; i < local_num; ++i)
     {
       while (!queue.write(std::move(source[i])))
@@ -37,7 +37,7 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
 
     intlist tmp;
     for (size_t i = 0; i < local_num; ++i)
-    { 
+    {
       while (!queue.read(tmp))
       {
         std::this_thread::yield();
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 #else
     std::cout << "boost not available" << std::endl;
     return EXIT_FAILURE;
-#endif    
+#endif
   case QueueType::TeeTimePointer:
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;

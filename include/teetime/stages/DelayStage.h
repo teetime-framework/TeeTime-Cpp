@@ -17,7 +17,7 @@
 #include <thread>
 
 namespace teetime
-{ 
+{
   /**
    * Delay the pipeline execution by sleeping for a certain number of milliseconds.
    * @tparam T type of data element to delay.
@@ -27,14 +27,14 @@ namespace teetime
   {
   public:
     explicit DelayStage(uint32 milliseconds, const char* debugName = "DelayStage")
-    : AbstractConsumerStage<T>(debugName)    
+    : AbstractConsumerStage<T>(debugName)
     , m_outputPort(nullptr)
     , m_milliseconds(milliseconds)
     {
       m_outputPort = AbstractStage::addNewOutputPort<T>();
     }
 
-    OutputPort<T>& getOutputPort() 
+    OutputPort<T>& getOutputPort()
     {
       assert(m_outputPort);
       return *m_outputPort;
@@ -46,10 +46,10 @@ namespace teetime
       assert(m_outputPort);
       TEETIME_INFO() << this->debugName() << ": delaying " << value;
       std::this_thread::sleep_for(std::chrono::milliseconds(m_milliseconds));
-      
+
       m_outputPort->send(std::move(value));
       TEETIME_INFO() << this->debugName() << ": delaying done";
-    }    
+    }
 
     OutputPort<T>* m_outputPort;
     uint32 m_milliseconds;

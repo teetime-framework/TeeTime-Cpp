@@ -66,7 +66,7 @@ namespace teetime
       return (1 << (unsigned)cpu);
     }
 
-  private:    
+  private:
     std::vector<int> m_affinity;
     int m_next;
   };

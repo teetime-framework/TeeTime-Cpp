@@ -41,14 +41,14 @@ TEST(SynchedPipeTest, concurrent)
   SynchedPipe<int> pipe(1024);
   std::vector<int> dst;
   bool producerDone = false;
-  
+
   std::thread producer([&]() {
     for (int i = 0; i < 1000; ++i)
     {
       pipe.add(std::move(i));
 
       using std::chrono::milliseconds;
-      
+
       if(i % 35 == 0)
         std::this_thread::sleep_for(milliseconds(50));
     }
@@ -73,7 +73,7 @@ TEST(SynchedPipeTest, concurrent)
         else
         {
           run = false;
-        }        
+        }
       }
     }
   });

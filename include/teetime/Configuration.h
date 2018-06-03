@@ -81,14 +81,14 @@ namespace internal
     typed_in->m_pipe = typed_out->m_pipe.get();
   }
 }
-  
+
   /**
    * A configuration.
    * Derive your P&F configuration from this class.
-   * Create your stages in the constructor of that class and connect 
+   * Create your stages in the constructor of that class and connect
    * them by 'connectPorts' and declare at least one stage active with
    * 'declareStageActive'.
-   * 
+   *
    * execute the configuration with 'executeBlocking()';
    */
   class Configuration
@@ -151,7 +151,7 @@ namespace internal
     }
 
     /**
-     * Create a stage from a function itself (not from a pointer to it). 
+     * Create a stage from a function itself (not from a pointer to it).
      * Function must take one argument (stage input) and must return one element (stage output).
      */
     template<typename TIn, typename TOut, TOut(*TFunc)(TIn)>
@@ -161,7 +161,7 @@ namespace internal
     }
 
     /**
-     * @brief connect an output port to an input port. Connection is automatically 
+     * @brief connect an output port to an input port. Connection is automatically
      *        synched if the stages are running in different threads.
      * @param output output port
      * @param input input port
@@ -171,7 +171,7 @@ namespace internal
      */
     template<typename T, template<typename> class TQueue = SpscValueQueue>
     void connectPorts(OutputPort<T>& output, InputPort<T>& input, size_t capacity = 1024)
-    { 
+    {
       if (isPortConnected(output)) {
         throw std::logic_error("output port is already connected");
       }
@@ -205,7 +205,7 @@ namespace internal
      * @param stage stage to make non-active.
      */
     void declareStageNonActive(shared_ptr<AbstractStage> stage);
-    
+
     /**
      * Check if the given port is already connected.
      */
@@ -213,13 +213,13 @@ namespace internal
 
     /**
      * Check if the given port is already connected.
-     */    
+     */
     bool isPortConnected(const AbstractOutputPort& port) const;
 
-  private: 
+  private:
     /**
      * Instantiate all port connections by creating pipes.
-     */ 
+     */
     void createConnections();
 
     /**
@@ -243,19 +243,19 @@ namespace internal
       AbstractOutputPort* out; //output port
       AbstractInputPort* in; //input port
       size_t capacity; //queue capacity
-      internal::CreatePipeCallback* createPipeCallback; 
+      internal::CreatePipeCallback* createPipeCallback;
       internal::ConnectCallback* connectCallback;
     };
-    
+
     //all connections between ports.
     std::vector<connection> m_connections;
 
-    //all stages, that are either active or have been connected 
+    //all stages, that are either active or have been connected
     //we store a shared_ptr to each one of thoses stages to make sure, so we can be sure
     //all stages exist at least as long as the configuration they are used in.
     std::set<shared_ptr<AbstractStage>> m_stages;
 
     //lookup map to store settings for each stage.
-    std::map<AbstractStage*, stageSettings> m_stageSettings;    
+    std::map<AbstractStage*, stageSettings> m_stageSettings;
   };
 }

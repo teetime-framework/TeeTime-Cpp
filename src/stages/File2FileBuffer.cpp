@@ -35,7 +35,7 @@ void File2FileBuffer::execute(File&& value)
   std::streamsize size = file.tellg();
 
   assert(size >= 0);
-  if (static_cast<size_t>(size) > std::numeric_limits<size_t>::max()) 
+  if (static_cast<size_t>(size) > std::numeric_limits<size_t>::max())
   {
     TEETIME_ERROR() << "file too big: " << value.path;
     return;
@@ -48,7 +48,7 @@ void File2FileBuffer::execute(File&& value)
   buffer.bytes.resize(static_cast<size_t>(size));
 
   //don't try to read if size is 0 anyway (because buffer.bytes.data() may return null in this case)
-	if (size == 0 || file.read((char*)buffer.bytes.data(), size)) 
+	if (size == 0 || file.read((char*)buffer.bytes.data(), size))
 	{
 		getOutputPort().send(std::move(buffer));
 	}
@@ -56,5 +56,5 @@ void File2FileBuffer::execute(File&& value)
 	{
 		TEETIME_DEBUG() << "failed to read file: " << value.path;
 	}
-  
+
 }

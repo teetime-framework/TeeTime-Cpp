@@ -146,7 +146,7 @@ namespace platform
       }
       else
       {
-        if (files) 
+        if (files)
         {
           entries.push_back(std::string(ffd.cFileName));
         }

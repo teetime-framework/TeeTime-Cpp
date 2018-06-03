@@ -26,7 +26,7 @@ namespace teetime
   template<typename T>
   class InputPort;
 
-  template<typename T>  
+  template<typename T>
   class OutputPort;
 
   namespace internal
@@ -39,22 +39,22 @@ namespace teetime
    * Output port.
    * @tparam T type of data elements, that can be sent through this port.
    */
-  template<typename T>  
+  template<typename T>
   class OutputPort : public AbstractOutputPort
   {
   public:
     explicit OutputPort(AbstractStage* owner)
     : AbstractOutputPort(owner)
     , m_pipe(nullptr)
-    {    
-      
+    {
+
     }
 
     OutputPort(const OutputPort&) = delete;
 
     void send(T&& t) {
       assert(m_pipe);
-      m_pipe->add(std::move(t));            
+      m_pipe->add(std::move(t));
     }
 
     bool trySend(T&& t)
@@ -63,7 +63,7 @@ namespace teetime
       return m_pipe->tryAdd(std::move(t));
     }
 
-  private:  
+  private:
     virtual AbstractPipe* getPipe() override
     {
       return m_pipe.get();

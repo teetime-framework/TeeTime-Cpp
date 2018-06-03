@@ -22,7 +22,7 @@ using namespace teetime;
 using namespace teetime::test;
 
 namespace
-{ 
+{
   class TestConfiguration : public Configuration
   {
   public:
@@ -79,7 +79,7 @@ TEST(ConfigurationTest, simple2)
 {
   TestConfiguration2 config;
   config.producer->numValues = 5;
-  config.producer->startValue = 100;  
+  config.producer->startValue = 100;
 
   config.executeBlocking();
 

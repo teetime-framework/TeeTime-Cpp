@@ -10,7 +10,7 @@ void mipmaps_teetime_avoidSameCore(const Params& params, int threads);
 std::string getImageInputDirectory(int num, int size)
 {
   char dirname[256];
-#ifdef __linux__  
+#ifdef __linux__
   sprintf(dirname, "%s/input_images_%d_%d", "/tmp", num, size);
 #else
   char pwd[256];
@@ -25,7 +25,7 @@ std::string getImageInputDirectory(int num, int size)
 std::string getImageOutputDirectory()
 {
   char dirname[256];
-#ifdef __linux__  
+#ifdef __linux__
   sprintf(dirname, "%s/output_images", "/tmp");
 #else
   char pwd[256];
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
   if (args.contains("fine"))
   {
     num = 2000;
-    value = 6; 
+    value = 6;
     name = "mipmaps_fine";
     prettyname = "Mipmaps Benchmark, fine grain (1,000,000 * 1kb)";
   }

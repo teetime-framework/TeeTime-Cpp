@@ -26,14 +26,14 @@ namespace teetime
   {
   public:
     File() = default;
-    
+
     File(const File& f)
      : path(f.path)
-    {      
+    {
     }
 
     explicit File(const std::string& path)
-      : path(path) 
+      : path(path)
     {
     }
 
@@ -51,7 +51,7 @@ namespace teetime
     {
       path = std::move(f.path);
       return *this;
-    }    
+    }
 
     std::string path;
   };

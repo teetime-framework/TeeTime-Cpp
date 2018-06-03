@@ -28,7 +28,7 @@ static int readFile(const char* filename, std::vector<char>& readBuffer, int siz
   std::ifstream file;
   file.open(filename, std::ios_base::in | std::ios_base::binary);
 
-  file.seekg(0, file.end);  
+  file.seekg(0, file.end);
   std::streamsize length = file.tellg();
   file.seekg(0, file.beg);
 
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
   if (args.contains("fine"))
   {
     num = 1000000;
-    value = 1024; 
+    value = 1024;
     name = "io_fine";
     prettyname = "IO Benchmark, fine grain (1,000,000 * 1kb)";
   }

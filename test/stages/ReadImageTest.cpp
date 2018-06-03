@@ -47,7 +47,7 @@ namespace
       declareStageActive(producer);
       connectPorts(producer->getOutputPort(), file2buffer->getInputPort());
       connectPorts(file2buffer->getOutputPort(), readImage->getInputPort());
-      connectPorts(readImage->getOutputPort(), images->getInputPort());      
+      connectPorts(readImage->getOutputPort(), images->getInputPort());
     }
   };
 }

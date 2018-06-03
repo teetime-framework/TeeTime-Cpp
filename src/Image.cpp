@@ -110,7 +110,7 @@ const Image& Image::operator =(Image&& rhs)
 
   rhs.m_width = 0;
   rhs.m_height = 0;
-  rhs.m_data = nullptr;  
+  rhs.m_data = nullptr;
 
   return *this;
 }
@@ -119,7 +119,7 @@ void Image::reset()
 {
   if (m_data)
   {
-    stbi_image_free(m_data);    
+    stbi_image_free(m_data);
   }
 
   m_data = nullptr;
@@ -135,7 +135,7 @@ bool Image::loadFromFile(const std::string& filename)
   init_stb();
   int width = 0;
   int height = 0;
-  int comp = 0;  
+  int comp = 0;
 
   if (auto p = stbi_load(filename.c_str(), &width, &height, &comp, 4))
   {
@@ -164,7 +164,7 @@ bool Image::loadFromMemory(const uint8* data, size_t dataSize, const char* filen
   int comp = 0;
 
   assert(dataSize < INT_MAX);
-  
+
   if (auto p = stbi_load_from_memory(data, static_cast<int>(dataSize), &width, &height, &comp, 4))
   {
     assert(width > 0);
@@ -210,7 +210,7 @@ bool Image::saveToFile(const std::string& filename) const
     ext[i] = static_cast<char>(tolower(*c));
   }
   ext[4] = '\0';
-  
+
   if (strcmp(ext, ".tga") == 0)
     return saveToTgaFile(filename);
 

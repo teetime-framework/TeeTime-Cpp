@@ -21,8 +21,8 @@
 using namespace teetime;
 
 void AbstractOutputPort::sendSignal(const Signal& signal)
-{      
-  if(auto p = getPipe()) 
+{
+  if(auto p = getPipe())
   {
     p->addSignal(signal);
   }

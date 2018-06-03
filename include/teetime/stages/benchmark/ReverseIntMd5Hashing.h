@@ -44,7 +44,7 @@ namespace teetime
     {
       int reversed = -1;
       for(int i=0; i<INT_MAX; ++i)
-      {        
+      {
         if(hash == Md5Hash::generate(&i, sizeof(i)))
         {
           reversed = i;

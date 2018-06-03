@@ -76,13 +76,13 @@ namespace teetime
     case LogLevel::Error:
       return "ERROR";
     case LogLevel::Off:
-      return "OFF";      
+      return "OFF";
     default:
       return "???";
     }
-  } 
+  }
 
-  LogLevel String2LogLevel(const char* s) 
+  LogLevel String2LogLevel(const char* s)
   {
     if(!s)
     {
@@ -96,13 +96,13 @@ namespace teetime
       if(strcmp(s, LogLevel2String(level)) == 0)
       {
         return level;
-      }          
+      }
     }
 
     return LogLevel::Off;
   }
 
-  void simpleLogging(std::thread::id threadid, const char* file, int line, LogLevel level, const char* message, void* customData)  
+  void simpleLogging(std::thread::id threadid, const char* file, int line, LogLevel level, const char* message, void* customData)
   {
     unused(customData);
 
@@ -127,18 +127,18 @@ namespace teetime
     std::cout << "(" << line << "): " << message << std::endl;
   }
 
-  LogLevel getLogLevelFromArgs( int argc, char** argv ) 
+  LogLevel getLogLevelFromArgs( int argc, char** argv )
   {
     for(int i=0; i<(argc-1); ++i)
     {
       if(strcmp(argv[i], "--loglevel") == 0)
       {
         return String2LogLevel(argv[i+1]);
-      }    
+      }
     }
 
     return LogLevel::Off;
-  }  
+  }
 }
 
 
@@ -153,10 +153,10 @@ Logger::Logger(const char* file, int line, LogLevel level)
 }
 
 Logger::~Logger()
-{ 
+{
   assert(logdata);
   logCallback(std::this_thread::get_id(), logdata->file, logdata->line, logdata->level, logdata->buffer.str().c_str(), customLogCallbackData);
-  logdata->buffer.str("");    
+  logdata->buffer.str("");
 }
 
 std::ostream& Logger::buffer()

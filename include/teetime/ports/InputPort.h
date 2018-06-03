@@ -26,7 +26,7 @@ namespace teetime
   template<typename T>
   class InputPort;
 
-  template<typename T>  
+  template<typename T>
   class OutputPort;
 
   namespace internal
@@ -41,7 +41,7 @@ namespace teetime
    * Input port.
    * @tparam T type of data elements, that can be received through this port.
    */
-  template<typename T>  
+  template<typename T>
   class InputPort final : public AbstractInputPort
   {
   public:
@@ -50,7 +50,7 @@ namespace teetime
     {
     }
 
-    InputPort(const InputPort&) = delete;   
+    InputPort(const InputPort&) = delete;
 
     Optional<T> receive() {
       return m_pipe->removeLast();

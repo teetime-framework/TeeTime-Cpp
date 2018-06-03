@@ -20,7 +20,7 @@
 
 #ifdef _MSC_VER
 
-#if (_MSC_VER < 1900) 
+#if (_MSC_VER < 1900)
 //MSVC versions prior to 2015 do not support C++11's 'thread_local' keyword
 //'__declspec(thread)' achieves the same thing, but does not work for types with a non-trivial ctor ;(
 #define thread_local __declspec(thread)
@@ -78,7 +78,7 @@ namespace teetime
   using uint64 = unsigned long long;
   using int64 = signed long long;
 
-  // unsafe dynamic cast. 
+  // unsafe dynamic cast.
   // Validity of this cast is only checked in debug mode!
   template<typename S, typename T>
   S* unsafe_dynamic_cast(T* t)

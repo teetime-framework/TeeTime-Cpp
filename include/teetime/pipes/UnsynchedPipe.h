@@ -29,7 +29,7 @@ namespace teetime
   public:
     explicit UnsynchedPipe(AbstractStage* targetStage)
      : m_targetStage(targetStage)
-    {      
+    {
     }
 
     virtual Optional<T> removeLast() override
@@ -55,7 +55,7 @@ namespace teetime
     }
 
     virtual void addSignal(const Signal& signal) override
-    {    
+    {
       if(signal.type == SignalType::Terminating)
       {
         this->close();
@@ -72,7 +72,7 @@ namespace teetime
     virtual bool isEmpty() const override
     {
       return !m_value;
-    }    
+    }
 
   private:
 

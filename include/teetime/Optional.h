@@ -18,15 +18,15 @@
 namespace teetime
 {
   /**
-   * Optional value. 
-   * Value is initially absent. To set a value use 'set'. 
-   * To get a value use the dereference operator. Objects 
+   * Optional value.
+   * Value is initially absent. To set a value use 'set'.
+   * To get a value use the dereference operator. Objects
    * of this type convert implicitly to bool, so they can be used
    * like pointers: if(optionalValue) { use_value(*optionalValue); }
-   * 
-   * If an optional get dereferenced, but contains no value, behaviour 
+   *
+   * If an optional get dereferenced, but contains no value, behaviour
    * is undefined. Don't do this ;)
-   * 
+   *
    * @tparam T type to optionally hold
    */
   template<typename T>
@@ -50,10 +50,10 @@ namespace teetime
     {
       new (ptr()) T(std::move(t));
       m_hasValue = true;
-    }   
+    }
 
     Optional(const Optional& rhs)
-      : m_hasValue(false)      
+      : m_hasValue(false)
     {
       if(rhs.m_hasValue)
       {
@@ -71,7 +71,7 @@ namespace teetime
         m_hasValue = true;
         rhs.reset();
       }
-    }    
+    }
 
     ~Optional()
     {
@@ -100,7 +100,7 @@ namespace teetime
     const T& operator*() const
     {
       return *ptr();
-    }  
+    }
 
     void set(const T& t)
     {
@@ -114,7 +114,7 @@ namespace teetime
       reset();
       new (ptr()) T(std::move(t));
       m_hasValue = true;
-    }  
+    }
 
   private:
     inline T* ptr()
@@ -125,9 +125,9 @@ namespace teetime
     inline const T* ptr() const
     {
       return reinterpret_cast<const T*>(&m_buffer[0]);
-    }    
+    }
 
-    alignas(T) char m_buffer[sizeof(T)];    
+    alignas(T) char m_buffer[sizeof(T)];
     bool m_hasValue;
   };
 }

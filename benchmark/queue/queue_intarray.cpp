@@ -23,9 +23,9 @@ public:
     , m_capacity(0)
   {
     *this = std::move(l);
-  }  
+  }
 
-  explicit intlist(size_t size, int value) 
+  explicit intlist(size_t size, int value)
     : m_size(0)
     , m_capacity(0)
   {
@@ -42,7 +42,7 @@ public:
 
   int operator[](size_t index) const {
     return m_array[index];
-  } 
+  }
 
   bool operator==(const intlist& l)  const {
     if(m_size != l.m_size)
@@ -73,7 +73,7 @@ public:
       m_array[i] = l.m_array[i];
     }
     return *this;
-  }  
+  }
 
   size_t size() const {
     return m_size;
@@ -140,7 +140,7 @@ uint64 benchmark_vector(size_t numValues, size_t capacity)
     const size_t local_num = numValues;
     intlist tmp;
     for (size_t i = 0; i < local_num; ++i)
-    { 
+    {
       while (true)
       {
         if (pipe.read(tmp))
@@ -201,7 +201,7 @@ int main(int argc, char** argv)
 #else
     std::cout << "boost not available" << std::endl;
     return EXIT_FAILURE;
-#endif    
+#endif
   case QueueType::TeeTimePointer:
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;

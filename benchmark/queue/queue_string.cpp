@@ -41,7 +41,7 @@ uint64 benchmark(size_t numValues, size_t capacity)
     const size_t local_num = numValues;
     std::string tmp;
     for (size_t i = 0; i < local_num; ++i)
-    { 
+    {
       while (true)
       {
         if (pipe.read(tmp))
@@ -63,7 +63,7 @@ uint64 benchmark(size_t numValues, size_t capacity)
   producer.join();
   consumer.join();
   auto end = teetime::platform::microSeconds();
-  
+
   for (size_t i = 0; i < dest.size(); ++i)
   {
     if (dest[i] != getTestString((int)i)) {
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 #else
     std::cout << "boost not available" << std::endl;
     return EXIT_FAILURE;
-#endif    
+#endif
   case QueueType::TeeTimePointer:
     std::cout << "values not supported" << std::endl;
     return EXIT_FAILURE;

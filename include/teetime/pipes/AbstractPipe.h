@@ -25,7 +25,7 @@ namespace teetime
   public:
     AbstractPipe()
     : m_closed(false)
-    {      
+    {
     }
 
     virtual ~AbstractPipe() = default;

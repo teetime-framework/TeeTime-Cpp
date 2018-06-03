@@ -30,7 +30,7 @@ namespace teetime
   public:
     explicit AbstractOutputPort(AbstractStage* owner)
      : AbstractPort(owner)
-    {   
+    {
     }
 
     void sendSignal(const Signal& signal);

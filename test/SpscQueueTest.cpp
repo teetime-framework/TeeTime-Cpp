@@ -32,7 +32,7 @@ TEST_P(SpscValueQueueTest, concurrent)
   std::vector<int> dst;
   dst.reserve(numValues);
   bool producerDone = false;
-  
+
   std::thread producer([&]() {
     for (size_t i = 0; i < numValues; ++i)
     {
@@ -101,7 +101,7 @@ TEST_P(SpscValueQueueTest2, concurrent)
 
   static const size_t numValues = 1000000;
   SpscValueQueue<intlist> queue(GetParam());
-  
+
   std::vector<intlist> dst;
   std::vector<intlist> src;
   dst.reserve(numValues);
@@ -112,7 +112,7 @@ TEST_P(SpscValueQueueTest2, concurrent)
     src.push_back(intlist(64, (int)i));
   }
 
-  
+
   std::thread producer([&]() {
     for (size_t i = 0; i < numValues; ++i)
     {
@@ -324,7 +324,7 @@ TEST_P(SpscPointerQueueTest, concurrent)
   std::vector<int*> dst;
   dst.reserve(numValues);
   bool producerDone = false;
-  
+
   std::thread producer([&]() {
     for (size_t i = 0; i < numValues; ++i)
     {

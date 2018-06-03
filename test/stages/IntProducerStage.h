@@ -30,7 +30,7 @@ namespace test {
     {}
 
     int startValue;
-    int numValues;    
+    int numValues;
 
   private:
     virtual void execute() override

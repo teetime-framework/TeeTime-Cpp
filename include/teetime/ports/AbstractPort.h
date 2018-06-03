@@ -36,13 +36,13 @@ namespace teetime
     AbstractStage* owner()
     {
       return m_owner;
-    }    
+    }
 
   protected:
     explicit AbstractPort(AbstractStage* owner)
      : m_owner(owner)
-    {   
-      assert(owner);   
+    {
+      assert(owner);
     }
 
   private:

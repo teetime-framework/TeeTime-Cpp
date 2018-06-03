@@ -21,7 +21,7 @@
 #include <teetime/ports/OutputPort.h>
 
 using namespace teetime;
-  
+
 Runnable::Runnable()
   : creationTime(platform::microSeconds())
 {}
@@ -55,7 +55,7 @@ void ProducerStageRunnable::run()
   }
 
   TEETIME_DEBUG() << "execute producer stage '" << m_stage->debugName() << "'";
-  m_stage->executeStage();   
+  m_stage->executeStage();
 
   TEETIME_TRACE() << "stage '" << m_stage->debugName() << "' was terminated after " << (platform::microSeconds() - start) * 0.001 << "ms (" << (platform::microSeconds() - creationTime) * 0.001 << "ms)";
 }
@@ -72,7 +72,7 @@ void ConsumerStageRunnable::run()
   const uint32 numInputPorts = m_stage->numInputPorts();
   for(uint32 i=0; i<numInputPorts; ++i)
   {
-    TEETIME_DEBUG() << "wait fors start signal";    
+    TEETIME_DEBUG() << "wait fors start signal";
     auto port = m_stage->getInputPort(i);
     assert(port);
     port->waitForStartSignal();
@@ -90,7 +90,7 @@ void ConsumerStageRunnable::run()
     }
   }
 
-  TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'"; 
+  TEETIME_DEBUG() << "execute consumer stage '" << m_stage->debugName() << "'";
   auto start = platform::microSeconds();
   while(m_stage->currentState() == StageState::Started)
   {

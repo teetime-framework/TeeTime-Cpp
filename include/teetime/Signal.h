@@ -45,11 +45,11 @@ namespace teetime
     case SignalType::Start:
       return "SignalType::Start";
     case SignalType::Terminating:
-      return "SignalType::Terminating";      
+      return "SignalType::Terminating";
     default:
       break;
     }
 
-    return "SignalType::?";      
+    return "SignalType::?";
   }
 }

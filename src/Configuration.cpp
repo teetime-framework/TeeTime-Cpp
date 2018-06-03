@@ -33,7 +33,7 @@ void Configuration::createConnections()
 {
   for (auto conn : m_connections)
   {
-    auto settings = m_stageSettings[conn.in->owner()];    
+    auto settings = m_stageSettings[conn.in->owner()];
     (*conn.connectCallback)(conn.out, conn.in, conn.capacity, settings.isActive);
   }
 }
@@ -83,7 +83,7 @@ void Configuration::executeBlocking()
 
   for (const auto& s : m_stageSettings)
   {
-    auto stage = s.first; 
+    auto stage = s.first;
     auto settings = s.second;
     assert(stage);
 

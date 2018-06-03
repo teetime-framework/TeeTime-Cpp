@@ -32,9 +32,9 @@ namespace teetime
   void setLogLevel(LogLevel level);
 
   /**
-   * @brief 
+   * @brief
    *    Simple logging function that can be used as a log callback.
-   * @details 
+   * @details
    *    Writes log messages in a threadsafe manner to std out. Only meant to be used for simple uses cases and for
    *    development and debugging of TeeTime itself.
    *    Does not provide sophisticated configuration or formatting options. Pretty slow.
@@ -59,7 +59,7 @@ namespace teetime
 
   const char* LogLevel2String(LogLevel level);
 
-  bool isLogEnabled(LogLevel level);  
+  bool isLogEnabled(LogLevel level);
 
   class Logger final
   {

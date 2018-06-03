@@ -57,7 +57,7 @@ namespace
 
 TEST(FileExtensionSwitchTest, simple)
 {
-  FileExtensionSwitchTestConfig config({ 
+  FileExtensionSwitchTestConfig config({
     File("file1.txt"),
     File("file2.tga"),
     File("file3.txt"),

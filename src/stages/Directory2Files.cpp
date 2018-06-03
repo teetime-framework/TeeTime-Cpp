@@ -32,7 +32,7 @@ void Directory2Files::execute(std::string&& value)
 {
   std::vector<std::string> files;
   platform::listFiles(value.c_str(), files, true);
-  
+
   std::sort(files.begin(), files.end());
 
   for (const auto& f : files)

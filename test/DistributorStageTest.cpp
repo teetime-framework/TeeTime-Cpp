@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 #include <teetime/Configuration.h>
 #include <teetime/stages/DistributorStage.h>
-#include <teetime/stages/DelayStage.h> 
+#include <teetime/stages/DelayStage.h>
 #include "stages/IntProducerStage.h"
 #include "stages/IntConsumerStage.h"
 
@@ -24,7 +24,7 @@
 using namespace teetime;
 using namespace teetime::test;
 
-namespace 
+namespace
 {
   class DistributorTestConfig : public Configuration
   {
@@ -38,9 +38,9 @@ namespace
       declareStageActive(producer);
 
       auto distributor = createStage<DistributorStage<int, BlockingRoundRobinDistribution<int>>>();
-      connectPorts(producer->getOutputPort(), distributor->getInputPort());      
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());
 
-      for(unsigned i=0; i<numOutputPorts; ++i) 
+      for(unsigned i=0; i<numOutputPorts; ++i)
       {
         consumer.push_back(createStage<IntConsumerStage>());
 
@@ -48,9 +48,9 @@ namespace
         {
           declareStageActive(consumer[i]);
         }
-        
+
         connectPorts(distributor->getNewOutputPort(), consumer[i]->getInputPort());
-      }      
+      }
     }
   };
 }
@@ -59,7 +59,7 @@ TEST(DistributorStageTest, singlethreaded)
 {
   DistributorTestConfig config(4, false);
   config.producer->numValues = 16;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
   config.executeBlocking();
 
@@ -74,7 +74,7 @@ TEST(DistributorStageTest, multithreaded)
 {
   DistributorTestConfig config(4, true);
   config.producer->numValues = 16;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
   config.executeBlocking();
 
@@ -102,7 +102,7 @@ TEST(DistributorStageTest, nooutput)
 
 
 
-namespace 
+namespace
 {
 
 
@@ -121,7 +121,7 @@ namespace
       declareStageActive(producer);
 
       auto distributor = createStage<DistributorStage<int, RoundRobinDistribution<int>>>();
-      connectPorts(producer->getOutputPort(), distributor->getInputPort());      
+      connectPorts(producer->getOutputPort(), distributor->getInputPort());
 
       auto delay = createStage<DelayStage<int>>(500);
 
@@ -146,7 +146,7 @@ TEST(RoundRobinTest, simple)
 {
   RoundRobinTestConfig config;
   config.producer->numValues = 16;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
   config.executeBlocking();
 
@@ -158,7 +158,7 @@ TEST(RoundRobinTest, simple)
   EXPECT_EQ(1, config.nonDelayedConsumer1->valuesConsumed[0]);
   EXPECT_EQ(2, config.nonDelayedConsumer2->valuesConsumed[0]);
 
-  EXPECT_EQ(3, config.delayedConsumer->valuesConsumed[1]);  
+  EXPECT_EQ(3, config.delayedConsumer->valuesConsumed[1]);
   EXPECT_EQ(4, config.nonDelayedConsumer1->valuesConsumed[1]);
   EXPECT_EQ(5, config.nonDelayedConsumer2->valuesConsumed[1]);
 
@@ -176,7 +176,7 @@ TEST(RoundRobinTest, simple)
 
   EXPECT_EQ(14, config.nonDelayedConsumer1->valuesConsumed[6]);
   EXPECT_EQ(15, config.nonDelayedConsumer2->valuesConsumed[6]);
-  
+
 }
 
 

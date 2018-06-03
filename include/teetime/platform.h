@@ -46,7 +46,7 @@ namespace platform
     if (getCurrentWorkingDirectory(buffer, sizeof(buffer))) {
       s = buffer;
       return true;
-    } 
+    }
 
     return false;
   }

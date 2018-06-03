@@ -24,7 +24,7 @@
 using namespace teetime;
 using namespace teetime::test;
 
-namespace 
+namespace
 {
   class SimpleDelayStageTestConfig : public Configuration
   {
@@ -49,18 +49,18 @@ TEST(DelayStageTest, simple)
 {
   SimpleDelayStageTestConfig config(1000);
   config.producer->numValues = 3;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
-  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();    
+  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
   config.executeBlocking();
-  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();  
+  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
   auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   TEETIME_TRACE() << "time: " << time;
   EXPECT_TRUE(time >= 3000);
 }
 
-namespace 
+namespace
 {
   class ParallelDelayStageTestConfig : public Configuration
   {
@@ -74,13 +74,13 @@ namespace
       auto distributor = createStage<DistributorStage<int>>();
       declareStageActive(producer);
 
-      auto merger = createStage<MergerStage<int>>();      
+      auto merger = createStage<MergerStage<int>>();
       consumer = createStage<IntConsumerStage>();
       declareStageActive(merger);
 
       connectPorts(producer->getOutputPort(), distributor->getInputPort());
       for(int i=0; i<3; ++i)
-      {        
+      {
         std::string delayStageName = "DelayStage" + std::to_string(i);
 
         auto delay = createStage<DelayStage<int>>(milliseconds, delayStageName.c_str());
@@ -88,8 +88,8 @@ namespace
 
         connectPorts(distributor->getNewOutputPort(), delay->getInputPort());
         connectPorts(delay->getOutputPort(), merger->getNewInputPort());
-      }      
-      
+      }
+
       connectPorts(merger->getOutputPort(), consumer->getInputPort());
     }
   };
@@ -100,11 +100,11 @@ TEST(DelayStageTest, parallel)
 {
   ParallelDelayStageTestConfig config(1000);
   config.producer->numValues = 3;
-  config.producer->startValue = 0;   
+  config.producer->startValue = 0;
 
-  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();    
+  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
   config.executeBlocking();
-  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();  
+  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
   auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
   TEETIME_INFO() << "time: " << time;

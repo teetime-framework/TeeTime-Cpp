@@ -34,7 +34,7 @@ namespace teetime
     {
       assert(m_outputport);
       return *m_outputport;
-    }   
+    }
 
   private:
     OutputPort<TOut>* m_outputport;

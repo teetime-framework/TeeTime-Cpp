@@ -20,7 +20,7 @@
 #include <teetime/stages/FunctionStage.h>
 #include <teetime/stages/CollectorSink.h>
 #include <teetime/stages/DistributorStage.h>
-#include <teetime/stages/MergerStage.h> 
+#include <teetime/stages/MergerStage.h>
 #include <teetime/Configuration.h>
 #include <teetime/Md5Hash.h>
 #include <teetime/logging.h>
@@ -117,7 +117,7 @@ public:
     }
 
     connectPorts(producer->getOutputPort(), distributor->getInputPort(), 4096);
-    connectPorts(merger->getOutputPort(), sink->getInputPort(), 4096);      
+    connectPorts(merger->getOutputPort(), sink->getInputPort(), 4096);
   }
 };
 

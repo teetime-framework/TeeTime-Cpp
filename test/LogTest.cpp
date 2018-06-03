@@ -31,7 +31,7 @@ TEST( LogLevelTest, toString )
 
 TEST( LogLevelTest, fromString )
 {
-  EXPECT_EQ(LogLevel::All, String2LogLevel("ALL"));  
+  EXPECT_EQ(LogLevel::All, String2LogLevel("ALL"));
   EXPECT_EQ(LogLevel::Trace, String2LogLevel("TRACE"));
   EXPECT_EQ(LogLevel::Debug, String2LogLevel("DEBUG"));
   EXPECT_EQ(LogLevel::Info, String2LogLevel("INFO"));
@@ -40,7 +40,7 @@ TEST( LogLevelTest, fromString )
   EXPECT_EQ(LogLevel::Off, String2LogLevel("OFF"));
 }
 
-namespace 
+namespace
 {
   struct LogEntry
   {
@@ -75,7 +75,7 @@ TEST( LogCallbackTest, callbackAll )
   ::teetime::setLogLevel(::teetime::LogLevel::All);
 
   TEETIME_TRACE() << "Trace";
-  TEETIME_DEBUG() << "Debug";  
+  TEETIME_DEBUG() << "Debug";
   TEETIME_INFO() << "Info";
   TEETIME_WARN() << "Warn";
   TEETIME_ERROR() << "Error";
@@ -92,7 +92,7 @@ TEST( LogCallbackTest, callbackInfo )
   ::teetime::setLogLevel(::teetime::LogLevel::Info);
 
   TEETIME_TRACE() << "Trace";
-  TEETIME_DEBUG() << "Debug";  
+  TEETIME_DEBUG() << "Debug";
   TEETIME_INFO() << "Info";
   TEETIME_WARN() << "Warn";
   TEETIME_ERROR() << "Error";
@@ -109,7 +109,7 @@ TEST( LogCallbackTest, callbackNull )
   ::teetime::setLogLevel(::teetime::LogLevel::Info);
 
   TEETIME_TRACE() << "Trace";
-  TEETIME_DEBUG() << "Debug";  
+  TEETIME_DEBUG() << "Debug";
   TEETIME_INFO() << "Info";
   TEETIME_WARN() << "Warn";
   TEETIME_ERROR() << "Error";

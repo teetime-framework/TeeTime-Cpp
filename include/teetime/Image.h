@@ -22,7 +22,7 @@ namespace teetime
   /**
    * Available image formats.
    */
-  enum class ImageFileFormat  
+  enum class ImageFileFormat
   {
     Png,
     Tga,

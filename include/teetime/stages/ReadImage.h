@@ -25,7 +25,7 @@ namespace teetime
   {
   public:
     explicit ReadImage(const char* debugName = "ReadImage");
-    OutputPort<Image>& getOutputPort();    
+    OutputPort<Image>& getOutputPort();
 
   private:
     virtual void execute(FileBuffer&& buffer) override;
