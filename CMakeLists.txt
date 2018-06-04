@@ -25,6 +25,8 @@ endif()
 
 option(TEETIME_ENABLE_CPP17 "enable C++17 compiler features" ON)
 option(TEETIME_ENABLE_FILESYSTEM "enable C++17 filesystem support" ON)
+option(TEETIME_ENABLE_TESTS "enable unit tests" OFF)
+option(TEETIME_ENABLE_BENCHMARKS "enable benchmarks" OFF)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   set(TEETIME_ENABLE_CPP17 OFF)
@@ -52,6 +54,8 @@ endif()
 
 message(STATUS "TEETIME_ENABLE_CPP17: ${TEETIME_ENABLE_CPP17}")
 message(STATUS "TEETIME_ENABLE_FILESYSTEM: ${TEETIME_ENABLE_FILESYSTEM}")
+message(STATUS "TEETIME_ENABLE_TESTS: ${TEETIME_ENABLE_TESTS}")
+message(STATUS "TEETIME_ENABLE_BENCHMARKS: ${TEETIME_ENABLE_BENCHMARKS}")
 
 function(set_compile_options targetname)
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -87,6 +91,12 @@ function(set_compile_options targetname)
 endfunction(set_compile_options)
 
 add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(benchmark)
+
+if (TEETIME_ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
+
+IF (TEETIME_ENABLE_BENCHMARKS)
+  add_subdirectory(benchmark)
+endif()
 

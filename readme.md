@@ -53,7 +53,7 @@ TeeTime for C++ is not distributed as a precompiled binary. If you want to use T
 This way you don't have to deal with different binary versions of the library for different compilers, platforms or configurations.
 TeeTime has no external dependencies <sup>1</sup>, so all you need is TeeTime itself. You can download TeeTime as a zip file from github or integrate it as git submodule into your project.
 
-If you are using [CMake](https://cmake.org) that is particularly easy. All you have to do is add the `TeeTime-Cpp/src` directory to your build tree and make your application depend on ''teetime''.
+If you are using [CMake](https://cmake.org) that is particularly easy. All you have to do is add the `TeeTime-Cpp` directory to your build tree and make your application depend on ''teetime''.
 CMake will automatically add the include directory and link your application statically with TeeTime. There is a [TeeTime-Cpp-Examples](https://github.com/teetime-framework/TeeTime-Cpp-Examples) project that integrates TeeTime as a git submodule and demonstrates this approach.
 
 
